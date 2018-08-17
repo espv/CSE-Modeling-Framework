@@ -13,7 +13,7 @@
 
 using namespace ns3;
 
-//NS_LOG_COMPONENT_DEFINE("TelosB");
+NS_LOG_COMPONENT_DEFINE("TelosB");
 
 namespace ns3 {
     // For debug
@@ -64,10 +64,6 @@ public:
     CC2420() {
         datarate = DataRate("250kbps");
     }
-};
-
-class Battery {
-    float capacity_left;
 };
 
 int nr_packets_collision_missed = 0;
@@ -242,7 +238,7 @@ public:
             ++packets_in_send_queue;
             execenv->queues["send-queue"]->Enqueue(packet);
             execenv->queues["rcvd-send"]->Enqueue(packet);
-            ScheduleInterrupt(node, packet, "HIRQ-14", MicroSeconds(1));  // Problem with RXFIFO overflow with CCA off might be due to sendTask getting prioritized. IT SHOULD DEFINITELY NOT GET PRIORITIZED. Reading packets from RXFIFO is prioritized.
+            ScheduleInterrupt(node, packet, "HIRQ-14", MicroSeconds(1));
             execenv->Proceed(packet, "sendtask", &TelosB::sendTask, this);
             if (ns3::debugOn)
                 std::cout << Simulator::Now() << " " << id << ": receiveDone " << packet->m_executionInfo.seqNr << std::endl;
@@ -272,7 +268,6 @@ public:
         }
     }
 
-    int tx_fifo_queue = 0;
     bool ip_radioBusy = false;
 
     void sendTask() {
@@ -309,7 +304,6 @@ public:
 
     bool ccaOn = true;
     bool fakeSending = false;
-    int number_forwarded = 0;
     // Called when done writing packet into TXFIFO, and radio is ready to send
     void sendDoneTask(Ptr<Packet> packet) {
         Ptr<ExecEnv> execenv = node->GetObject<ExecEnv>();
