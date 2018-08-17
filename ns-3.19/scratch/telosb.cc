@@ -92,7 +92,6 @@ class Mote {
 protected:
     int id;
     Ptr<Node> node;
-    // The below are for logging purposes of the mote
 
     Mote() {
       static int cnt;
@@ -105,7 +104,7 @@ public:
     }
 };
 
-class TelosB : Mote {
+class TelosB : public Mote {
 private:
     // Components of the mote
     CC2420 radio;
@@ -202,7 +201,6 @@ public:
         ScheduleInterrupt(node, packet, "HIRQ-1", NanoSeconds(10));
         execenv->queues["h1-h2"]->Enqueue(packet);
         receivingPacket = true;
-        //std::cout << "receivingPacket set to true, " << packet->m_executionInfo.seqNr << std::endl;
     }
 
     void read_done_length(Ptr<Packet> packet) {
@@ -925,9 +923,9 @@ int main(int argc, char *argv[])
     eeh->Install(deviceFile, c.Get(1));
     eeh->Install(deviceFile, c.Get(2));
 
-    Ptr<ExecEnv> ee1 = c.Get(0)->GetObject<ExecEnv>();
-    Ptr<ExecEnv> ee2 = c.Get(1)->GetObject<ExecEnv>();
-    Ptr<ExecEnv> ee3 = c.Get(2)->GetObject<ExecEnv>();
+    //Ptr<ExecEnv> ee1 = c.Get(0)->GetObject<ExecEnv>();
+    //Ptr<ExecEnv> ee2 = c.Get(1)->GetObject<ExecEnv>();
+    //Ptr<ExecEnv> ee3 = c.Get(2)->GetObject<ExecEnv>();
     ProtocolStack *protocolStack = new ProtocolStack();
 
     TelosB *mote1 = new TelosB(c.Get(0));
