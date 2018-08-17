@@ -48,7 +48,7 @@
     <session id="380428629">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
-          <entry key="project.closed" value="3" />
+          <entry key="project.closed" value="4" />
           <entry key="project.open.time.0" value="1" />
           <entry key="project.open.time.4" value="3" />
           <entry key="project.opened" value="4" />
@@ -188,7 +188,7 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="TelosB" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="telosb-csw-model" TARGET_NAME="TelosB" CONFIG_NAME="Debug">
+    <configuration name="TelosB" type="CMakeRunConfiguration" factoryName="Application" WORKING_DIR="file://$PROJECT_DIR$/ns-3.19" PASS_PARENT_ENVS_2="true" PROJECT_NAME="telosb-csw-model" TARGET_NAME="TelosB" CONFIG_NAME="Debug" RUN_PATH="$PROJECT_DIR$/ns-3.19/build/scratch/telosb">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -213,16 +213,15 @@
       <workItem from="1534524501776" duration="871000" />
       <workItem from="1534525384225" duration="177000" />
       <workItem from="1534525590023" duration="127000" />
-      <workItem from="1534525727812" duration="2192000" />
+      <workItem from="1534525727812" duration="2798000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="3367000" />
+    <option name="totallyTimeSpent" value="3973000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="2560" height="1404" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.2557677" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />

@@ -4,11 +4,11 @@ project(telosb-csw-model)
 set(CMAKE_CXX_STANDARD 14)
 
 add_custom_target(
-        Build-debug-configuration COMMAND waf_configure_scripts/configure_waf.sh
+        Build-debug-configuration COMMAND waf-configure-scripts/configure_waf.sh
         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/ns-3.19
 )
 add_custom_target(
-        Build-optimized-configuration COMMAND waf_configure_scripts/configure_optimized_waf.sh
+        Build-optimized-configuration COMMAND waf-configure-scripts/configure_optimized_waf.sh
         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/ns-3.19
 )
 add_custom_target(

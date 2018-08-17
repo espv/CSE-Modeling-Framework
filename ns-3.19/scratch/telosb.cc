@@ -28,8 +28,8 @@ static int pps = 100;  // 98 highest for UDP payload 0, 44 highest for UPD paylo
 static bool print = 0;
 static bool print2 = 0;
 static int packet_size = 0;
-static std::string deviceFile = "device_files/telosb-min.device";  // Required if we use gdb
-static std::string trace_fn = "/home/espen/Master-thesis/scripts/packets-received.txt";
+static std::string deviceFile = "device-files/telosb-min.device";  // Required if we use gdb
+static std::string trace_fn = "../trace-inputs/packets-received.txt";
 
 
 

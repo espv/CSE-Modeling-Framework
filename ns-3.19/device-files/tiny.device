@@ -1,0 +1,221 @@
+# OYSTEDAL: This is an absolutely minimal device file used to test the execution
+# of N threads on multiple CPU cores.
+#
+# Lines starting with "#" are regarded as comments, and disregarded during parsing.
+#
+# The order of sections matter - they must be in the following order:
+# QUEUES, HARDWARE, SYNCH, CONDITIONS, TRIGGERS,
+# {SIGSTART ... SIGEND},
+# THREADS
+#
+
+#############################################################################
+############################### HEADER ######################################
+#############################################################################
+
+QUEUES
+# Format: name
+#	  queuing policy (only currrently supported: "FIFO")
+#	  size
+#	  type of queued entries ("packet" or "service")
+# order matters, since queue conditions work on sets of queues specified
+# by the name of the first and the last queue
+nic_rx	 FIFO 	 100   packets
+nic_tx	 FIFO 	 100   packets
+HIRQ	 FIFO 	 -1    services
+# HIRQ2	 FIFO 	 -1    services
+
+HARDWARE
+# Format: MEMBUS||PEU
+#  	  frequency
+#	  [if PEU: name]
+#	  [if PEU: scheduler]
+#	  [if CPU: tracingOverhead interruptHandler interruptQueue]
+# OYSTEDAL: cpus must now have a 0-based index
+# If using linsched, be sure to enable lsRun() inside default-simulator-impl.cc
+# If not using linsched, be sure to disable it.
+# PEU 	  500 	      cpu 	ns3::processing::linsched			382 irq_enter HIRQ
+# PEU 	  500 	      cpu0 	ns3::processing::linsched			382 irq_enter HIRQ
+PEU 	  500 	      cpu0 	ns3::processing::RoundRobinScheduler			382 irq_enter HIRQ
+PEU 	  500 	      cpu1 	ns3::processing::RoundRobinScheduler			382 irq_enter HIRQ
+# PEU 	  0 	      dma 	ns3::processing::ParallelThreadsScheduler
+# PEU 	  0 	      nic 	ns3::processing::ParallelThreadsScheduler
+# MEMBUS 	  200
+
+SYNCH
+# Format: name
+#  	  type (With LinSched: "0" is semaphore and "1" is completion)
+#	  arguments (For semaphores: initial value of the semaphore)
+
+CONDITIONS
+# Used to associate state variables with state extractor functions
+#
+# format:       type ("VCLOC", "LOOP" or "EN/DEQUEUE")
+#               identifier (location, looplocation or queue name)
+#               scope ("local" or "global")
+#               conditionname
+# "VCLOC" is used for arbitrary state variables, "EN/DEQUEUE" for packet characteristics
+# upon en/dequeue operations, and "LOOP" for conditionals in loops.
+#
+# Example: LOOP dhdsdio_readframes+0xb4 local bcm4329::dataok
+
+TRIGGERS
+# triggers a function in the NetSim on a call to a named service,
+# a de-queue from a named queue, or encountering a given location
+#
+# format: type ("LOC", "SERVICE" or "QUEUE")
+#  	  location, service or queue name
+#	  triggername
+#
+# service example:	SERVICE ip_rcv		ip:receive
+# location example: 	LOC 	ip_rcv+0x24 	ip::looksupdestinationaddress
+#
+QUEUE		nic_rx		nicdriver::receive
+SERVICE 	ip_rcv		ip::receive
+LOC 		driver_tx+1 	nicdriver::transmit
+
+#############################################################################
+############################### SIGNATURES ##################################
+#############################################################################
+
+SIGSTART
+NAME driver_rx
+PEU cpu
+RESOURCES cycles normal
+FRACTION 100%  884 884
+
+0 START
+x			PROCESS			504 59
+driver_rx+1		QUEUECOND		nic_rx nic_rx empty
+x			PROCESS	 		504 59
+driver_rx+1.5	SLEEP
+x			PROCESS			504 59
+0 STOP
+
+SIGEND
+
+SIGSTART
+NAME driver_rx
+PEU cpu
+RESOURCES cycles normal
+FRACTION 100%  884 884
+
+0 START
+x			PROCESS			504 59
+driver_rx+1		QUEUECOND		nic_rx nic_rx notempty
+x			PROCESS	 		504 59
+driver_rx+2		DEQUEUE			PKTQUEUE 0 nic_rx                
+x			PROCESS			504 59
+driver_rx+3		CALL			ip_rcv
+x			PROCESS			504 59
+0 STOP
+
+SIGEND
+
+SIGSTART
+NAME driver_tx
+PEU cpu
+RESOURCES cycles normal
+FRACTION 100%  884 884
+
+0 START
+x			PROCESS                504 59
+driver_tx+1		ENQUEUE 	       PKTQUEUE 0 nic_tx                
+x			PROCESS                504 59
+0 STOP
+
+SIGEND
+
+SIGSTART
+NAME ip_rcv
+PEU cpu
+RESOURCES cycles normal
+FRACTION 100%  884 884
+
+0 START
+x			PROCESS                504 59
+ip_rcv+1		CALL		       driver_tx
+x			PROCESS                504 59
+0 STOP
+
+SIGEND
+
+SIGSTART
+NAME irq_enter
+PEU cpu
+RESOURCES cycles normal
+FRACTION 100%  1 1
+
+0 START
+x                                PROCESS                676 63
+handle_IRQ_event+0x84            DEQUEUE                SRVQUEUE 0 HIRQ
+x                                PROCESS                3095 186
+0 STOP
+
+SIGEND
+
+SIGSTART
+NAME HIRQ-123
+PEU cpu
+RESOURCES cycles normal
+FRACTION 100%  1 1
+
+0 START
+x                                PROCESS                676 63
+# x DEBUG IRQ123
+x TTWAKEUP test_thread4 0
+x                                PROCESS                3095 186
+0 STOP
+
+SIGEND
+
+
+SIGSTART
+NAME test_thread_rootprogram
+PEU cpu
+RESOURCES cycles normal
+FRACTION 100%  1 1
+
+0 START
+x                                PROCESS                676 63
+# test_thread_rootprogram+1	 CALL			driver_rx
+x                                PROCESS                3095 186
+0 STOP
+
+SIGEND
+
+
+SIGSTART
+NAME test_thread_stream
+PEU cpu
+RESOURCES cycles normal
+FRACTION 100%  1 1
+
+0 START
+x                                PROCESS                676 63
+# x SLEEP
+# x                                PROCESS                10000 186
+test_thread_stream+1             CALL                   driver_rx
+x                                PROCESS                676 63
+0 STOP
+
+SIGEND
+
+#############################################################################
+############################### THREADS #####################################
+#############################################################################
+
+THREADS
+# Specified the threads to instantiate
+#
+# format:       thread name
+#               root service
+#               lifetime ("infinite" or "finite")
+#               priority
+# "infinite" causes the NetSim to enclose the root service in an infinite loop
+test_thread0 test_thread_rootprogram infinite 0
+test_thread1 test_thread_rootprogram infinite 0
+test_thread2 test_thread_rootprogram infinite 0
+test_thread3 test_thread_rootprogram infinite 0
+test_thread4 test_thread_stream infinite 0
+test_thread5 test_thread_rootprogram infinite 0

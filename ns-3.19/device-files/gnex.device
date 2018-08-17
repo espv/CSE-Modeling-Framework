@@ -1,0 +1,296 @@
+# A minimal galaxy nexus device file
+
+QUEUES
+ip::backlog FIFO 1000 packets
+
+HARDWARE
+# Format: MEMBUS||PEU frequency [name if PEU] [scheduler if PEU] 
+# TODO: Verify the processor speed (245 here) and the trace overhead (289 here)
+PEU 245 cpu ns3::processing::RoundRobinScheduler 289 irq_enter HIRQ
+PEU 245 cpu ns3::processing::RoundRobinScheduler 289 irq_enter HIRQ
+
+SYNCH
+# name type arguments
+# type 0 is a semaphore
+c72bb384 0 0
+c72bb360 0 0
+
+CONDITIONS
+
+TRIGGERS
+
+
+# This ISR will up the semaphore that the driver is (quite likely) sleeping on.
+SIGSTART
+NAME dhdsdio_isr
+PEU cpu
+RESOURCES cycles normal
+FRACTION 100%  35 35
+
+0 START
+x                                PROCESS		2596 1140
+dhd_sched_dpc+30                                 SEMUP		c72bb384
+x                                PROCESS		4739 2216
+0 STOP
+
+SIGEND
+
+# This interrupt is enabled by dhd when it wants to be notified of new packets
+# on the NIC. The interrupt is handled by dhdsdio_isr.
+SIGSTART
+NAME HIRQ-162
+PEU cpu
+RESOURCES cycles normal
+FRACTION 100%  35 35
+
+0 START
+x                                PROCESS		2212 804
+dhdsdio_isr+36c                                  CALL		dhdsdio_isr
+x                                PROCESS		400 80
+0 STOP
+
+SIGEND
+
+# This interrupt is used by the MMC subsystem.
+SIGSTART
+NAME HIRQ-91
+PEU cpu
+RESOURCES cycles normal
+FRACTION 46%  179 382
+
+0 START
+x                                PROCESS		1232 340
+mmc_wait_done+1c                                 COMPL	(TEMP)
+x                                PROCESS		631 191
+# default_wake_function+1c                         TTWAKEUP	UNKNOWN-LEU(pid=92) 0
+x                                PROCESS		4113 953
+0 STOP
+
+SIGEND
+
+
+SIGSTART
+NAME omap_hsmmc_dma_cb
+PEU cpu
+RESOURCES cycles normal
+FRACTION 0%  2 2466
+
+0 START
+x                                PROCESS		4691 1316
+omap_start_dma+380 PEUSTART HIRQ-91
+x                                PROCESS		69985 13481
+0 STOP
+
+SIGEND
+
+
+SIGSTART
+NAME HIRQ-44
+PEU cpu
+RESOURCES cycles normal
+FRACTION 99%  3611 3612
+
+0 START
+x                                PROCESS		1235 305
+omap2_dma_irq_handler+448                        CALL		omap_hsmmc_dma_cb
+x                                PROCESS		393 212
+0 STOP
+
+SIGEND
+
+
+SIGSTART
+NAME irq_enter
+PEU cpu
+RESOURCES cycles normal
+FRACTION 70%  11552 16388
+
+0 START
+x                                PROCESS		1925 763
+handle_irq_event_percpu+3d0                      DEQUEUE		SRVQUEUE 0 HIRQ
+x                                PROCESS		2154 859
+0 STOP
+
+SIGEND
+
+
+SIGSTART
+NAME dhdsdio_readframes+2ae4
+PEU cpu
+RESOURCES cycles normal
+FRACTION 17%  16 91
+
+0 LOOPSTART		0 nic::Q nic::Q 50
+x                                PROCESS		585 41
+# This was found to always be 0 (so far)
+# dhdsdio_readframes+2070                          STATECOND	bcmdhd:singleread read local 0
+x                                PROCESS		6130 648
+mmc_wait_for_req+4c                              TEMPSYNCH	-1 dhdsdio_readframes+2ae4 1 omap_hsmmc_dma_cb
+x                                PROCESS		7375 477
+omap_start_dma+380 PEUSTART HIRQ-44 7411 537
+mmc_wait_for_req+114                             WAITCOMPL	(TEMP)
+x                                PROCESS		717 111
+mmc_wait_for_req+4c                              TEMPSYNCH	-1 dhdsdio_readframes+2ae4 1 omap_hsmmc_dma_cb
+x                                PROCESS		27343 1480
+omap_start_dma+380 PEUSTART HIRQ-44 10049 321
+mmc_wait_for_req+114                             WAITCOMPL	(TEMP)
+x                                PROCESS		33610 662
+# 0                                                SLEEP
+x                                PROCESS		647 91
+dhdsdio_readframes+24c8                          DEQUEUE		PKTQUEUE 0 nic::Q
+x                                PROCESS		9843 253
+dhd_os_sdunlock+38                               SEMUP		c72bb360
+x                                PROCESS		5165 927
+dhd_rx_frame+414                                 CALL		dhd_rx_frame
+x                                PROCESS		801 34
+dhd_os_sdlock+38                                 SEMDOWN		c72bb360
+x                                PROCESS		557 32
+0 RESTART
+SIGEND
+
+SIGSTART
+NAME dhdsdio_readframes+2ae4
+PEU cpu
+RESOURCES cycles normal
+FRACTION 12%  11 91
+
+0 LOOPSTART		0 nic::Q nic::Q 50
+x                                PROCESS		824 237
+dhdsdio_readframes+2070                          STATECOND	bcmdhd:singleread read local 0
+x                                PROCESS		6289 860
+mmc_wait_for_req+4c                              TEMPSYNCH	-1 dhdsdio_readframes+2ae4 1 HIRQ-91
+x                                PROCESS		7229 766
+omap_start_dma+380 PEUSTART HIRQ-91
+x                                PROCESS		16777 1645
+mmc_wait_for_req+114                             WAITCOMPL	(TEMP)
+x                                PROCESS		744 289
+0                                                SLEEP
+x                                PROCESS		24837 1956
+mmc_wait_for_req+4c                              TEMPSYNCH	-1 dhdsdio_readframes+2ae4 1 omap_hsmmc_dma_cb
+x                                PROCESS		11725 668
+omap_start_dma+380 PEUSTART HIRQ-44
+x                                PROCESS		10601 1230
+mmc_wait_for_req+114                             WAITCOMPL	(TEMP)
+x                                PROCESS		41281 16457
+0                                                SLEEP
+x                                PROCESS		873 433
+dhdsdio_readframes+24c8                          DEQUEUE		PKTQUEUE 0 nic::Q
+x                                PROCESS		13031 3776
+dhd_os_sdunlock+38                               SEMUP		c72bb360
+x                                PROCESS		5724 752
+dhd_rx_frame+414                                 CALL		dhd_rx_frame
+x                                PROCESS		971 138
+dhd_os_sdlock+38                                 SEMDOWN		c72bb360
+x                                PROCESS		725 107
+0 RESTART
+SIGEND
+
+
+# The sdio calls from dhd always waits on a completion (mmc_wait_for_req),
+# so we only use the signatures that completes a completion.
+SIGSTART
+NAME HIRQ-91
+PEU cpu
+RESOURCES cycles normal
+FRACTION 46%  179 382
+
+0 START
+x                                PROCESS		1232 340
+mmc_wait_done+1c                                 COMPL	(TEMP)
+x                                PROCESS		631 191
+# Assuming this TTWUP is from the completion
+# PID 92 is the driver thread
+# default_wake_function+1c                         TTWAKEUP	UNKNOWN-LEU(pid=92) 0
+x                                PROCESS		4113 953
+0 STOP
+
+
+SIGEND
+
+SIGSTART
+NAME dhd_rx_frame
+PEU cpu
+RESOURCES cycles normal
+FRACTION 100%  47 47
+
+0 START
+x                                PROCESS		2001 677
+enqueue_to_backlog+334                           ENQUEUE		PKTQUEUE 0 ip::backlog
+x                                PROCESS		357 85
+enqueue_to_backlog+2ac                           QUEUECOND	ip::backlog ip::backlog empty
+x                                PROCESS		690 129
+# netif_rx_ni+cc                                   QUEUECOND	softirq::hi softirq::hrtimer notempty
+x                                PROCESS		531 131
+# __do_softirq+660                                 LOOP		__do_softirq+660 0 softirq::hi softirq::hrtimer 10
+x                                PROCESS		1115 117
+0 STOP
+
+SIGEND
+
+
+SIGSTART
+NAME dhd_dpc_thread
+PEU cpu
+RESOURCES cycles normal
+FRACTION 21%  9 41
+
+0 START
+x                                PROCESS		336 107
+dhd_dpc_thread+dc                                SEMDOWN		c72bb384
+x                                PROCESS		675 215
+dhd_os_sdlock+38                                 SEMDOWN		c72bb360
+x                                PROCESS		1743 480
+dhd_bus_dpc+10f4                                 QUEUECOND	bcm4329::driver::tx bcm4329::driver::tx empty
+x                                PROCESS		416 337
+x                                PROCESS		391 32
+dhd_os_sdunlock+38                               SEMUP		c72bb360
+x                                PROCESS		356 16
+dhd_dpc_thread+2f0                               QUEUECOND	nic::Q nic::Q empty
+x                                PROCESS		3157 1381
+0 STOP
+
+SIGEND
+
+SIGSTART
+NAME dhd_dpc_thread
+PEU cpu
+RESOURCES cycles normal
+FRACTION 17%  7 41
+
+0 START
+x                                PROCESS		288 51
+# TODO: Enable this when using interrupt-wakeups
+# dhd_dpc_thread+dc                                SEMDOWN		c72bb384
+x                                PROCESS		2313 742
+dhd_os_sdlock+38                                 SEMDOWN		c72bb360
+x                                PROCESS		7048 784
+mmc_wait_for_req+4c                              TEMPSYNCH	-1 dhd_dpc_thread 1 HIRQ-91
+x                                PROCESS		9930 1285
+omap_start_dma+380 PEUSTART HIRQ-91 20967 2965
+mmc_wait_for_req+114                             WAITCOMPL	(TEMP)
+x                                PROCESS		908 283
+# 0                                                SLEEP
+x                                PROCESS		29891 3866
+mmc_wait_for_req+4c                              TEMPSYNCH	-1 dhd_dpc_thread 1 HIRQ-91
+x                                PROCESS		8453 986
+omap_start_dma+380 PEUSTART HIRQ-91 8836 1563
+mmc_wait_for_req+114                             WAITCOMPL	(TEMP)
+x                                PROCESS		16239 2738
+# 0                                                SLEEP
+x                                PROCESS		615 13
+# dhdsdio_readframes+2a58                          CALL		dhdsdio_readframes
+x                                PROCESS		22925 2782
+dhd_bus_dpc+10f4                                 QUEUECOND	bcm4329::driver::tx bcm4329::driver::tx empty
+x                                PROCESS		5088 1360
+# dhd_bus_dpc+1030                                 STATECOND	bcmdhd:dataavailable read local 1
+x                                PROCESS		8709 2108
+dhd_os_sdunlock+38                               SEMUP		c72bb360
+x                                PROCESS		291 18
+dhd_dpc_thread+2f0                               QUEUECOND	nic::Q nic::Q empty
+x                                PROCESS		990 347
+0 STOP
+
+SIGEND
+
+THREADS
+dhd_dpc dhd_dpc_thread infinite -99
