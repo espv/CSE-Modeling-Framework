@@ -30,20 +30,20 @@ HIRQ	 FIFO 	 -1    services
 
 nic_rx FIFO -1 bytes
 
-h1-h2 FIFO 1 packets
-h2-h3 FIFO 1 packets
-h3-h4 FIFO 1 packets
-h3-bytes FIFO 1 packets
-h12-h14 FIFO 1 packets
-h11-h12 FIFO 1 packets
-h4-rcvd FIFO 1 packets
-rcvd-send FIFO 1 packets
-send-bytes FIFO 1 packets
-ip-bytes FIFO 1 packets
-send-senddone FIFO 1 packets
-h8-h9 FIFO 1 packets
-h9-h10 FIFO 1 packets
-etq-etq FIFO 1 packets
+h1-h2 FIFO -1 packets
+h2-h3 FIFO -1 packets
+h3-h4 FIFO -1 packets
+h3-bytes FIFO -1 packets
+h12-h14 FIFO -1 packets
+h11-h12 FIFO -1 packets
+h4-rcvd FIFO -1 packets
+rcvd-send FIFO -1 packets
+send-bytes FIFO -1 packets
+ip-bytes FIFO -1 packets
+send-senddone FIFO -1 packets
+h8-h9 FIFO -1 packets
+h9-h10 FIFO -1 packets
+etq-etq FIFO -1 packets
 
 send-queue FIFO -1 packets
 
@@ -51,33 +51,24 @@ send-queue FIFO -1 packets
 
 # Queue for posted tasks
 softirq::hi             FIFO   -1   services
-softirq::receive        FIFO    1   services
-softirq::send           FIFO    1   services
-softirq::sendDone       FIFO    1   services
+softirq::receive        FIFO    -1   services
+softirq::send           FIFO    -1   services
+softirq::sendDone       FIFO    -1   services
+softirq::gotosleep      FIFO    -1 services
 softirq::hrtimer        FIFO   -1   services
-
-# Queue for HIRQs
-softirq::hi2             FIFO   -1   services
-softirq::hirq1           FIFO    1   services
-softirq::hirq2           FIFO    1   services
-softirq::hirq3           FIFO    1   services
-softirq::hirq4           FIFO    1   services
-softirq::hirq7           FIFO    1   services
-softirq::hirq11           FIFO    1   services
-softirq::hirq12           FIFO    1   services
-softirq::hirq14           FIFO    1   services
-softirq::hrtimer2        FIFO   -1   services
 
 HARDWARE
 # Format: MEMBUS||PEU frequency [name if PEU] [scheduler if PEU] [trace overhead] [callback service queue]
 # TODO: Verify the processor speed (245 here) and the trace overhead (289 here)
 #PEU 1200 cpu0 ns3::processing::RoundRobinScheduler 0 irq_enter HIRQ
-# We only set trace overhead to 400 because it seems to cause correct results, we believe 140 is correct
+# We only set trace overhead to 250 because it seems to cause correct results, we believe 140 is correct
 PEU 4 cpu0 ns3::processing::RoundRobinScheduler 250 irq_enter HIRQ
 
 SYNCH
 # name type arguments
 # type 0 is a semaphore
+c72bb384 0 1
+semSend 0 1
 
 CONDITIONS
 
@@ -92,6 +83,7 @@ LOC startoftask3 senddone
 LOC startofhirq9 readdoneacklength
 LOC startofhirq10 readdoneackpayload
 LOC endoftaskloop emptytaskloop
+#SERVICE sendTask sendtask
 
 # Entrypoint function for the PEU defined above
 SIGSTART
@@ -102,6 +94,9 @@ FRACTION 50%  1940 3880
 
 0 START
 x                      DEQUEUE		SRVQUEUE 0 HIRQ
+#x                                 DEQUEUE		SRVQUEUE 0 softirq::receive
+#x                                 DEQUEUE		SRVQUEUE 0 softirq::send
+#x                                 DEQUEUE		SRVQUEUE 0 softirq::sendDone
 0 STOP
 
 SIGEND
@@ -129,9 +124,8 @@ RESOURCES cycles normal
 FRACTION 100%  1940 1940
 
 0 LOOPSTART		1 softirq::hi softirq::hrtimer 1
-x PROCESS 300 0
 x QUEUECOND softirq::hi softirq::hrtimer empty
-x SLEEP
+x PROCESS 300 0
 0 RESTART
 
 SIGEND
@@ -164,16 +158,53 @@ startoftask3 DEQUEUE PKTQUEUE 0 send-senddone
 SIGEND
 
 
-
 SIGSTART
-NAME hardware_interrupt_7
+NAME gotosleep_task
 PEU cpu
 RESOURCES cycles normal
-FRACTION 100%  1940 1940
+FRACTION 100% 1 1
+
+0 START
+x SLEEP
+0 STOP
+
+SIGEND
+
+
+SIGSTART
+NAME HIRQ-12
+PEU cpu
+RESOURCES cycles normal
+FRACTION 100% 1 1
+
+0 START
+x                  ENQUEUE		SRVQUEUE gotosleep_task softirq::gotosleep
+0 STOP
+
+SIGEND
+
+
+SIGSTART
+NAME HIRQ-11
+PEU cpu
+RESOURCES cycles normal
+FRACTION 100% 1 1
 
 0 START
 x TTWAKEUP scheduler
-s                  ENQUEUE		SRVQUEUE sendDone_task softirq::sendDone
+0 STOP
+
+SIGEND
+
+
+SIGSTART
+NAME HIRQ-8
+PEU cpu
+RESOURCES cycles normal
+FRACTION 100% 1 1
+
+0 START
+x PROCESS 400 0
 0 STOP
 
 SIGEND
@@ -187,22 +218,8 @@ FRACTION 100% 1 1
 
 0 START
 sendDoneTask        COMPL		(TEMP)	global
-x CALL hardware_interrupt_7
-0 STOP
-
-SIGEND
-
-
-SIGSTART
-NAME sendTask
-PEU cpu
-RESOURCES cycles normal
-FRACTION 49%  1937 3880
-
-0 START
-x QUEUECOND send-queue send-queue empty
-x                                PROCESS		247 6
-startoftask2 DEQUEUE PKTQUEUE 0 rcvd-send
+x                  ENQUEUE		SRVQUEUE sendDone_task softirq::sendDone
+x TTWAKEUP scheduler
 0 STOP
 
 SIGEND
@@ -217,8 +234,34 @@ FRACTION 100% 1 1
 0 START
 x        COMPL		(TEMP)	global
 middleLayer        TEMPSYNCH	-1 HIRQ-80 1 HIRQ-7	global
-s PEUSTART HIRQ-7 5792 0
+x PEUSTART HIRQ-80 5792 0
 middleLayer        WAITCOMPL		(TEMP)	global
+x PROCESS 5792 0
+0 STOP
+
+SIGEND
+
+
+SIGSTART
+NAME HIRQ-81
+PEU cpu
+RESOURCES cycles normal
+FRACTION 49%  1937 3880
+
+0 START
+#x                                PROCESS		2776 0
+#x PROCESS 1070 0  # The missing cycles
+x PROCESS 4440 0 # Combine the two processing stages above
+x PROCESS 191 0 PERBYTE send-bytes
+
+middleLayer        TEMPSYNCH	-1 HIRQ-81 1 HIRQ-7	global
+x PEUSTART HIRQ-7 5792 0
+middleLayer        WAITCOMPL		(TEMP)	global
+x PROCESS 5792 0
+
+#readDonePayload        TEMPSYNCH	-1 HIRQ-81 1 HIRQ-80	global
+#s PEUSTART HIRQ-80 191 0 PERBYTE send-bytes
+#readDonePayload        WAITCOMPL		(TEMP)	global
 0 STOP
 
 SIGEND
@@ -231,18 +274,23 @@ RESOURCES cycles normal
 FRACTION 49%  1937 3880
 
 0 START
-x QUEUECOND send-queue send-queue notempty
-#x                                PROCESS		2776 0
-#x PROCESS 1070 0  # The missing cycles
-x PROCESS 4440 0 # Combine the two processing stages above
 startoftask2 DEQUEUE PKTQUEUE 0 rcvd-send
-readDonePayload        TEMPSYNCH	-1 sendTask 1 HIRQ-80	global
-s PEUSTART HIRQ-80 191 0 PERBYTE send-bytes
-readDonePayload        WAITCOMPL		(TEMP)	global
 
 0 STOP
 
 SIGEND
+
+
+SIGSTART
+NAME HIRQ-10
+PEU cpu
+RESOURCES cycles normal
+FRACTION 100% 1 1
+
+0 START
+x                  ENQUEUE		SRVQUEUE sendDone_task softirq::send
+x TTWAKEUP scheduler
+0 STOP
 
 
 # Used by sendTask
@@ -253,8 +301,9 @@ RESOURCES cycles normal
 FRACTION 100% 1 1
 
 0 START
-x TTWAKEUP scheduler
 0                  ENQUEUE		SRVQUEUE sendTask softirq::send
+x TTWAKEUP scheduler
+x PROCESS 1409 0
 0 STOP
 
 
@@ -272,8 +321,8 @@ x                                PROCESS        6836 0
 x PROCESS 17 0 PERBYTE ip-bytes
 x PROCESS 2168 0  # 40-41
 x PROCESS 904 0  # 41-38 - Should this be here at all?
-x TTWAKEUP scheduler
 0                  ENQUEUE		SRVQUEUE sendTask softirq::send
+x TTWAKEUP scheduler
 0 STOP
 
 
@@ -284,8 +333,9 @@ RESOURCES cycles normal
 FRACTION 99%  1939 1940
 
 0 START
-x                                PROCESS        2000 0  # "Stolen" From HIRQ-14
+x                                PROCESS        2000 0  # Moved From HIRQ-14
 startoftask1 DEQUEUE PKTQUEUE 0 h4-rcvd
+
 0 STOP
 
 SIGEND
@@ -312,9 +362,8 @@ FRACTION 100%  1940 1940
 0 START
 x                                PROCESS		700 0
 startofhirq3 DEQUEUE PKTQUEUE 0 h3-h4
-x CALL receiveDone_task
+x                  ENQUEUE		SRVQUEUE receiveDone_task softirq::receive
 x TTWAKEUP scheduler
-#x                  ENQUEUE		SRVQUEUE receiveDone_task softirq::receive
 0 STOP
 
 SIGEND
@@ -329,6 +378,7 @@ FRACTION 100% 1 1
 0 START
 readDonePayload        COMPL		(TEMP)	global
 x CALL hardware_interrupt_4
+x TTWAKEUP scheduler
 0 STOP
 
 SIGEND
@@ -345,6 +395,7 @@ x        COMPL		(TEMP)	global
 x        TEMPSYNCH	-1 HIRQ-30 1 HIRQ-4	global
 s PEUSTART HIRQ-4 5348 0
 x        WAITCOMPL		(TEMP)	global
+x PROCESS 5348 0
 0 STOP
 
 SIGEND
@@ -359,9 +410,16 @@ FRACTION 100%  1940 1940
 0 START
 x                                PROCESS		656 0
 startofhirq2 DEQUEUE PKTQUEUE 0 h2-h3
-readDonePayload        TEMPSYNCH	-1 hardware_interrupt_3 1 HIRQ-30	global
-s PEUSTART HIRQ-30 171 0 PERBYTE h3-bytes
-readDonePayload        WAITCOMPL		(TEMP)	global
+x PROCESS 151 0 PERBYTE h3-bytes
+
+x        TEMPSYNCH	-1 hardware_interrupt_3 1 HIRQ-4	global
+s PEUSTART HIRQ-4 5348 0
+x        WAITCOMPL		(TEMP)	global
+x PROCESS 5348 0
+
+#readDonePayload        TEMPSYNCH	-1 hardware_interrupt_3 1 HIRQ-30	global
+#s PEUSTART HIRQ-30 151 0 PERBYTE h3-bytes
+#readDonePayload        WAITCOMPL		(TEMP)	global
 0 STOP
 
 SIGEND
@@ -395,8 +453,20 @@ readDoneFcf        TEMPSYNCH	-1 hardware_interrupt_2 1 HIRQ-3	global
 s PEUSTART HIRQ-3 1352 0
 readDoneFcf        WAITCOMPL		(TEMP)	global
 
-#x PROCESS 1368 0  # Assuming here that mcu is busy while reading fcf byte into RAM
+x PROCESS 1352 0  # Assuming here that mcu is busy while reading fcf byte into RAM
 #x CALL hardware_interrupt_3
+0 STOP
+
+SIGEND
+
+SIGSTART
+NAME HIRQ-20
+PEU cpu
+RESOURCES cycles normal
+FRACTION 100% 1 1
+
+0 START
+x CALL hardware_interrupt_2
 0 STOP
 
 SIGEND
@@ -429,7 +499,7 @@ readDoneFcf        TEMPSYNCH	-1 hardware_interrupt_1 1 HIRQ-2	global
 s PEUSTART HIRQ-2 340 0
 readDoneFcf        WAITCOMPL		(TEMP)	global
 
-#x PROCESS 356 0  # Assuming here that mcu is busy while reading length byte into RAM
+x PROCESS 340 0  # Assuming here that mcu is busy while reading length byte into RAM
 #x CALL hardware_interrupt_2
 
 0 STOP
@@ -444,7 +514,46 @@ RESOURCES cycles normal
 FRACTION 100% 1 1
 
 0 START
+#x                                SEMDOWN        c72bb384 global
 x CALL hardware_interrupt_1
+0 STOP
+
+SIGEND
+
+SIGSTART
+NAME HIRQ-15
+PEU cpu
+RESOURCES cycles normal
+FRACTION 100% 1 1
+
+0 START
+x CALL hardware_interrupt_1
+0 STOP
+
+SIGEND
+
+
+SIGSTART
+NAME HIRQ-21
+PEU cpu
+RESOURCES cycles normal
+FRACTION 50%  1940 3880
+
+0 START
+x                                PROCESS               280 0
+0 STOP
+
+SIGEND
+
+
+SIGSTART
+NAME HIRQ-44
+PEU cpu
+RESOURCES cycles normal
+FRACTION 50% 100 100
+
+0 START
+#x TTWAKEUP scheduler
 0 STOP
 
 SIGEND
@@ -458,6 +567,19 @@ FRACTION 100% 1 1
 
 0 START
 x CALL scheduler_start
+x QUEUECOND softirq::hi softirq::hrtimer empty
+x SLEEP
+0 STOP
+
+SIGSTART
+NAME main_thread
+PEU cpu
+RESOURCES cycles normal
+FRACTION 100% 1 1
+
+0 START
+x CALL scheduler_start
+x QUEUECOND softirq::hi softirq::hrtimer notempty
 0 STOP
 
 SIGEND
