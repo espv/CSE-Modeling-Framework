@@ -18,23 +18,16 @@ using namespace ns3;
 namespace ns3 {
     // For debug
     extern bool debugOn;
-    extern bool traceOn;
-    extern bool withBlockingIO;
 }
 
 static uint32_t seed = 3;
 static double duration = 10;
-static int pps = 100;  // 98 highest for UDP payload 0, 44 highest for UPD payload 80
+static int pps = 100;
 static bool print = 0;
-static bool print2 = 0;
 static int packet_size = 0;
 static std::string deviceFile = "device-files/telosb-min.device";  // Required if we use gdb
 static std::string trace_fn = "trace-inputs/packets-received.txt";
 
-
-
-// UDP payload 22 bytes. Start dropping half of packets at pps=74-84. pps=85-96 there is no packet loss.
-// pps=97-99 there is increasing packet loss. pps=100-101 there is no packet loss again. pps=102-114 half successfully forwarded. pps=115-* steady decline from 80% to less than 50% at pps=140.
 
 static ProgramLocation *dummyProgramLoc;
 // ScheduleInterrupt schedules an interrupt on the node.
@@ -54,44 +47,18 @@ void ScheduleInterrupt(Ptr<Node> node, Ptr<Packet> packet, const char* interrupt
     Simulator::Schedule(time,
             &InterruptController::IssueInterruptWithServiceOnCPU,
             ee->hwModel->m_interruptController,
-            cpu, // cpu
-            ee->m_serviceMap[interruptId], // HIRQ-123
+            cpu,
+            ee->m_serviceMap[interruptId],
             dummyProgramLoc);
 
-    // Round robin distribution
-    // cpu = (cpu + 1) % 2;
 }
 
-
-class Radio {
-
-};
-
-class MicroController {
-
-};
-
-class MSP430 : MicroController {
-    int cpu_speed = 4;
-    float active_battery_drain = 1.8;
-    float sleep_battery_drain = 0.0001;
+class CC2420 {
 public:
-    bool reading_packet_into_ram = false;
-    bool writing_packet_to_ram = false;
-};
-
-class CC2420 : Radio {
-public:
-    bool low_power_mode = false;
-    std::string state = "READY";
-    float active_battery_drain = 23;
-    float sleep_battery_drain = 0.0001;
     bool rxfifo_overflow = false;
     int bytes_in_rxfifo = 0;
     DataRate datarate;
-    bool busy = false;
     int nr_send_recv = 0;
-    bool receiving = false;  // Used to check for collision
     bool collision = false;
 
     CC2420() {
@@ -135,8 +102,6 @@ public:
 class TelosB : Mote {
 private:
     // Components of the mote
-    Battery battery;
-    MSP430 mc;
     CC2420 radio;
     int number_forwarded_and_acked = 0;
     int packets_in_send_queue = 0;
@@ -149,15 +114,11 @@ public:
         TelosB::number_forwarded_and_acked = 0;
         TelosB::packets_in_send_queue = 0;
         TelosB::receivingPacket = false;
-        //receive_queue.empty();
     }
 
     Ptr<Node> GetNode() {
         return node;
     }
-
-    // <Packet, function name> queue when spi is busy
-    //std::vector<Ptr<Packet> > receive_queue;
 
     // Models the radio's behavior before the packets are processed by the microcontroller.
     void ReceivePacket(Ptr<Packet> packet) {
@@ -172,21 +133,19 @@ public:
         packet->m_executionInfo.executedByExecEnv = false;
 
         if (radio.rxfifo_overflow) {
-            if (print2)
-                std::cout << "Dropping packet " << packet->m_executionInfo.seqNr << " due to RXFIFO overflow" << std::endl;
-            if (print)
+            if (ns3::debugOn)
                 std::cout << "Dropping packet " << packet->m_executionInfo.seqNr << " due to RXFIFO overflow" << std::endl;
             return;
         }
 
         radio.bytes_in_rxfifo += packet->GetSize () + 36;
-        if (print) {
+        if (ns3::debugOn) {
             std::cout << "radio.bytes_in_rxfifo: " << radio.bytes_in_rxfifo << std::endl;
             std::cout << "packet->GetSize() + 36 " << packet->GetSize () + 36 << std::endl;
         }
        if (radio.bytes_in_rxfifo > 128) {
             radio.bytes_in_rxfifo -= packet->GetSize () + 36;
-            if (print)
+            if (ns3::debugOn)
                 std::cout<< id << " RXFIFO overflow" << std::endl;
             packet->collided = true;
             // RemoveAtEnd removes the number of bytes from the received packet that were not received due to overflow.
@@ -197,14 +156,14 @@ public:
 
         if (receivingPacket/* || (packet->collided && !radio.rxfifo_overflow)*/) {
             // Here, we should enqueue the packet into a spi_busy queue that handles both read_done_length and senddone_task requests.
-            if (print)
+            if (ns3::debugOn)
                 std::cout << "Adding packet " << packet->m_executionInfo.seqNr << " to spi_queue, length: " << receive_queue.size()+1 << std::endl;
             receive_queue.push_back(packet);
             return;
         }
 
-        if (print) {
-            std::cout<< Simulator::Now() << " " << id << ": CC2420ReceivePacket, next step readDoneLength, radio busy " << packet->m_executionInfo.seqNr << std::endl;
+        if (ns3::debugOn) {
+            std::cout << Simulator::Now() << " " << id << ": CC2420ReceivePacket, next step readDoneLength, radio busy " << packet->m_executionInfo.seqNr << std::endl;
         }
 
         execenv->Proceed(packet, "readdonelength", &TelosB::read_done_length, this, packet);
@@ -217,8 +176,8 @@ public:
     void read_done_length(Ptr<Packet> packet) {
         Ptr<ExecEnv> execenv = node->GetObject<ExecEnv>();
         packet->m_executionInfo.executedByExecEnv = false;
-        if (print)
-            std::cout<< Simulator::Now() << " " << id << ": readDone_length, next step readDoneFcf " << packet->m_executionInfo.seqNr << std::endl;
+        if (ns3::debugOn)
+            std::cout << Simulator::Now() << " " << id << ": readDone_length, next step readDoneFcf " << packet->m_executionInfo.seqNr << std::endl;
         execenv->Proceed(packet, "readdonefcf", &TelosB::readDone_fcf, this, packet);
         execenv->queues["h2-h3"]->Enqueue(packet);
     }
@@ -227,8 +186,8 @@ public:
         Ptr<ExecEnv> execenv = node->GetObject<ExecEnv>();
         packet->m_executionInfo.executedByExecEnv = false;
 
-        if (print)
-            std::cout<< Simulator::Now() << " " << id << ": readDone_fcf, next step readDonePayload " << packet->m_executionInfo.seqNr << std::endl;
+        if (ns3::debugOn)
+            std::cout << Simulator::Now() << " " << id << ": readDone_fcf, next step readDonePayload " << packet->m_executionInfo.seqNr << std::endl;
         execenv->Proceed(packet, "readdonepayload", &TelosB::readDone_payload, this, packet);
         execenv->queues["h3-h4"]->Enqueue(packet);
         execenv->queues["h3-bytes"]->Enqueue(packet);
@@ -239,11 +198,9 @@ public:
         packet->m_executionInfo.executedByExecEnv = false;
 
         radio.bytes_in_rxfifo -= packet->GetSize () + 36;
-        if (print2)
-            std::cout << "radio.bytes_in_rxfifo: " << radio.bytes_in_rxfifo << std::endl;
         if (radio.rxfifo_overflow && radio.bytes_in_rxfifo <= 0) {
-            if (print)
-                std::cout<< "RXFIFO gets flushed" << std::endl;
+            if (ns3::debugOn)
+                std::cout << "RXFIFO gets flushed" << std::endl;
             radio.rxfifo_overflow = false;
             radio.bytes_in_rxfifo = 0;
             nr_rxfifo_flushes++;
@@ -252,10 +209,8 @@ public:
         // Packets received and causing RXFIFO overflow get dropped.
         if (packet->collided) {
             nr_packets_dropped_bad_crc++;
-            if (print2)
-                std::cout<< Simulator::Now() << " " << id << ": readDone_payload, collision caused packet CRC check to fail, dropping it " << packet->m_executionInfo.seqNr << std::endl;
-            if (print)
-                std::cout<< Simulator::Now() << " " << id << ": readDone_payload, collision caused packet CRC check to fail, dropping it " << packet->m_executionInfo.seqNr << std::endl;
+            if (ns3::debugOn)
+                std::cout << Simulator::Now() << " " << id << ": readDone_payload, collision caused packet CRC check to fail, dropping it " << packet->m_executionInfo.seqNr << std::endl;
             if (!receive_queue.empty()) {
               Ptr<Packet> nextPacket = receive_queue.front();
               receive_queue.erase(receive_queue.begin());
@@ -265,32 +220,26 @@ public:
             } else {
                 receivingPacket = false;
                 if (radio.rxfifo_overflow && radio.bytes_in_rxfifo > 0) {
-                    if (print)
-                        std::cout<< "RXFIFO gets flushed" << std::endl;
+                    if (ns3::debugOn)
+                        std::cout << "RXFIFO gets flushed" << std::endl;
                     radio.rxfifo_overflow = false;
                     radio.bytes_in_rxfifo = 0;
                     nr_rxfifo_flushes++;
                 }
             }
         } else {
-            if (print2)
-                std::cout << "readDone_payload seqno: " << packet->m_executionInfo.seqNr << std::endl;
             execenv->Proceed(packet, "receivedone", &TelosB::receiveDone_task, this, packet);
             execenv->queues["h4-rcvd"]->Enqueue(packet);
         }
 
-        if (print)
+        if (ns3::debugOn)
             std::cout << Simulator::Now() << " " << id << ": readDone_payload " << packet->m_executionInfo.seqNr << ", receivingPacket: " << receivingPacket << ", packet collided: " << packet->collided << std::endl;
     }
 
     void receiveDone_task(Ptr<Packet> packet) {
         Ptr<ExecEnv> execenv = node->GetObject<ExecEnv>();
         packet->m_executionInfo.executedByExecEnv = false;
-        // Does SEMUP
-        ScheduleInterrupt(node, packet, "HIRQ-16", NanoSeconds(0));
-        if (print2)
-            std::cout << "receiveDone_task" << std::endl;
-        if (print)
+        if (ns3::debugOn)
             std::cout << "packets_in_send_queue: " << packets_in_send_queue << std::endl;
 
         if (packets_in_send_queue < 3) {
@@ -299,14 +248,14 @@ public:
             execenv->queues["rcvd-send"]->Enqueue(packet);
             ScheduleInterrupt(node, packet, "HIRQ-14", MicroSeconds(1));  // Problem with RXFIFO overflow with CCA off might be due to sendTask getting prioritized. IT SHOULD DEFINITELY NOT GET PRIORITIZED. Reading packets from RXFIFO is prioritized.
             execenv->Proceed(packet, "sendtask", &TelosB::sendTask, this);
-            if (print)
-                std::cout<< Simulator::Now() << " " << id << ": receiveDone " << packet->m_executionInfo.seqNr << std::endl;
+            if (ns3::debugOn)
+                std::cout << Simulator::Now() << " " << id << ": receiveDone " << packet->m_executionInfo.seqNr << std::endl;
             execenv->queues["ip-bytes"]->Enqueue(packet);
         } else {
             ++nr_packets_dropped_ip_layer;
             ScheduleInterrupt(node, packet, "HIRQ-17", MicroSeconds(1));
-            if (print)
-                std::cout<< Simulator::Now() << " " << id << ": receiveDone_task, queue full, dropping packet " << packet->m_executionInfo.seqNr << std::endl;
+            if (ns3::debugOn)
+                std::cout << Simulator::Now() << " " << id << ": receiveDone_task, queue full, dropping packet " << packet->m_executionInfo.seqNr << std::endl;
         }
 
         if (!receive_queue.empty()) {
@@ -318,16 +267,13 @@ public:
         } else {
             receivingPacket = false;
             if (radio.rxfifo_overflow && radio.bytes_in_rxfifo > 0) {
-                if (print)
-                    std::cout<< "RXFIFO gets flushed" << std::endl;
+                if (ns3::debugOn)
+                    std::cout << "RXFIFO gets flushed" << std::endl;
                 radio.rxfifo_overflow = false;
                 radio.bytes_in_rxfifo = 0;
                 nr_rxfifo_flushes++;
             }
         }
-
-        if (print2)
-            std::cout << "receiveDone_task seqno: " << packet->m_executionInfo.seqNr << std::endl;
     }
 
     int tx_fifo_queue = 0;
@@ -337,15 +283,15 @@ public:
         // TODO: Reschedule this event if a packet can get read into memory. It seems that events run in parallell when we don't want them to.
         Ptr<ExecEnv> execenv = node->GetObject<ExecEnv>();
         if (execenv->queues["send-queue"]->IsEmpty()) {
-            if (print)
-                std::cout<< "There are no packets in the send queue, returning from sendTask" << std::endl;
+            if (ns3::debugOn)
+                std::cout << "There are no packets in the send queue, returning from sendTask" << std::endl;
             return;
         }
 
         if (ip_radioBusy) {
             // finishedTransmitting() calls this function again when ip_radioBusy is set to false.
-            if (print)
-                std::cout<< "ip_radioBusy is true, returning from sendTask" << std::endl;
+            if (ns3::debugOn)
+                std::cout << "ip_radioBusy is true, returning from sendTask" << std::endl;
             return;
         }
 
@@ -359,8 +305,8 @@ public:
         // The MCU will be busy copying packet from RAM to buffer for a while. Temporary workaround since we cannot schedule MCU to be busy for a dynamic amount of time.
         // 0.7 is a temporary way of easily adjusting the time processing the packet takes.
         execenv->queues["send-bytes"]->Enqueue(packet);
-        if (print)
-            std::cout<< Simulator::Now() << " " << id << ": sendTask " << packet->m_executionInfo.seqNr << std::endl;
+        if (ns3::debugOn)
+            std::cout << Simulator::Now() << " " << id << ": sendTask " << packet->m_executionInfo.seqNr << std::endl;
 
         ip_radioBusy = true;
     }
@@ -380,14 +326,11 @@ public:
             time_received_packets.push_back (packet->m_executionInfo.timestamps[1].GetMicroSeconds());
             forwarded_packets_seqnos.push_back (packet->m_executionInfo.seqNr);
             all_intra_os_delays.push_back(intra_os_delay);
-            if (print2)
-                std::cout << intra_os_delay << " " << packet->m_executionInfo.seqNr << " - # packets forwarded: " << number_forwarded++ << std::endl;
-           // std::cout<< id << " sendDoneTask: DELTA: " << intra_os_delay << ", UDP payload size (36+payload bytes): " << packet->GetSize () << std::endl;
             total_intra_os_delay += intra_os_delay;
-            if (print) {
-                std::cout<< Simulator::Now() << " " << id << ": sendDoneTask " << packet->m_executionInfo.seqNr << std::endl;
-                std::cout<< id << " sendDoneTask: DELTA: " << intra_os_delay << ", UDP payload size (36+payload bytes): " << packet->GetSize () << std::endl;
-                std::cout<< Simulator::Now() << " " << id << ": sendDoneTask, number forwarded: " << ++number_forwarded_and_acked << ", seq no " << packet->m_executionInfo.seqNr << std::endl;
+            if (ns3::debugOn) {
+                std::cout << Simulator::Now() << " " << id << ": sendDoneTask " << packet->m_executionInfo.seqNr << std::endl;
+                std::cout << id << " sendDoneTask: DELTA: " << intra_os_delay << ", UDP payload size (36+payload bytes): " << packet->GetSize () << std::endl;
+                std::cout << Simulator::Now() << " " << id << ": sendDoneTask, number forwarded: " << ++number_forwarded_and_acked << ", seq no " << packet->m_executionInfo.seqNr << std::endl;
             }
         }
 
@@ -405,7 +348,7 @@ public:
                 return;
             }
             radio.collision = true;
-            if (print)
+            if (ns3::debugOn)
                 std::cout << "Forwarding packet " << packet->m_executionInfo.seqNr << " causes collision" << std::endl;
         }
 
@@ -422,13 +365,13 @@ public:
         // I believe it's here that the packet gets removed from the send queue, but it might be in sendDoneTask
         ip_radioBusy = false;
         packet->m_executionInfo.timestamps.push_back(Simulator::Now());
-        if (print)
-            std::cout<< id << " finishedTransmitting: DELTA: " << packet->m_executionInfo.timestamps[3] - packet->m_executionInfo.timestamps[0] << ", UDP payload size (36+payload bytes): " << packet->GetSize () << std::endl;
+        if (ns3::debugOn)
+            std::cout << id << " finishedTransmitting: DELTA: " << packet->m_executionInfo.timestamps[3] - packet->m_executionInfo.timestamps[0] << ", UDP payload size (36+payload bytes): " << packet->GetSize () << std::endl;
         --packets_in_send_queue;
         --radio.nr_send_recv;
 
         if (radio.collision) {
-            if (print)
+            if (ns3::debugOn)
                 std::cout << "finishedTransmitting: Collision occured, destroying packet to be forwarded, radio.nr_send_recv: " << radio.nr_send_recv << ", receivingPacket: " << receivingPacket << std::endl;
             if (radio.nr_send_recv == 0) {
                 radio.collision = false;
@@ -443,8 +386,8 @@ public:
 
     void SendPacket(Ptr<Packet> packet, TelosB *to_mote, TelosB *third_mote) {
         Ptr<ExecEnv> execenv = node->GetObject<ExecEnv>();
-        if (print)
-            std::cout<< Simulator::Now() << " " << id << ": SendPacket " << packet->m_executionInfo.seqNr << std::endl;
+        if (ns3::debugOn)
+            std::cout << Simulator::Now() << " " << id << ": SendPacket " << packet->m_executionInfo.seqNr << std::endl;
 
         // Finish this, also change ReceivePacket to also accept acks
         if (!to_mote->radio.rxfifo_overflow && to_mote->radio.nr_send_recv == 0) {
@@ -458,7 +401,7 @@ public:
             ++to_mote->radio.nr_send_recv;
             packet->m_executionInfo.timestamps.push_back(Simulator::Now());
             Simulator::Schedule(radio.datarate.CalculateBytesTxTime(packet->GetSize ()+36 + 5/* 36 is UDP packet, 5 is preamble + SFD*/) + MicroSeconds (192) /* 12 symbol lengths before sending packet, even without CCA. 8 symbol lengths is 128 µs */, &TelosB::ReceivePacket, to_mote, packet);
-            if (print)
+            if (ns3::debugOn)
                 std::cout << "SendPacket, sending packet " << packet->m_executionInfo.seqNr << std::endl;
         } else if (/*to_mote->radio.nr_send_recv > 0 && */to_mote->radio.nr_send_recv > 0) {
             if (ccaOn) {
@@ -478,8 +421,8 @@ public:
                  // our mote is busy transmitting, so this mote will send the packet, and our mote might receive half of the packet for instance.
                  // That would most likely cause garbage to get collected in RXFIFO, which causes overhead for our mote, because it has
                  // to read all the bytes one by one.
-            if (print)
-                std::cout<< "SendPacket, failed to send because radio's RXFIFO is overflowed" << std::endl;
+            if (ns3::debugOn)
+                std::cout << "SendPacket, failed to send because radio's RXFIFO is overflowed" << std::endl;
         }
     }
 };
@@ -580,16 +523,14 @@ void writePlot4Lines(Gnuplot* plot, std::string filename, Gnuplot2dDataset* data
 
 // GeneratePacket creates a packet and passes it on to the NIC
 void ProtocolStack::GeneratePacket(Ptr<Node> n, uint32_t pktSize, uint32_t curSeqNr, TelosB *mote1, TelosB *mote2, TelosB *mote3) {
-    if (print2)
-        std::cout << "GeneratePacket packet size: " << pktSize << std::endl;
     Ptr<Packet> toSend = Create<Packet>(pktSize);
         toSend->m_executionInfo.seqNr = curSeqNr;
         toSend->m_executionInfo.executedByExecEnv = false;
 
         Ptr<ExecEnv> execenv = n->GetObject<ExecEnv>();
 
-    if (print)
-        std::cout<< "Generating packet " << curSeqNr << std::endl;
+    if (ns3::debugOn)
+        std::cout << "Generating packet " << curSeqNr << std::endl;
 
     mote1->SendPacket(toSend, mote2, mote3);
 }
@@ -620,14 +561,11 @@ int main(int argc, char *argv[])
 {
     // Debugging and tracing
     ns3::debugOn = false;
-    ns3::traceOn = false;
-    ns3::withBlockingIO = true;
 
     // Fetch from command line
     CommandLine cmd;
     cmd.AddValue("seed", "seed for the random generator", seed);
     cmd.AddValue("duration", "The number of seconds the simulation should run", duration);
-    cmd.AddValue("trace", "Trace parsing of device file, and execution of SEM", ns3::traceOn);
     cmd.AddValue("pps", "Packets per second", pps);
     cmd.AddValue("ps", "Packet size", packet_size);
     cmd.AddValue("print", "Print events in the protocol stack", print);
@@ -640,8 +578,8 @@ int main(int argc, char *argv[])
     createPlot(&ppsPlot, "testplot.png", "pps", &ppsDataSet);
     createPlot(&delayPlot, "delayplot.png", "intra-os delay", &delayDataSet);
 
-#define READ_TRACES 1
-//#define ONE_CONTEXT 1
+//#define READ_TRACES 1
+#define ONE_CONTEXT 1
 //#define SIMULATION_OVERHEAD_TEST 0
 #if READ_TRACES
     Ptr<ExecEnvHelper> eeh = CreateObjectWithAttributes<ExecEnvHelper>(
@@ -670,8 +608,6 @@ int main(int argc, char *argv[])
     TelosB *mote2 = new TelosB(c.Get(1));
     TelosB *mote3 = new TelosB(c.Get(2));
 
-    print = false;
-    print2 = false;
     //protocolStack->GenerateTraffic(c.Get(0), packet_size, mote1, mote2, mote3);
     int curSeqNr = 0;
     bool next_is_packet_size = false;
@@ -704,7 +640,6 @@ int main(int argc, char *argv[])
         std::cout << "3 " /*<< i << " " << forwarded_packets_seqnos[i] << " " << time_received_packets[i] << " " */<< all_intra_os_delays[i] << "\n";
         intraOsDelayDataSet->Add(forwarded_packets_seqnos[i], all_intra_os_delays[i]);
     }
-    //std::cout << "UDP payload: " << packet_size << ", pps: " << pps << ", RXFIFO flushes: " << nr_rxfifo_flushes << ", bad CRC: " << nr_packets_dropped_bad_crc << ", radio collision: " << nr_packets_collision_missed << ", ip layer drop: " << nr_packets_dropped_ip_layer << ", successfully forwarded: " << nr_packets_forwarded << " / " << nr_packets_total << " = " << (nr_packets_forwarded/(float)nr_packets_total)*100 << "% Intra OS median: " << all_intra_os_delays.at(all_intra_os_delays.size()/2) << std::endl;
 
     writePlot(intraOsDelayPlot, "plots/intraOsDelay.gnu", intraOsDelayDataSet);
 
@@ -848,20 +783,6 @@ int main(int argc, char *argv[])
     protocolStack8->GenerateTraffic(c.Get(8), 0, moteFrom8, moteInt8, moteTo8);
     protocolStack9->GenerateTraffic(c.Get(9), 0, moteFrom9, moteInt9, moteTo9);
 
-    /*protocolStack1->GenerateTraffic2(c.Get(0), 0, Seconds(0), mote0, mote13, mote2);
-    protocolStack2->GenerateTraffic2(c.Get(0), 0, Seconds(0), mote0, mote12, mote2);
-    protocolStack3->GenerateTraffic2(c.Get(0), 0, Seconds(0), mote0, mote11, mote2);
-    protocolStack4->GenerateTraffic2(c.Get(0), 0, Seconds(0), mote0, mote10, mote2);
-    protocolStack5->GenerateTraffic2(c.Get(0), 0, Seconds(0), mote0, mote9, mote2);
-    protocolStack6->GenerateTraffic2(c.Get(0), 0, Seconds(0), mote0, mote8, mote2);
-    protocolStack7->GenerateTraffic2(c.Get(0), 0, Seconds(0), mote0, mote7, mote2);
-    //protocolStack8->GenerateTraffic2(c.Get(0), 0, Seconds(0), mote0, mote6, mote2);
-    protocolStack9->GenerateTraffic2(c.Get(0), 0, Seconds(0), mote0, mote5, mote2);
-    protocolStack10->GenerateTraffic2(c.Get(0), 0, Seconds(0), mote0, mote4, mote2);
-    protocolStack11->GenerateTraffic2(c.Get(0), 0, Seconds(0), mote0, mote3, mote2);
-    protocolStack12->GenerateTraffic2(c.Get(0), 0, Seconds(0), mote0, mote2, mote2);
-    protocolStack13->GenerateTraffic2(c.Get(0), 0, Seconds(0), mote0, mote1, mote2);
-    protocolStack14->GenerateTraffic2(c.Get(0), 0, Seconds(0), mote0, mote0, mote2);*/
     Simulator::Stop(Seconds(duration));
     std::time_t before = std::time(0);
     Simulator::Run();
@@ -959,12 +880,8 @@ int main(int argc, char *argv[])
             numberForwardedFile << "3 " << i << " " << pps << " " << all_intra_os_delays.at(all_intra_os_delays.size()/2) << "\n";
             numberForwardedFile << std::flush;
 
-            //writePlot(ppsPlot, "testplot.gnu", ppsDataSet);
-            //writePlot(delayPlot, "delay.gnu", delayDataSet);
             std::cout << "UDP payload: " << packet_size << ", pps: " << pps << ", RXFIFO flushes: " << nr_rxfifo_flushes << ", bad CRC: " << nr_packets_dropped_bad_crc << ", radio collision: " << nr_packets_collision_missed << ", ip layer drop: " << nr_packets_dropped_ip_layer << ", successfully forwarded: " << nr_packets_forwarded << " / " << nr_packets_total << " = " << (nr_packets_forwarded/(float)nr_packets_total)*100 << "% Intra OS median: " << all_intra_os_delays.at(all_intra_os_delays.size()/2) << std::endl;
-            //memset(mote1, 0, sizeof(TelosB));
-            //memset(mote2, 0, sizeof(TelosB));
-            //memset(mote3, 0, sizeof(TelosB));
+
             delete mote1;
             delete mote2;
             delete mote3;
