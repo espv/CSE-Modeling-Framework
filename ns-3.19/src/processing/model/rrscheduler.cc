@@ -58,6 +58,7 @@ RoundRobinScheduler::RoundRobinScheduler() : TaskScheduler()
 RoundRobinScheduler::~RoundRobinScheduler () {
 }
 
+bool called_from_here = false;
 void RoundRobinScheduler::Schedule() {
     //NS_LOG_INFO("Schedule()");
     //return;
@@ -83,10 +84,10 @@ void RoundRobinScheduler::Schedule() {
             // Don't interrupt an interrupt
             if (TaskScheduler::peu->hwModel->cpus[cpu]->inInterrupt) {
                 NS_LOG_INFO("CPU " << cpu << " was in interrupt, not scheduling");
-                continue;
+                //continue;  // We do this to wake a thread from the end of a HIRQ
             }
 
-            if (m_runqueue.empty()) {
+            if (m_runqueue.empty() || m_runqueue.front() == m_currentRunning[cpu]) {
                 m_currentRunning[cpu] = cpu + 1; // Assign idle thread if nothing to schedule
             } else {
                 int oldCr = m_currentRunning[cpu];
@@ -103,10 +104,12 @@ void RoundRobinScheduler::Schedule() {
         }
     //}
 
-    Simulator::Schedule(NanoSeconds(150000), // TODO: make property?
-            &RoundRobinScheduler::Schedule,
-            this
-            );
+    // If there is more than one thread, they need to get preempted once in a while
+    /*if (m_runqueue.size() > 1)
+        Simulator::Schedule(MicroSeconds(150), // TODO: make property?
+                &RoundRobinScheduler::Schedule,
+                this
+                );*/
 }
 
 void RoundRobinScheduler::WakeupIdle() {
@@ -213,12 +216,14 @@ int RoundRobinScheduler::DoRequest(int cpu, int type, std::vector<uint32_t> argu
     switch (type) {
         case AWAKE:
             {
+                //std::cout << "Awakening" << std::endl;
                 //return 1;
                 pid = arguments[0];
                 if (!m_blocked.erase(pid)) {
+                    //std::cout << "But not really" << std::endl;
                     NS_LOG_ERROR( TaskScheduler::peu->m_name << " Tried to awake thread not present in the blocking queue! PID: " << pid);
                     goto end;
-                } 
+                }
 #if 0
                 // OYSTEDAL: This is just a sanity check, in most cases this can be disabled
                 // to avoid the additional complexity.
@@ -230,8 +235,11 @@ int RoundRobinScheduler::DoRequest(int cpu, int type, std::vector<uint32_t> argu
 #endif
                 NS_LOG_INFO (TaskScheduler::peu->m_name << " Waking up " << pid);
                 m_runqueue.push_back(pid);
+                this->need_scheduling = true;
 
                 //WakeupIdle();
+                //this->Schedule();
+                //std::cout << "AWAKING" << std::endl;
 
                 break;
             }
@@ -239,9 +247,12 @@ int RoundRobinScheduler::DoRequest(int cpu, int type, std::vector<uint32_t> argu
             // We insert the pid into the blocking queue, to be awakened later.
             pid = arguments[0];
             m_blocked.insert( pid );
+            this->Schedule();
+            //std::cout << "Going to sleep" << std::endl;
             return 1;
             NS_LOG_INFO("SLEEP PID " << pid << " " << m_currentRunning[0] << " " <<  m_currentRunning[1]);
 
+            //std::cout << "Going to sleep" << std::endl;
             if (m_runqueue.empty()) {
                 // TODO: Assign an idle thread instead
                 NS_ASSERT(0);
@@ -263,8 +274,10 @@ int RoundRobinScheduler::DoRequest(int cpu, int type, std::vector<uint32_t> argu
             m_blocked.insert( m_currentRunning[i] );
 
             // TODO: Add support for idle threads when nothing else is available
-            m_currentRunning[i] = m_runqueue.front();
-            m_runqueue.pop_front();
+            //m_currentRunning[i] = m_runqueue.front();
+            //m_runqueue.pop_front();
+            //this->Schedule();
+            WakeupIdle();
 
             return 1;
     }

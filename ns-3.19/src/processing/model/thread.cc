@@ -458,6 +458,7 @@ bool Thread::HandleProcessingEvent(ExecutionEvent* e) {
 			- ((m_tracingOverhead * 1000) / m_freq);
 		nanoseconds = (nanoseconds > 0 ? nanoseconds : 0);
 		if(withBlockingIO) {
+			//std::cout << "WITHBLOCKINGIO, nanoseconds: " << nanoseconds << std::endl;
 			// This calls EventMemberImpl3 with all the args below except nanoseconds
 			Simulator::Schedule(NanoSeconds(nanoseconds),
 					&InterruptController::IssueInterruptWithServiceOnCPU,
@@ -722,14 +723,14 @@ bool Thread::HandleExecuteEvent(ExecutionEvent* e) {
 }
 
 bool Thread::HandleQueueEvent(ExecutionEvent* e) {
-	QueueExecutionEvent *qe = static_cast<QueueExecutionEvent *>(e);
-	if (qe->enqueue) {
+    QueueExecutionEvent *qe = static_cast<QueueExecutionEvent *>(e);
+    if (qe->enqueue) {
 		// If we have an en-queue event, simply insert into queue.
 		// We assume that the queue extist, as it should have been
 		// created during parsing of the header in the device-file
 		// initialization.
 		Ptr<ExecEnv> ee = peu->hwModel->node->GetObject<ExecEnv>();
-		if (qe->serviceQueue) {
+        if (qe->serviceQueue) {
 			// Here, we want to push a service onto the service
 			// queue specified in the event. This may however
 			// either be a service specified in the event OR
@@ -744,6 +745,8 @@ bool Thread::HandleQueueEvent(ExecutionEvent* e) {
 			} else
 				semToEnqueue = qe->semToEnqueue;
 
+            //std::cout << "Enqueueing service " << semToEnqueue->name << std::endl;
+
 			qe->servQueue->push(
 					std::pair<Ptr<SEM>, Ptr<ProgramLocation> >(semToEnqueue,
 						m_programStack.top()));
@@ -754,7 +757,7 @@ bool Thread::HandleQueueEvent(ExecutionEvent* e) {
 			qe->queue->Enqueue(m_currentLocation->curPkt);
 	} else
 		// Check if we are dealing with a service queue
-		if (qe->serviceQueue) {
+        if (qe->serviceQueue) {
 			// Obtain queue from encapsulated loop if not defined in the event
 			std::queue<std::pair<Ptr<SEM>, Ptr<ProgramLocation> > > *queueToServe =
 				(qe->servQueue == NULL) ?
@@ -764,9 +767,10 @@ bool Thread::HandleQueueEvent(ExecutionEvent* e) {
 			// Here, we want to dequeue the service, then (below) execute it.
 			// Note that we resolved which sem to enqueue (which may be "0")
 			// in the insertion above, so we don't need to resolve this again.
-			Ptr<SEM> toExecute = queueToServe->front().first;
+            Ptr<SEM> toExecute = queueToServe->front().first;
 			Ptr<ProgramLocation> newPl = queueToServe->front().second;
 
+            //std::cout << "Dequeueing service " << toExecute->name << std::endl;
 			queueToServe->pop();
 			// We need to execute the SEM, and thus before that
 			// check whether it is specified as a trigger in the current packet.
@@ -971,7 +975,7 @@ bool Thread::HandleSyncEvent(ExecutionEvent* e) {
 
 bool Thread::HandleCondition(ExecutionEvent* e) {
 	Condition *ce = static_cast<Condition *>(e);
-	Ptr<ExecEnv> execEnv = peu->hwModel->node->GetObject<ExecEnv>();
+    Ptr<ExecEnv> execEnv = peu->hwModel->node->GetObject<ExecEnv>();
 
 	// If state condition AND write, write to local or global
 	// variable according to scope of the variable. Elsewise, change
@@ -1012,7 +1016,7 @@ bool Thread::HandleCondition(ExecutionEvent* e) {
 	return true;
 }
 
-void Thread::SetScheduler(Ptr<TaskScheduler> scheduler) {
+void Thread::SetScheduler(Ptr<RoundRobinScheduler> scheduler) {
 	m_scheduler = scheduler;
 }
 
@@ -1116,158 +1120,10 @@ void Thread::Dispatch() {
 			m_currentLocation->currentEvent++;
 			int currentEvent = m_currentLocation->currentEvent;
 
-			if (recordExecStats) {
-				if (m_currentLocation->wasBlocked != 0) {
-					m_currentLocation->program->sem->blocked +=
-							Simulator::Now().GetNanoSeconds()
-									- m_currentLocation->wasBlocked;
-#if 0
-					std::cout <<
-							"BLOCKED " <<
-							m_currentLocation->program->sem->peu->taskScheduler->m_currentRunning->m_pid << " " <<
-							m_currentLocation->program->sem->name << " " <<
-							m_currentLocation->wasBlocked << " " <<
-							Simulator::Now().GetNanoSeconds() <<
-							std::endl;
-#endif
-					m_currentLocation->wasBlocked = 0;
-				}
-				if (m_currentLocation->currentEvent == 1)
-					m_currentLocation->program->sem->numExec++;
-			}
-
-            // Trace if enabled
-			if (traceOn) {
-				if (this->peu) {
-                    const int cpu = peu->GetObject<CPU>()->GetId();
-                    // OYSTEDAL: Added some widths to each field.
-                    std::stringstream timeStamp; timeStamp << Simulator::Now();
-					std::cout 
-                            << std::setw(6) << "EXEC"
-                            << std::setw(5) << this->peu->m_name
-							<< std::setw(20) << timeStamp.str()
-							<< std::setw(5) << this->GetPid() // m_currentLocation->program->sem->peu->taskScheduler->m_currentRunning->m_pid
-							<< std::setw(5) << this->peu->hwModel->cpus[cpu]->inInterrupt
-							<< std::setw(5) << ns3::packetsSent 
-                            << std::setw(5) << ns3::packetsReceived
-							<< std::setw(5) << ++statementsExecuted
-							<< std::setw(5) << m_currentLocation->program->events[currentEvent]->lineNr
-                            ;
-				}
-
-#if 0
-				for (int i = 0; i < (int) m_programStack.size(); i++)
-                    std::cout << "\t";
-				std::cout << m_currentLocation->program->sem->name << ": ";
-				std::cout
-                        << "\t\t\t\t"
-						<< m_currentLocation->program->events[currentEvent]->line
-						<< std::endl;
-#else
-                const char oldFill = std::cout.fill();
-                std::cout.fill('\t');
-                std::cout << std::setw(m_programStack.size()) << "";
-                std::cout.fill(oldFill);
-
-                std::cout.width(30);
-				std::cout << std::left << m_currentLocation->program->sem->name;
-
-                std::cout.fill('\t');
-                std::cout << std::setw(5 - m_programStack.size()) << "";
-                std::cout.fill(oldFill);
-
-                std::cout << m_currentLocation->program->events[currentEvent]->line;
-                std::cout << std::endl;
-#endif
-			}
-
-//			std::cout << m_currentLocation->program->sem->name << " " <<
-//					currentEvent << " " << m_currentLocation->program->events[currentEvent]->lineNr << std::endl;
-			// Write debug if enabled
-
-			if (debugOn) {
-				int curPid = this->GetPid();
-				if (m_currentLocation->program->sem->peu->hwModel->cpus[0]->inInterrupt)
-					curPid = -1;
-				Ptr<ExecEnv> ee;
-				if (this->peu)
-					ee = this->peu->hwModel->node->GetObject<ExecEnv>();
-				if (m_fifo_debugfiles[curPid] >= 0
-						&& m_currentLocation->program->events[currentEvent]->type
-								!= PROCESS) {
-
-					std::ostringstream convert;
-					convert << Simulator::Now().GetNanoSeconds();
-					if (ee) {
-						convert << " "
-								<< ee->conditionFunctions->m_wl1251NICIntrReg
-								<< " " << ee->queues["nic::rx"]->GetNPackets()
-								<< " "
-								<< m_programStack.top()->program->sem->name;
-
-						for (std::vector<struct tempVar>::iterator it =
-								ee->tempVars.begin(); it != ee->tempVars.end();
-								it++) {
-							struct tempVar *tv = &(*it);
-							convert << " (";
-							for (int i = 0; i < (int) tv->users.size(); i++) {
-								convert << " " << tv->users[i];
-							}
-							convert << ") ";
-						}
-					}
-					convert << std::endl;
-					write(m_fifo_debugfiles[curPid], convert.str().c_str(),
-							convert.str().length());
-
-					convert.str("");
-					convert.clear();
-
-                    const int cpu = peu->GetObject<CPU>()->GetId();
-					if (this->peu->hwModel->cpus[cpu]->inInterrupt)
-						convert << -1;
-					else
-						convert
-#if 0
-								<< m_currentLocation->program->sem->peu->taskScheduler->m_currentRunning->m_pid;
-#else
-                                << curPid;
-#endif
-					write(m_fifo_debugfiles[curPid], convert.str().c_str(),
-							convert.str().length());
-					write(m_fifo_debugfiles[curPid], "\n",
-							convert.str().length());
-
-					convert.str("");
-					convert.clear();
-
-					convert
-							<< m_currentLocation->program->events[currentEvent]->lineNr;
-					write(m_fifo_debugfiles[curPid], convert.str().c_str(),
-							convert.str().length());
-					write(m_fifo_debugfiles[curPid], "\n",
-							convert.str().length());
-
-					convert.str("");
-					convert.clear();
-				}
-			}
-
-			ExecutionEvent *e = m_currentLocation->program->events[currentEvent];
+            ExecutionEvent *e = m_currentLocation->program->events[currentEvent];
 			proceed = HandleExecutionEvent(e);
 
-//			if(plSize != m_programStack.size() && m_programStack.size() != 0) {
-//				plSize = m_programStack.size();
-//				Program *pr = m_programStack.top().rootProgram;
-//				if(pr != NULL) {
-//					for(unsigned int i = 0; i < plSize; i++)
-//						std::cout << "-";
-//
-//					std::cout << m_programStack.top().rootProgram->sem->name << std::endl;
-//				}
-//			}
-
-            // OYSTEDAL: Is this where ee->Proceed() is "resumed" from?
+			// OYSTEDAL: Is this where ee->Proceed() is "resumed" from?
 			if (m_currentLocation->curPkt != NULL) {
 				ExecutionInfo *pktEI = &(m_currentLocation->curPkt->m_executionInfo);
 				if (e->checkpoint.length() != 0
@@ -1276,7 +1132,7 @@ void Thread::Dispatch() {
 					pktEI->executedByExecEnv = true;
 					EventImpl *toInvoke = pktEI->targetFPM;
 					toInvoke->Invoke();
-					//toInvoke->Unref();  // This statement causes error with PERBYTE statement
+                    //toInvoke->Unref();  // This statement causes error with PERBYTE statement
 				}
 			}
 
@@ -1284,8 +1140,12 @@ void Thread::Dispatch() {
 			// terminate the thread. Note that this should never occur for
 			// single-threaded PEUs, as they should simply run one PEU in an
 			// infinite loop.
-			if (m_programStack.size() == 0) {
-				m_scheduler->Terminate(this->peu, m_pid);
+            if (m_programStack.size() == 0) {
+                if (m_scheduler->need_scheduling) {
+                    m_scheduler->need_scheduling = false;
+                    m_scheduler->Schedule();
+                }
+                m_scheduler->Terminate(this->peu, m_pid);
 				break;
 			}
 		}

@@ -1,0 +1,11 @@
+# -*- Mode: python; py-indent-offset: 4; indent-tabs-mode: nil; coding: utf-8; -*-
+
+def build(bld):
+    obj = bld.create_ns3_program('cc2420-example', ['cc2420', 'applications'])
+    obj.source = 'cc2420-example.cc'
+
+    obj = bld.create_ns3_program('dummy-app', ['csma', 'internet', 'cc2420', 'applications'])
+    obj.source = 'dummy-app.cc'
+
+    obj = bld.create_ns3_program('play', ['cc2420', 'message'])
+    obj.source = 'play.cc'

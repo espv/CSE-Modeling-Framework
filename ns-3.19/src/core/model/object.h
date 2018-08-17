@@ -46,6 +46,7 @@ struct ObjectDeleter
 /**
  * \ingroup core
  * \defgroup object Object
+ * \brief Base classes which provides memory management and object aggregation.
  */
 /**
  * \ingroup object
@@ -463,6 +464,26 @@ Ptr<T> CreateObject (T1 a1, T2 a2, T3 a3, T4 a4, T5 a5, T6 a6, T7 a7)
 {
   return CompleteConstruct (new T (a1,a2,a3,a4,a5,a6,a7));
 }
+
+
+// begin own extension
+
+// for the CC2420InterfaceNetDevice, 9 parameters are needed, but the standard
+// interface of ns-3 offers only up to 7
+
+template <typename T, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8>
+Ptr<T> CreateObject (T1 a1, T2 a2, T3 a3, T4 a4, T5 a5, T6 a6, T7 a7, T8 a8)
+{
+  return CompleteConstruct (new T (a1,a2,a3,a4,a5,a6,a7,a8));
+}
+
+template <typename T, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9>
+Ptr<T> CreateObject (T1 a1, T2 a2, T3 a3, T4 a4, T5 a5, T6 a6, T7 a7, T8 a8, T9 a9)
+{
+  return CompleteConstruct (new T (a1,a2,a3,a4,a5,a6,a7,a8,a9));
+}
+
+// end own extension
 
 
 } // namespace ns3

@@ -40,6 +40,9 @@
 #include <vector>
 /* STEIN */
 
+/* ESPEN */
+#include "address.h"
+
 namespace ns3 {
 
 /* STEIN */
@@ -241,6 +244,8 @@ class Packet : public SimpleRefCount<Packet>
 public:
   bool attemptedSent = false;
   bool collided = false;
+  Address src;
+  Address dst;
   /**
    * Create an empty packet with a new uid (as returned
    * by getUid).

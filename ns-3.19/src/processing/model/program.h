@@ -384,6 +384,7 @@ public:
 	bool serviceQueue;
 	bool stateQueue;
 	bool local;
+	std::string threadToWake;
 	Ptr<Queue> queue;
 	std::queue<std::pair<Ptr<SEM>, Ptr<ProgramLocation> > > *servQueue;
 	std::string queueName;

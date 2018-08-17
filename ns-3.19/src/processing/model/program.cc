@@ -233,11 +233,11 @@ Condition::getClosestEntryValue(uint32_t value)
   // If we hit the end, we are the largest one,
   // so return the difference to the one below (at
   // the end of the list)
-  if(it == programs.end())
+  if(it == programs.end())  // This results in wrong SEM
     return *(--it);
 
   // If were at programs.begin(), we are the smallest
-  else if (it == programs.begin())
+  else if (it == programs.begin())  // This results in correct SEM
 	  return *it;
 
   // Elsewise, we are between two programs. Returns the
@@ -249,6 +249,7 @@ Condition::getClosestEntryValue(uint32_t value)
   }
 }
 
+Program *prev_program;
 // Function used to obtain closest entry
 std::pair<uint32_t, Program *>
 Condition::getClosestEntry(Ptr<Thread> t)
@@ -275,14 +276,27 @@ Condition::getClosestEntry(Ptr<Thread> t)
 		value = getConditionState(t);
 	else if(condType == QUEUECONDITION)
 		value = getConditionQueues(((QueueCondition *)this)->firstQueue, ((QueueCondition *)this)->lastQueue);
-	else if(condType == SERVICEQUEUECONDITION)
+	else if(condType == SERVICEQUEUECONDITION) {
 		value = getServiceConditionQueues(((ServiceQueueCondition *)this)->firstQueue, ((ServiceQueueCondition *)this)->lastQueue);
-	else if(condType == THREADCONDITION)
+        //std::cout << "SERVICEQUEUECONDITION: empty: " << (value == QUEUEEMPTY) << std::endl;
+	} else if(condType == THREADCONDITION)
 		value = getConditionThread(((ThreadCondition *)this)->threadId);
 
 
 	// Obtain the closest value and program, and return
 	std::pair<uint32_t, Program *> returnValue = getClosestEntryValue(value);
+    /*if (value == QUEUENOTEMPTY && !prev_program)
+	    prev_program = returnValue.second;
+	else if (value == QUEUENOTEMPTY)
+        returnValue.second = prev_program;*/
+
+    /*if ( value == QUEUENOTEMPTY) {
+		returnValue.second->hasDequeue = true;
+		returnValue.first = 1;
+        returnValue.second->events = prev_program->events;  // THIS IS WHERE IT'S AT.
+	    //returnValue.second->sem = ((SEM*)0x699ed0);
+    }*/
+
 	return returnValue;
 }
 
@@ -311,7 +325,7 @@ ProcessingStage::Instantiate() {
 
   // For the PERBYTE statement
   if (this->pktqueue != NULL && !this->pktqueue->IsEmpty()) {
-        this->factor = this->pktqueue->Dequeue()->GetSize ();
+        this->factor = this->pktqueue->Dequeue()->GetSize () - 36;  // Minus the UPD, IP and frame headers
   }
   
   // Iterate all resources used, select a random

@@ -230,7 +230,7 @@ void ExecEnv::HandleHardware(std::vector<std::string> tokens) {
 
             // static Ptr<TaskScheduler> ts = NULL;
             if (cpuScheduler == NULL) {
-                cpuScheduler = factory.Create()->GetObject<TaskScheduler>();
+                cpuScheduler = factory.Create()->GetObject<RoundRobinScheduler>();
                 cpuScheduler->Initialize(newPEU);
             }
 
@@ -247,7 +247,7 @@ void ExecEnv::HandleHardware(std::vector<std::string> tokens) {
 					UintegerValue(freq), "name", StringValue(tokens[2]));
 			hwModel->m_PEUs[tokens[3]] = newPEU;
 			newPEU->taskScheduler =
-					factory.Create()->GetObject<TaskScheduler>();
+                    factory.Create()->GetObject<RoundRobinScheduler>();
             newPEU->hwModel = hwModel;
             newPEU->taskScheduler->Initialize(newPEU);
 		}
@@ -1090,6 +1090,20 @@ void ExecEnv::HandleSignature(std::vector<std::string> tokens) {
 
 		// Add the event to the current program
 		currentProgram->events.push_back(q);
+
+
+        if (q->serviceQueue == true && !tokens[1].compare("ENQUEUE") && tokens.size() > 5) {
+		    std::vector<uint32_t> arguments;
+		    std::string threadName = tokens[5];
+
+		    SchedulerExecutionEvent *se = new SchedulerExecutionEvent(
+				    AWAKE, arguments,
+				    threadName);
+
+		    //execEvent = se;
+
+            currentProgram->events.push_back(se);
+		}
 	}
 
 	// Handle conditions

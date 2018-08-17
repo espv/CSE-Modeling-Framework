@@ -51,8 +51,9 @@ uint32_t ConditionFunctions::ServiceQueueCondition(std::queue<std::pair<Ptr<SEM>
 
 		std::vector<std::queue<std::pair<Ptr<SEM>, Ptr<ProgramLocation> > > *>::iterator it = serviceQueueOrder->begin();
 		for(;firstFound != lastFound && it != serviceQueueOrder->end(); firstFound++)
-			if(!(*firstFound)->empty())
+		  if(!(*firstFound)->empty()) {
 				return QUEUENOTEMPTY;
+			}
 	}
 
 	return QUEUEEMPTY;
@@ -201,7 +202,7 @@ ConditionFunctions::Initialize(Ptr<ExecEnv> execenv)
   //conditionMap["send_packets_empty"] = MakeCallback(&ConditionFunctions::IpPacketsEmpty, this);
 
   // Set the protocol-agnostic condition functions
-  conditionMap["pkt::ip::size"] = MakeCallback(&ConditionFunctions::PacketSize, this);
+  /*conditionMap["pkt::ip::size"] = MakeCallback(&ConditionFunctions::PacketSize, this);
   conditionMap["bcm4329::dataok"] = MakeCallback(&ConditionFunctions::BCM4329DataOk, this);
   conditionMap["readStatewl1251:interrupttype"] = MakeCallback(&ConditionFunctions::Wl1251Intr, this);
   conditionMap["readStatewl1251:readinterrupttype"] = MakeCallback(&ConditionFunctions::ReadWl1251Intr, this);
@@ -209,7 +210,7 @@ ConditionFunctions::Initialize(Ptr<ExecEnv> execenv)
   conditionMap["readStatewl1251:sizeofnextrxfromnic"] = MakeCallback(&ConditionFunctions::sizeofnextrxfromnic, this);
   writeConditionMap["writeStatewl1251:interruptenabled"] = MakeCallback(&ConditionFunctions::WriteInterruptsEnabled, this);
   writeConditionMap["writeStateacknicrx"] = MakeCallback(&ConditionFunctions::AckNICRx, this);
-  conditionMap["readStatewl1251:numtxcomplete"] = MakeCallback(&ConditionFunctions::ReadNumTxToAck, this);
+  conditionMap["readStatewl1251:numtxcomplete"] = MakeCallback(&ConditionFunctions::ReadNumTxToAck, this);*/
 
 
   // Add later, when the function is finished:

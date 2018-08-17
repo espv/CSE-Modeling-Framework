@@ -32,6 +32,7 @@ class RoundRobinScheduler : public TaskScheduler
 {
 public:
   static TypeId GetTypeId (void);
+  bool need_scheduling = false;
 
   RoundRobinScheduler();
   virtual ~RoundRobinScheduler();

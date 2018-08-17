@@ -24,8 +24,8 @@
 // Constants used during parsing
 #define LOCAL_CONDITION 0
 #define GLOBAL_CONDITION 1
-#define QUEUEEMPTY 1
-#define QUEUENOTEMPTY 0
+#define QUEUEEMPTY 0
+#define QUEUENOTEMPTY 1
 #define THREADREADY 0
 #define THREADNOTREADY 1
 
@@ -60,7 +60,7 @@ public:
   // Holds functions used to resolve conditions
   Ptr<ConditionFunctions> conditionFunctions;
 
-  Ptr<TaskScheduler> cpuScheduler;
+  Ptr<RoundRobinScheduler> cpuScheduler;
 
   // Holds global state variables
   std::map<std::string, uint32_t > globalStateVariables;

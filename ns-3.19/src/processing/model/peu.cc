@@ -109,8 +109,9 @@ void PEU::Consume(ProcessingInstance *pi) {
 	// Finally, schedule the completion function to run
 	// after the computed duration.
 
+    double amount = pi->remaining[NANOSECONDS].amount * pi->factor;
 	pi->processingCompleted = Simulator::Schedule(
-			NanoSeconds(pi->remaining[NANOSECONDS].amount * pi->factor),
+            NanoSeconds(amount),
 			&Thread::DoneProcessing, pi->thread);
 }
 

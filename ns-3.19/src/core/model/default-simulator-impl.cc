@@ -280,13 +280,14 @@ DefaultSimulatorImpl::Schedule (Time const &time, EventImpl *event)
 
   Time tAbsolute = time + TimeStep (m_currentTs);
 
+  /*if ((uint64_t) tAbsolute.GetTimeStep () < 0 || (uint64_t) tAbsolute.GetTimeStep () > 1000000000000000) {
+    tAbsolute = NanoSeconds(1500000000);
+    m_currentTs = 1;
+  }*/
   NS_ASSERT (tAbsolute.IsPositive ());
   NS_ASSERT (tAbsolute >= TimeStep (m_currentTs));
   Scheduler::Event ev;
   ev.impl = event;
-  //if ((uint64_t) tAbsolute.GetTimeStep () > 10000000000)
-  //  ev.key.m_ts = 150000;
-  //else
   ev.key.m_ts = (uint64_t) tAbsolute.GetTimeStep ();
   ev.key.m_context = GetContext ();
   ev.key.m_uid = m_uid;

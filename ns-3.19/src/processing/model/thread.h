@@ -10,6 +10,8 @@
 
 #include "program.h"
 
+#include "rrscheduler.h"
+
 #include <vector>
 #include <stack>
 #include <map>
@@ -82,7 +84,7 @@ public:
 
 	void SetRootProgram(std::string name);
 	void SetPid(int pid);
-	void SetScheduler(Ptr<TaskScheduler> scheduler);
+    void SetScheduler(Ptr<RoundRobinScheduler> scheduler);
 	void Dispatch();
 
 	void PreEmpt();
@@ -122,7 +124,7 @@ public:
 	void Terminate();
 
 	// Pointer to scheduler object
-	Ptr<TaskScheduler> m_scheduler;
+    Ptr<RoundRobinScheduler> m_scheduler;
 
 	// Program ID obtained from SchedSim
 	int m_pid;

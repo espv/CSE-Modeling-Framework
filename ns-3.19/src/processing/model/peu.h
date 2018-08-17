@@ -74,7 +74,7 @@ public:
   //   statement "EXECUTE interrupt::21".
   /* int m_interruptNr; */
 
-  Ptr<TaskScheduler> taskScheduler;
+  Ptr<RoundRobinScheduler> taskScheduler;
 };
 
 // The CPU is a special PEU:
