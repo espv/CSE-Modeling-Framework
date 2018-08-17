@@ -29,7 +29,7 @@ static bool print = 0;
 static bool print2 = 0;
 static int packet_size = 0;
 static std::string deviceFile = "device-files/telosb-min.device";  // Required if we use gdb
-static std::string trace_fn = "../trace-inputs/packets-received.txt";
+static std::string trace_fn = "trace-inputs/packets-received.txt";
 
 
 
@@ -640,8 +640,8 @@ int main(int argc, char *argv[])
     createPlot(&ppsPlot, "testplot.png", "pps", &ppsDataSet);
     createPlot(&delayPlot, "delayplot.png", "intra-os delay", &delayDataSet);
 
-//#define READ_TRACES 0
-#define ONE_CONTEXT 1
+#define READ_TRACES 1
+//#define ONE_CONTEXT 1
 //#define SIMULATION_OVERHEAD_TEST 0
 #if READ_TRACES
     Ptr<ExecEnvHelper> eeh = CreateObjectWithAttributes<ExecEnvHelper>(
@@ -689,10 +689,11 @@ int main(int argc, char *argv[])
             first_time = next_time;
           continue;
         }
-        protocolStack->GenerateTraffic2(c.Get(0), packet_size-36, next_time-first_time, mote1, mote2, mote3);
+        std::cout << "line: " << line << std::endl;
+        protocolStack->GenerateTraffic2(c.Get(0), packet_size, next_time-first_time, mote1, mote2, mote3);
         //Simulator::Schedule(MicroSeconds(atoi(line.c_str())),
         //                    &ProtocolStack::GeneratePacket, protocolStack, c.Get(0), packet_size, curSeqNr++, mote1, mote2, mote3);
-        std::cout << "Sending packet at " << packet_size-36 << " or in microseconds " << next_time-first_time << std::endl;
+        std::cout << "Sending packet at " << packet_size << " or in microseconds " << next_time-first_time << std::endl;
     }
     Simulator::Stop(Seconds(duration));
     Simulator::Run();
