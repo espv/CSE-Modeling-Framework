@@ -1,0 +1,16 @@
+SIGSTART
+NAME HIRQ-4
+PEU cpu
+RESOURCES cycles normal
+FRACTION 100%  3024 3024
+
+0 START
+x                                PROCESS		0 0
+readDonePayload    COMPL		(TEMP)	global
+x                                PROCESS		637 625
+0                  ENQUEUE		SRVQUEUE receiveDone_task softirq::rx
+x                                PROCESS		0 0
+0 STOP
+
+SIGEND
+

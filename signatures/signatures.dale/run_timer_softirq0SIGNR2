@@ -1,0 +1,14 @@
+SIGSTART
+NAME run_timer_softirq
+PEU cpu
+RESOURCES cycles normal
+FRACTION 0%  419 44151
+
+0 START
+x                                PROCESS		3969 3339
+dhd_rx_frame+474                    SEMUP		c729b3c0	global
+x                                PROCESS		7199 939
+0 STOP
+
+SIGEND
+

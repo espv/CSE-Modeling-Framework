@@ -1,0 +1,14 @@
+SIGSTART
+NAME HIRQ-124
+PEU cpu
+RESOURCES cycles normal
+FRACTION 98%  154 156
+
+0 START
+x                                PROCESS		2041 412
+wake_up_process+34                  TTWAKEUP	UNKNOWN-LEU(pid=19) 0
+x                                PROCESS		5632 1114
+0 STOP
+
+SIGEND
+

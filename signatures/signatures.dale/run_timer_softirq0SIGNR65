@@ -1,0 +1,18 @@
+SIGSTART
+NAME run_timer_softirq
+PEU cpu
+RESOURCES cycles normal
+FRACTION 0%  2 44151
+
+0 START
+x                                PROCESS		4266 20
+wake_up_process+34                  TTWAKEUP	UNKNOWN-LEU(pid=19) 0
+x                                PROCESS		8093 657
+wake_up_process+34                  TTWAKEUP	UNKNOWN-LEU(pid=19) 0
+x                                PROCESS		1769 156
+dhd_rx_frame+474                    SEMUP		c729b3c0	global
+x                                PROCESS		4623 509
+0 STOP
+
+SIGEND
+

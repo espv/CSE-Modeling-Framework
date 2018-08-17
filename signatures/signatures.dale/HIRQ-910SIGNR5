@@ -1,0 +1,14 @@
+SIGSTART
+NAME HIRQ-91
+PEU cpu
+RESOURCES cycles normal
+FRACTION 9%  394 4231
+
+0 START
+x                                PROCESS		1254 182
+mmc_host_deeper_disable+38          COMPL		c6c13d24	global
+x                                PROCESS		4767 616
+0 STOP
+
+SIGEND
+

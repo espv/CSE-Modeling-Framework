@@ -1,0 +1,34 @@
+SIGSTART
+NAME dhd_bus_txctl+64
+PEU cpu
+RESOURCES cycles normal
+FRACTION 5%  42 809
+
+0 LOOPSTART		0 nic::Q nic::Q 50
+x                                PROCESS		388 38
+dhdsdio_readframes+286c             QUEUECOND	softirq::rx softirq::rx notempty
+x                                PROCESS		6508 637
+mmc_set_ungated+c                   TEMPSYNCH	-1 dhd_bus_txctl+64 1 HIRQ-91	global
+x                                PROCESS		10200 1523
+omap_start_dma+380 PEUSTART HIRQ-0 0 0
+x                                PROCESS		626 154
+mmc_vddrange_to_ocrmask+64          WAITCOMPL		c6c13bcc	global
+x                                PROCESS		41455 3338
+mmc_set_ungated+c                   TEMPSYNCH	-1 dhd_bus_txctl+64 1 HIRQ-91	global
+x                                PROCESS		10425 1653
+omap_start_dma+380 PEUSTART HIRQ-0 0 0
+x                                PROCESS		3184 726
+mmc_vddrange_to_ocrmask+64          WAITCOMPL		c6c13bcc	global
+x                                PROCESS		34846 2774
+dhd_bus_txctl+304                   DEQUEUE		PKTQUEUE 0 nic::Q
+x                                PROCESS		1042 94
+dhd_os_send_hang_message+1c         SEMUP		c729b360	global
+x                                PROCESS		1063 178
+dhd_ioctl_entry+2e0                 CALL		net_os_set_suspend+58
+x                                PROCESS		476 66
+dhd_dev_get_pno_status              SEMDOWN		c729b360	global
+x                                PROCESS		1010 96
+0 RESTART
+
+SIGEND
+

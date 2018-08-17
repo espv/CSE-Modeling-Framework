@@ -1,0 +1,22 @@
+SIGSTART
+NAME dhdsdio_readframes+bac
+PEU cpu
+RESOURCES cycles normal
+FRACTION 49%  385 772
+
+0 LOOPSTART		0 softirq::rx softirq::rx 20
+x                                PROCESS		766 127
+dhdsdio_readframes+aa0              DEQUEUE		PKTQUEUE 0 softirq::rx
+x                                PROCESS		8835 1466
+mmc_set_ungated+c                   TEMPSYNCH	-1 dhdsdio_readframes+bac 1 HIRQ-91	global
+x                                PROCESS		12010 1452
+omap_start_dma+380 PEUSTART HIRQ-0 0 0
+x                                PROCESS		625 69
+mmc_vddrange_to_ocrmask+64          WAITCOMPL		c6c13ba4	global
+x                                PROCESS		34545 2787
+dhdsdio_readframes+624              ENQUEUE		PKTQUEUE 0 nic::Q
+x                                PROCESS		3102 993
+0 RESTART
+
+SIGEND
+

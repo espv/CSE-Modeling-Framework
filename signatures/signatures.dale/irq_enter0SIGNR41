@@ -1,0 +1,20 @@
+SIGSTART
+NAME irq_enter
+PEU cpu
+RESOURCES cycles normal
+FRACTION 0%  5 119087
+
+0 START
+x                                PROCESS		5554 1325
+raise_softirq+16c                   ENQUEUE		SRVQUEUE 1 softirq::timer
+x                                PROCESS		3783 378
+raise_softirq+16c                   ENQUEUE		SRVQUEUE 7 softirq::sched
+x                                PROCESS		2847 807
+wake_up_process+34                  TTWAKEUP	UNKNOWN-LEU(pid=2052) 0
+x                                PROCESS		7440 919
+__do_softirq+660                    LOOP		__do_softirq+660 0 softirq::hi softirq::hrtimer 10
+x                                PROCESS		551 42
+0 STOP
+
+SIGEND
+

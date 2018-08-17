@@ -1,0 +1,16 @@
+SIGSTART
+NAME run_timer_softirq
+PEU cpu
+RESOURCES cycles normal
+FRACTION 0%  7 44151
+
+0 START
+x                                PROCESS		73698 11636
+dev_queue_xmit+65c                  CALL		ppp_read+f0
+x                                PROCESS		28741 1455
+dev_queue_xmit+65c                  CALL		ppp_read+f0
+x                                PROCESS		15419 1470
+0 STOP
+
+SIGEND
+

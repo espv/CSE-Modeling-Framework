@@ -1,0 +1,18 @@
+SIGSTART
+NAME sendTask
+PEU cpu
+RESOURCES cycles normal
+FRACTION 50%  225 450
+
+0 START
+x                                PROCESS		523415 158544
+sendDone           TEMPSYNCH	-1 sendTask	global
+x                                PROCESS		0 0
+s PEUSTART HIRQ-7 7750376 1848394
+x                                PROCESS		0 0
+sendDone           WAITCOMPL		(TEMP)	global
+x                                PROCESS		1770317 403128
+0 STOP
+
+SIGEND
+

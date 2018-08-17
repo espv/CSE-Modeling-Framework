@@ -1,0 +1,12 @@
+SIGSTART
+NAME sendTask
+PEU cpu
+RESOURCES cycles normal
+FRACTION 50%  3030 6048
+
+0 START
+x                                PROCESS		844 560
+0 STOP
+
+SIGEND
+

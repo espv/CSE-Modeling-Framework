@@ -1,0 +1,14 @@
+SIGSTART
+NAME dhdsdio_readframes+d94
+PEU cpu
+RESOURCES cycles normal
+FRACTION 100%  404 404
+
+0 START
+x                                PROCESS		1000 175
+dhd_bus_txctl+64                    LOOP		dhd_bus_txctl+64 0 nic::Q nic::Q 50
+x                                PROCESS		311 45
+0 STOP
+
+SIGEND
+

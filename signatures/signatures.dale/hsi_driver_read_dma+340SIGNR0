@@ -1,0 +1,12 @@
+SIGSTART
+NAME hsi_driver_read_dma+34
+PEU cpu
+RESOURCES cycles normal
+FRACTION 100%  51 51
+
+0 START
+x                                PROCESS		533 91
+0 STOP
+
+SIGEND
+

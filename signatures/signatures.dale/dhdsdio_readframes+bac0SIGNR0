@@ -1,0 +1,12 @@
+SIGSTART
+NAME dhdsdio_readframes+bac
+PEU cpu
+RESOURCES cycles normal
+FRACTION 50%  386 772
+
+0 LOOPSTART		0 softirq::rx softirq::rx 20
+x                                PROCESS		735 78
+0 RESTART
+
+SIGEND
+

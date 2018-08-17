@@ -1,0 +1,14 @@
+SIGSTART
+NAME scheduler_tasks
+PEU cpu
+RESOURCES cycles normal
+FRACTION 100%  1 1
+
+0 START
+x                                PROCESS		63 0
+s                  DEQUEUE		SRVQUEUE 0 softirq::rx
+x                                PROCESS		275 0
+0 STOP
+
+SIGEND
+

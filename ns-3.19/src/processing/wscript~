@@ -1,0 +1,39 @@
+## -*- Mode: python; py-indent-offset: 4; indent-tabs-mode: nil; coding: utf-8; -*-
+
+def build(bld):
+    module = bld.create_ns3_module('processing', ['core'])
+    module.includes = '.'
+    module.source = [
+        'model/processing.cc',
+        'model/processing-helper.cc',
+        'model/program.cc',
+        'model/taskscheduler.cc',
+        'model/thread.cc',
+        'model/hwmodel.cc',
+        'model/peu.cc',
+        'model/sharedresource.cc',
+        'model/membus.cc',
+        'model/interrupt-controller.cc',
+        'model/execenv.cc',
+        'model/execenv-helper.cc',
+        'model/condition.cc'
+        ]
+
+    headers = bld.new_task_gen(features=['ns3header'])
+    headers.module = 'processing'
+    headers.source = [
+        'model/processing.h',
+        'model/program.h',
+        'model/taskscheduler.h',
+        'model/thread.h',
+        'model/hwmodel.h',
+        'model/peu.h',
+        'model/sharedresource.h',
+        'model/membus.h',
+        'model/interrupt-controller.h',
+        'model/processing-callback.h',
+        'model/processing-helper.h',
+        'model/execenv.h',
+        'model/execenv-helper.h',
+        'model/condition.h',
+        ]

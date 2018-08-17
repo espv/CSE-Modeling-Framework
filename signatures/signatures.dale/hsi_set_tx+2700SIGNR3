@@ -1,0 +1,14 @@
+SIGSTART
+NAME hsi_set_tx+270
+PEU cpu
+RESOURCES cycles normal
+FRACTION 9%  16 175
+
+0 START
+x                                PROCESS		5588 767
+cbp71_on+24                         SEMUP		c701b180	global
+x                                PROCESS		13860 2212
+0 STOP
+
+SIGEND
+

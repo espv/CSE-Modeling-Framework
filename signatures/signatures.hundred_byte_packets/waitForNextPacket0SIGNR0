@@ -1,0 +1,12 @@
+SIGSTART
+NAME waitForNextPacket
+PEU cpu
+RESOURCES cycles normal
+FRACTION 100%  6285 6285
+
+0 START
+x                                PROCESS		168 31
+0 STOP
+
+SIGEND
+

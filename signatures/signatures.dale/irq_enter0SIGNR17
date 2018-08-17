@@ -1,0 +1,16 @@
+SIGSTART
+NAME irq_enter
+PEU cpu
+RESOURCES cycles normal
+FRACTION 0%  161 119087
+
+0 START
+x                                PROCESS		1530 747
+                                    DEQUEUE		SRVQUEUE 0 HIRQ
+x                                PROCESS		1435 374
+__do_softirq+660                    LOOP		__do_softirq+660 0 softirq::hi softirq::hrtimer 10
+x                                PROCESS		631 299
+0 STOP
+
+SIGEND
+

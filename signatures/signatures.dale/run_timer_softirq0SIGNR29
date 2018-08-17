@@ -1,0 +1,16 @@
+SIGSTART
+NAME run_timer_softirq
+PEU cpu
+RESOURCES cycles normal
+FRACTION 0%  11 44151
+
+0 START
+x                                PROCESS		7807 1250
+wake_up_process+34                  TTWAKEUP	UNKNOWN-LEU(pid=22) 0
+x                                PROCESS		9029 3092
+wake_up_process+34                  TTWAKEUP	UNKNOWN-LEU(pid=2072) 0
+x                                PROCESS		5418 831
+0 STOP
+
+SIGEND
+

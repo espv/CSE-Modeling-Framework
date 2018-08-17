@@ -1,0 +1,20 @@
+SIGSTART
+NAME HIRQ-5
+PEU cpu
+RESOURCES cycles normal
+FRACTION 100%  225 225
+
+0 START
+x                                PROCESS		0 0
+readDoneAckLength  COMPL		(TEMP)	global
+x                                PROCESS		347794 112987
+readDoneAck        TEMPSYNCH	-1 HIRQ-5 1 HIRQ-6	global
+x                                PROCESS		0 0
+s PEUSTART HIRQ-6 680276 209721
+x                                PROCESS		0 0
+readDoneAckLength  WAITCOMPL		(TEMP)	global
+x                                PROCESS		235648 81827
+0 STOP
+
+SIGEND
+

@@ -1,0 +1,14 @@
+SIGSTART
+NAME HIRQ-93
+PEU cpu
+RESOURCES cycles normal
+FRACTION 50%  8 16
+
+0 START
+x                                PROCESS		726 282
+update_candidate+218                COMPL		c780a810	global
+x                                PROCESS		3149 688
+0 STOP
+
+SIGEND
+
