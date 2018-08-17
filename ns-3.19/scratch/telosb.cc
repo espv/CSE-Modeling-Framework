@@ -116,10 +116,6 @@ public:
         TelosB::receivingPacket = false;
     }
 
-    Ptr<Node> GetNode() {
-        return node;
-    }
-
     // Models the radio's behavior before the packets are processed by the microcontroller.
     void ReceivePacket(Ptr<Packet> packet) {
         firstNodeSending = false;
@@ -431,12 +427,12 @@ class ProtocolStack {
 public:
 	void GenerateTraffic(Ptr<Node> n, uint32_t pktSize, TelosB *mote1, TelosB *mote2, TelosB *mote3);
 	void GenerateTraffic2(Ptr<Node> n, uint32_t pktSize, Time time, TelosB *mote1, TelosB *mote2, TelosB *mote3);
-	void GeneratePacket(Ptr<Node> n, uint32_t pktSize, uint32_t curSeqNr, TelosB *mote1, TelosB *mote2, TelosB *mote3);
+	void GeneratePacket(uint32_t pktSize, uint32_t curSeqNr, TelosB *mote1, TelosB *mote2, TelosB *mote3);
 };
+
 
 Gnuplot *ppsPlot = NULL;
 Gnuplot *delayPlot = NULL;
-Gnuplot *powerConsumptionPlot = NULL;
 Gnuplot *numberForwardedPlot = NULL;
 Gnuplot *packetOutcomePlot = NULL;
 Gnuplot *numberBadCrcPlot = NULL;
@@ -453,7 +449,7 @@ Gnuplot2dDataset *numberRxfifoFlushesDataSet = NULL;
 Gnuplot2dDataset *numberCollidedDataSet = NULL;
 Gnuplot2dDataset *numberIPDroppedDataSet = NULL;
 Gnuplot2dDataset *intraOsDelayDataSet = NULL;
-Gnuplot2dDataset *powerConsumptionDataSet = NULL;
+
 
 void createPlot(Gnuplot** plot, std::string filename, std::string title, Gnuplot2dDataset** dataSet) {
     *plot = new Gnuplot(filename);
@@ -465,6 +461,7 @@ void createPlot(Gnuplot** plot, std::string filename, std::string title, Gnuplot
     (*dataSet)->SetStyle(Gnuplot2dDataset::LINES_POINTS);
 }
 
+
 void createPlot2(Gnuplot** plot, std::string filename, std::string title, Gnuplot2dDataset** dataSet, std::string dataSetTitle) {
     *plot = new Gnuplot(filename);
     (*plot)->SetTitle(title);
@@ -475,15 +472,14 @@ void createPlot2(Gnuplot** plot, std::string filename, std::string title, Gnuplo
     (*dataSet)->SetStyle(Gnuplot2dDataset::LINES_POINTS);
 }
 
+
 void writePlot(Gnuplot* plot, std::string filename, Gnuplot2dDataset* dataSet) {
     plot->AddDataset(*dataSet);
     std::ofstream plotFile(filename.c_str());
     plot->GenerateOutput(plotFile);
     plotFile.close();
-
-    //delete plot;
-    //delete dataSet;
 }
+
 
 void writePlot2Lines(Gnuplot* plot, std::string filename, Gnuplot2dDataset* dataSet1, Gnuplot2dDataset* dataSet2) {
     plot->AddDataset(*dataSet1);
@@ -491,43 +487,14 @@ void writePlot2Lines(Gnuplot* plot, std::string filename, Gnuplot2dDataset* data
     std::ofstream plotFile(filename.c_str());
     plot->GenerateOutput(plotFile);
     plotFile.close();
-
-    //delete plot;
-    //delete dataSet;
 }
 
-void writePlot3Lines(Gnuplot* plot, std::string filename, Gnuplot2dDataset* dataSet1, Gnuplot2dDataset* dataSet2, Gnuplot2dDataset* dataSet3) {
-    plot->AddDataset(*dataSet1);
-    plot->AddDataset(*dataSet2);
-    plot->AddDataset(*dataSet3);
-    std::ofstream plotFile(filename.c_str());
-    plot->GenerateOutput(plotFile);
-    plotFile.close();
-
-    //delete plot;
-    //delete dataSet;
-}
-
-void writePlot4Lines(Gnuplot* plot, std::string filename, Gnuplot2dDataset* dataSet1, Gnuplot2dDataset* dataSet2, Gnuplot2dDataset* dataSet3, Gnuplot2dDataset* dataSet4) {
-    plot->AddDataset(*dataSet1);
-    plot->AddDataset(*dataSet2);
-    plot->AddDataset(*dataSet3);
-    plot->AddDataset(*dataSet4);
-    std::ofstream plotFile(filename.c_str());
-    plot->GenerateOutput(plotFile);
-    plotFile.close();
-
-    //delete plot;
-    //delete dataSet;
-}
 
 // GeneratePacket creates a packet and passes it on to the NIC
-void ProtocolStack::GeneratePacket(Ptr<Node> n, uint32_t pktSize, uint32_t curSeqNr, TelosB *mote1, TelosB *mote2, TelosB *mote3) {
+void ProtocolStack::GeneratePacket(uint32_t pktSize, uint32_t curSeqNr, TelosB *mote1, TelosB *mote2, TelosB *mote3) {
     Ptr<Packet> toSend = Create<Packet>(pktSize);
-        toSend->m_executionInfo.seqNr = curSeqNr;
-        toSend->m_executionInfo.executedByExecEnv = false;
-
-        Ptr<ExecEnv> execenv = n->GetObject<ExecEnv>();
+    toSend->m_executionInfo.seqNr = curSeqNr;
+    toSend->m_executionInfo.executedByExecEnv = false;
 
     if (ns3::debugOn)
         std::cout << "Generating packet " << curSeqNr << std::endl;
@@ -540,7 +507,7 @@ void ProtocolStack::GeneratePacket(Ptr<Node> n, uint32_t pktSize, uint32_t curSe
 void ProtocolStack::GenerateTraffic(Ptr<Node> n, uint32_t pktSize, TelosB *mote1, TelosB *mote2, TelosB *mote3) {
     static int curSeqNr = 0;
 
-    GeneratePacket(n, pktSize, curSeqNr++, mote1, mote2, mote3);
+    GeneratePacket(pktSize, curSeqNr++, mote1, mote2, mote3);
         if (Simulator::Now().GetSeconds() + (1.0 / (double) pps) < duration-0.101)
                 Simulator::Schedule(Seconds(1.0 / (double) pps) + MicroSeconds(rand() % 100),
                 &ProtocolStack::GenerateTraffic, this, n, /*rand()%(80 + 1)*/pktSize, mote1, mote2, mote3);
@@ -548,11 +515,8 @@ void ProtocolStack::GenerateTraffic(Ptr<Node> n, uint32_t pktSize, TelosB *mote1
 
 
 // GenerateTraffic schedules the generation of packets according to the duration
-// of the experinment and the specified (static) rate.
+// of the experiment and the specified (static) rate.
 void ProtocolStack::GenerateTraffic2(Ptr<Node> n, uint32_t pktSize, Time time, TelosB *mote1, TelosB *mote2, TelosB *mote3) {
-        static int curSeqNr = 0;
-
-   // Simulator::Schedule(time, &ProtocolStack::GeneratePacket, this, n, pktSize, curSeqNr++, mote1, mote2, mote3);
     Simulator::Schedule(time,
       &ProtocolStack::GenerateTraffic, this, n, /*rand()%(80 + 1)*/pktSize, mote1, mote2, mote3);
 }
@@ -578,9 +542,9 @@ int main(int argc, char *argv[])
     createPlot(&ppsPlot, "testplot.png", "pps", &ppsDataSet);
     createPlot(&delayPlot, "delayplot.png", "intra-os delay", &delayDataSet);
 
-//#define READ_TRACES 1
+#undef READ_TRACES
 #define ONE_CONTEXT 1
-//#define SIMULATION_OVERHEAD_TEST 0
+#undef SIMULATION_OVERHEAD_TEST
 #if READ_TRACES
     Ptr<ExecEnvHelper> eeh = CreateObjectWithAttributes<ExecEnvHelper>(
             "cacheLineSize", UintegerValue(64), "tracingOverhead",
@@ -628,7 +592,7 @@ int main(int argc, char *argv[])
         std::cout << "line: " << line << std::endl;
         protocolStack->GenerateTraffic2(c.Get(0), packet_size, next_time-first_time, mote1, mote2, mote3);
         //Simulator::Schedule(MicroSeconds(atoi(line.c_str())),
-        //                    &ProtocolStack::GeneratePacket, protocolStack, c.Get(0), packet_size, curSeqNr++, mote1, mote2, mote3);
+        //                    &ProtocolStack::GeneratePacket, protocolStack, packet_size, curSeqNr++, mote1, mote2, mote3);
         std::cout << "Sending packet at " << packet_size << " or in microseconds " << next_time-first_time << std::endl;
     }
     Simulator::Stop(Seconds(duration));
@@ -657,9 +621,9 @@ int main(int argc, char *argv[])
     eeh->Install(deviceFile, c.Get(1));
     eeh->Install(deviceFile, c.Get(2));
 
-    Ptr<ExecEnv> ee1 = c.Get(0)->GetObject<ExecEnv>();
-    Ptr<ExecEnv> ee2 = c.Get(1)->GetObject<ExecEnv>();
-    Ptr<ExecEnv> ee3 = c.Get(2)->GetObject<ExecEnv>();
+    //Ptr<ExecEnv> ee1 = c.Get(0)->GetObject<ExecEnv>();
+    //Ptr<ExecEnv> ee2 = c.Get(1)->GetObject<ExecEnv>();
+    //Ptr<ExecEnv> ee3 = c.Get(2)->GetObject<ExecEnv>();
     ProtocolStack *protocolStack = new ProtocolStack();
 
     TelosB *mote1 = new TelosB(c.Get(0));
