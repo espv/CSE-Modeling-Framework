@@ -78,8 +78,6 @@ PEU 4 cpu0 ns3::processing::RoundRobinScheduler 250 irq_enter HIRQ
 SYNCH
 # name type arguments
 # type 0 is a semaphore
-c72bb384 0 1
-semSend 0 1
 
 CONDITIONS
 
@@ -94,7 +92,6 @@ LOC startoftask3 senddone
 LOC startofhirq9 readdoneacklength
 LOC startofhirq10 readdoneackpayload
 LOC endoftaskloop emptytaskloop
-#SERVICE sendTask sendtask
 
 # Entrypoint function for the PEU defined above
 SIGSTART
@@ -183,19 +180,6 @@ SIGEND
 
 
 SIGSTART
-NAME HIRQ-8
-PEU cpu
-RESOURCES cycles normal
-FRACTION 100% 1 1
-
-0 START
-x PROCESS 400 0
-0 STOP
-
-SIGEND
-
-
-SIGSTART
 NAME HIRQ-7
 PEU cpu
 RESOURCES cycles normal
@@ -219,32 +203,6 @@ FRACTION 49%  1937 3880
 x QUEUECOND send-queue send-queue empty
 x                                PROCESS		247 6
 startoftask2 DEQUEUE PKTQUEUE 0 rcvd-send
-0 STOP
-
-SIGEND
-
-
-SIGSTART
-NAME HIRQ-112
-PEU cpu
-RESOURCES cycles normal
-FRACTION 100% 1 1
-
-0 START
-x                                SEMUP        semSend global
-0 STOP
-
-SIGEND
-
-
-SIGSTART
-NAME HIRQ-111
-PEU cpu
-RESOURCES cycles normal
-FRACTION 100% 1 1
-
-0 START
-x                                SEMDOWN        semSend global
 0 STOP
 
 SIGEND
@@ -287,18 +245,6 @@ readDonePayload        WAITCOMPL		(TEMP)	global
 SIGEND
 
 
-SIGSTART
-NAME HIRQ-10
-PEU cpu
-RESOURCES cycles normal
-FRACTION 100% 1 1
-
-0 START
-x TTWAKEUP scheduler
-0                  ENQUEUE		SRVQUEUE sendDone_task softirq::send
-0 STOP
-
-
 # Used by sendTask
 SIGSTART
 NAME HIRQ-6
@@ -328,8 +274,6 @@ x PROCESS 2168 0  # 40-41
 x PROCESS 904 0  # 41-38 - Should this be here at all?
 x TTWAKEUP scheduler
 0                  ENQUEUE		SRVQUEUE sendTask softirq::send
-# SEMUP should really be here, but it seems to break everything
-#x                                SEMUP        c72bb384 global
 0 STOP
 
 
@@ -457,18 +401,6 @@ readDoneFcf        WAITCOMPL		(TEMP)	global
 
 SIGEND
 
-SIGSTART
-NAME HIRQ-20
-PEU cpu
-RESOURCES cycles normal
-FRACTION 100% 1 1
-
-0 START
-x CALL hardware_interrupt_2
-0 STOP
-
-SIGEND
-
 
 SIGSTART
 NAME HIRQ-2
@@ -512,58 +444,7 @@ RESOURCES cycles normal
 FRACTION 100% 1 1
 
 0 START
-#x                                SEMDOWN        c72bb384 global
 x CALL hardware_interrupt_1
-0 STOP
-
-SIGEND
-
-SIGSTART
-NAME HIRQ-15
-PEU cpu
-RESOURCES cycles normal
-FRACTION 100% 1 1
-
-0 START
-x CALL hardware_interrupt_1
-0 STOP
-
-SIGEND
-
-SIGSTART
-NAME HIRQ-16
-PEU cpu
-RESOURCES cycles normal
-FRACTION 100% 1 1
-
-0 START
-x                                SEMUP        c72bb384 global
-0 STOP
-
-SIGEND
-
-
-SIGSTART
-NAME HIRQ-77
-PEU cpu
-RESOURCES cycles normal
-FRACTION 100% 1 1
-
-0 START
-x PROCESS 999999 0
-0 STOP
-
-SIGEND
-
-
-SIGSTART
-NAME HIRQ-21
-PEU cpu
-RESOURCES cycles normal
-FRACTION 50%  1940 3880
-
-0 START
-x                                PROCESS               280 0
 0 STOP
 
 SIGEND
