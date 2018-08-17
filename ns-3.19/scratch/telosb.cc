@@ -34,9 +34,10 @@ static uint32_t seed = 3;
 static double duration = 10;
 static int pps = 100;
 static bool print = 0;
-static int packet_size = 0;
+static int packet_size = 125;
 static std::string deviceFile = "device-files/telosb-min.device";  // Required if we use gdb
 static std::string trace_fn = "trace-inputs/packets-received.txt";
+static std::string kbps = "65kbps";
 
 
 static ProgramLocation *dummyProgramLoc;
@@ -717,10 +718,10 @@ int main(int argc, char *argv[])
     createPlot(&delayPlot, "delayplot.png", "intra-os delay", &delayDataSet);
 
 #define READ_TRACES 0
-#define ONE_CONTEXT 1
+#define ONE_CONTEXT 0
 #define SIMULATION_OVERHEAD_TEST 0
 #define ALL_CONTEXTS 0
-#define CC2420_MODEL 0
+#define CC2420_MODEL 1
 #if CC2420_MODEL
     CC2420Helper cc2420;
 
