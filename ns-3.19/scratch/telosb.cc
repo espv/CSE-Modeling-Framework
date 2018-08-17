@@ -146,7 +146,7 @@ public:
             radio.rxfifo_overflow = true;
         }
 
-        if (receivingPacket/* || (packet->collided && !radio.rxfifo_overflow)*/) {
+        if (receivingPacket) {
             // Here, we should enqueue the packet into a spi_busy queue that handles both read_done_length and senddone_task requests.
             if (ns3::debugOn)
                 std::cout << "Adding packet " << packet->m_executionInfo.seqNr << " to spi_queue, length: " << receive_queue.size()+1 << std::endl;
