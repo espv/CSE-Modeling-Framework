@@ -17,3 +17,5 @@ Steps to compile TinyOS: (requires a working java installation >= java 5, instal
 4: make
 5: make install
 
+The ForwardPacketsAndTraceCSW application has been used to trace the temporal behavior of the CSW of TinyOS while doing packet forwarding. You can test the app out on a real topology with three motes or by using COOJA (COntiki Os JAva simulator). The behavior of each node depends on their node ID that is automatically assigned in COOJA and explicitly assigned when compiling for real motes.
+
