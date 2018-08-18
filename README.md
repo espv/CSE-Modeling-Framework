@@ -9,3 +9,11 @@ How to run in terminal window from git root directory:<br/>
     ```# If you want to run with gdb, run run_gdb_experiment.sh; if you want to run with valgrind, run run_valgrind_experiment.sh```<br/>
 4: $```./csw_model_execution_scripts/run_experiment.sh telosb```
 
+This repo also has a submodule called tinyos-instrumented-for-telosb that contains the instrumented TinyOS code used to trace the temporal behavior of the CSW of TinyOS.
+Steps to compile TinyOS: (requires a working java installation >= java 5, installation of the tinyos-tools and nescc packages)
+1: cd tinyos-instrumented-for-telosb/tinyos-main/tos
+2: ./Bootstrap
+3: ./configure
+4: make
+5: make install
+
