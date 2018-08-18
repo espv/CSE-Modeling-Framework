@@ -32,7 +32,7 @@ namespace ns3 {
 
 static uint32_t seed = 3;
 static double duration = 10;
-static int pps = 100;
+static int pps = 65;
 static bool print = 0;
 static int packet_size = 125;
 static std::string deviceFile = "device-files/telosb-min.device";  // Required if we use gdb
@@ -472,8 +472,8 @@ public:
             NS_LOG_INFO (Simulator::Now() << " " << id << ": SendPacket " << packet->m_executionInfo.seqNr);
 
         // Finish this, also change ReceivePacket to also accept acks
-        if (true || !to_mote->radio.rxfifo_overflow && to_mote->radio.nr_send_recv == 0) {
-            if (false && firstNodeSending) {
+        if (!to_mote->radio.rxfifo_overflow && to_mote->radio.nr_send_recv == 0) {
+            if (firstNodeSending) {
                 Simulator::Schedule(MicroSeconds(100), &TelosB::SendPacket, this, packet, to_mote, third_mote);
                 return;
             }
@@ -485,9 +485,10 @@ public:
             Simulator::Schedule(radio.datarate.CalculateBytesTxTime(packet->GetSize ()+36 + 5/* 36 is UDP packet, 5 is preamble + SFD*/) + MicroSeconds (192) /* 12 symbol lengths before sending packet, even without CCA. 8 symbol lengths is 128 µs */, &TelosB::ReceivePacket, to_mote, packet);
             if (ns3::debugOn)
                 NS_LOG_INFO ("SendPacket, sending packet " << packet->m_executionInfo.seqNr);
-        } else if (/*to_mote->radio.nr_send_recv > 0 && */to_mote->radio.nr_send_recv > 0) {
+        } else if (to_mote->radio.nr_send_recv > 0) {
             if (ccaOn) {
-                NS_LOG_INFO ("CCA, delaying sending packet");
+                if (ns3::debugOn)
+                  NS_LOG_INFO ("CCA, delaying sending packet");
                 Simulator::Schedule(MicroSeconds(2400 + rand() % 200), &TelosB::SendPacket, this, packet, to_mote, third_mote);
                 return;
             }
@@ -607,7 +608,7 @@ class ProtocolStack {
 public:
 	void GenerateTraffic(Ptr<Node> n, uint32_t pktSize, TelosB *m1, TelosB *m2, TelosB *m3);
 	void GenerateTraffic2(Ptr<Node> n, uint32_t pktSize, Time time, TelosB *m1, TelosB *m2, TelosB *m3);
-	void GeneratePacket(uint32_t pktSize, uint32_t curSeqNr, TelosB *m2, TelosB *m3);
+	void GeneratePacket(uint32_t pktSize, uint32_t curSeqNr, TelosB *m1, TelosB *m2, TelosB *m3);
 };
 
 Gnuplot *ppsPlot = NULL;
@@ -665,7 +666,7 @@ void writePlot2Lines(Gnuplot* plot, std::string filename, Gnuplot2dDataset* data
 }
 
 // GeneratePacket creates a packet and passes it on to the NIC
-void ProtocolStack::GeneratePacket(uint32_t pktSize, uint32_t curSeqNr, TelosB *m2, TelosB *m3) {
+void ProtocolStack::GeneratePacket(uint32_t pktSize, uint32_t curSeqNr, TelosB *m1, TelosB *m2, TelosB *m3) {
     Ptr<Packet> toSend = Create<Packet>(pktSize);
         toSend->m_executionInfo.seqNr = curSeqNr;
         toSend->m_executionInfo.executedByExecEnv = false;
@@ -673,7 +674,7 @@ void ProtocolStack::GeneratePacket(uint32_t pktSize, uint32_t curSeqNr, TelosB *
     if (ns3::debugOn)
         NS_LOG_INFO ("Generating packet " << curSeqNr);
 
-    mote1->SendPacket(toSend, m2, m3);
+    m1->SendPacket(toSend, m2, m3);
 }
 
 // GenerateTraffic schedules the generation of packets according to the duration
@@ -859,7 +860,7 @@ int main(int argc, char *argv[])
         protocolStack->GenerateTraffic2(c.Get(0), packet_size-36, MicroSeconds
                                         ((next_time-first_time).GetMicroSeconds()*0.87), mote1, mote2, mote3);
         //Simulator::Schedule(MicroSeconds(atoi(line.c_str())),
-        //                    &ProtocolStack::GeneratePacket, protocolStack, packet_size, curSeqNr++, mote2, mote3);
+        //                    &ProtocolStack::GeneratePacket, protocolStack, packet_size, curSeqNr++, mote1, mote2, mote3);
         NS_LOG_INFO ("Sending packet at " << packet_size-36 << " or in microseconds " <<
                      (next_time-first_time).GetMicroSeconds());
     }
@@ -920,10 +921,10 @@ int main(int argc, char *argv[])
                  ", ip layer drop: " << nr_packets_dropped_ip_layer << ", successfully forwarded: " <<
                  nr_packets_forwarded << " / " << nr_packets_total << " = " <<
                  (nr_packets_forwarded/(float)nr_packets_total)*100 << "%");
-    NS_LOG_INFO ("1 " << packet_size << " " << pps << " " << (nr_packets_forwarded/(float)nr_packets_total)*100 << "\n";
+    NS_LOG_INFO ("1 " << packet_size << " " << pps << " " << (nr_packets_forwarded/(float)nr_packets_total)*100 << "\n");
     NS_LOG_INFO ("2 " << packet_size << " " << pps << " " <<
-                 (nr_packets_dropped_ip_layer/(float)nr_packets_total)*100 << "\n";
-    NS_LOG_INFO ("3 " << packet_size << " " << pps << " " << total_intra_os_delay/(float)nr_packets_total << "\n";
+                 (nr_packets_dropped_ip_layer/(float)nr_packets_total)*100 << "\n");
+    NS_LOG_INFO ("3 " << packet_size << " " << pps << " " << total_intra_os_delay/(float)nr_packets_total << "\n");
     NS_LOG_INFO ("Milliseconds it took to simulate: " << t);
 #elif SIMULATION_OVERHEAD_TEST
     NodeContainer c;
@@ -1087,15 +1088,17 @@ int main(int argc, char *argv[])
     NodeContainer c;
     memset(&c, 0, sizeof(NodeContainer));
     c.Create(3);
+    ns3::debugOn = false;
 
     std::ofstream numberForwardedFile ("plots/numberForwardedPoints.txt");
     if (!numberForwardedFile.is_open()) {
         NS_LOG_INFO ("Failed to open numberForwardedPoints.txt, exiting");
         exit(-1);
     }
-    for (int i = 88; i >= 0; i-=8) {
+    for (int i = 125; i >= 36; i-=8) {
         packet_size = i;
-        std::ostringstream os << packet_size;
+        std::ostringstream os;
+        os << packet_size;
         createPlot(&numberForwardedPlot, "numberForwarded"+os.str()+".png", "Forwarded at packet size: "+os.str(),
                    &numberForwardedDataSet);
         createPlot2(&packetOutcomePlot, "packetOutcome"+os.str()+".png", "Packet outcome at packet size: "+os.str(),
@@ -1131,7 +1134,7 @@ int main(int argc, char *argv[])
             // Create node with ExecEnv
             NodeContainer node_container;
             memset(&node_container, 0, sizeof(NodeContainer));
-          node_container.Create(3);
+            node_container.Create(3);
 
             Ptr<ExecEnvHelper> eeh = CreateObjectWithAttributes<ExecEnvHelper>(
                     "cacheLineSize", UintegerValue(64), "tracingOverhead",
@@ -1139,16 +1142,17 @@ int main(int argc, char *argv[])
 
             eeh->Install(deviceFile, node_container.Get(0));
             eeh->Install(deviceFile, node_container.Get(1));
-            eeh->Install(deviceFile, cnode_containernode_container.Get(2));
+            eeh->Install(deviceFile, node_container.Get(2));
 
-            //Ptr<ExecEnv> ee1 = node_container.Get(0)->GetObject<ExecEnv>();
-            //Ptr<ExecEnv> ee2 = node_container.Get(1)->GetObject<ExecEnv>();
-            //Ptr<ExecEnv> ee3 = node_container.Get(2)->GetObject<ExecEnv>();
             ProtocolStack *protocolStack = new ProtocolStack();
 
             TelosB *mote1 = new TelosB(node_container.Get(0));
             TelosB *mote2 = new TelosB(node_container.Get(1));
             TelosB *mote3 = new TelosB(node_container.Get(2));
+
+            ScheduleInterrupt (mote1->GetNode(), Create<Packet>(0), "HIRQ-12", Seconds(0));
+            ScheduleInterrupt (mote2->GetNode(), Create<Packet>(0), "HIRQ-12", Seconds(0));
+            ScheduleInterrupt (mote3->GetNode(), Create<Packet>(0), "HIRQ-12", Seconds(0));
 
             protocolStack->GenerateTraffic(node_container.Get(0), packet_size, mote1, mote2, mote3);
             Simulator::Stop(Seconds(duration));
@@ -1197,10 +1201,10 @@ int main(int argc, char *argv[])
         writePlot(numberBadCrcPlot, "plots/numberBadCrc" + os.str() + ".gnu", numberBadCrcDataSet);
         writePlot(intraOsDelayPlot, "plots/intraOsDelay" + os.str() + ".gnu", intraOsDelayDataSet);
 
-        if (i == 40)
-          i = 8;
-        if (i == 88)
-          i = 48;
+        if (i == 66)
+          i = 36;
+        if (i == 125)
+          i = 66;
     }
 
     numberForwardedFile.close();

@@ -2,7 +2,7 @@
 
 if [ "$1" == "" ]
 then
-        echo "USAGE: ./run_gdb_experiment.sh <simulator-program>.cc"
+        echo "USAGE: ./run_generate_plot.sh <simulator-program>.cc"
 else
 	rm plots/*.gnu
 	rm plots/*.png
