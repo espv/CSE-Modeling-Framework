@@ -1,0 +1,3 @@
+[submodule "tinyos-instrumented-for-telosb"]
+	path = tinyos-instrumented-for-telosb
+	url = https://github.com/espv/tinyos-instrumented-for-telosb
