@@ -599,15 +599,15 @@ public:
           } // sending
       } // receive
 
-      return false; // something went wrong
+      //return false; // something went wrong
     }
 };
 
 class ProtocolStack {
 public:
-	void GenerateTraffic(Ptr<Node> n, uint32_t pktSize, TelosB *mote1, TelosB *mote2, TelosB *mote3);
-	void GenerateTraffic2(Ptr<Node> n, uint32_t pktSize, Time time, TelosB *mote1, TelosB *mote2, TelosB *mote3);
-	void GeneratePacket(uint32_t pktSize, uint32_t curSeqNr, TelosB *mote1, TelosB *mote2, TelosB *mote3);
+	void GenerateTraffic(Ptr<Node> n, uint32_t pktSize, TelosB *m1, TelosB *m2, TelosB *m3);
+	void GenerateTraffic2(Ptr<Node> n, uint32_t pktSize, Time time, TelosB *m1, TelosB *m2, TelosB *m3);
+	void GeneratePacket(uint32_t pktSize, uint32_t curSeqNr, TelosB *m2, TelosB *m3);
 };
 
 Gnuplot *ppsPlot = NULL;
@@ -665,7 +665,7 @@ void writePlot2Lines(Gnuplot* plot, std::string filename, Gnuplot2dDataset* data
 }
 
 // GeneratePacket creates a packet and passes it on to the NIC
-void ProtocolStack::GeneratePacket(uint32_t pktSize, uint32_t curSeqNr, TelosB *mote1, TelosB *mote2, TelosB *mote3) {
+void ProtocolStack::GeneratePacket(uint32_t pktSize, uint32_t curSeqNr, TelosB *m2, TelosB *m3) {
     Ptr<Packet> toSend = Create<Packet>(pktSize);
         toSend->m_executionInfo.seqNr = curSeqNr;
         toSend->m_executionInfo.executedByExecEnv = false;
@@ -673,26 +673,25 @@ void ProtocolStack::GeneratePacket(uint32_t pktSize, uint32_t curSeqNr, TelosB *
     if (ns3::debugOn)
         NS_LOG_INFO ("Generating packet " << curSeqNr);
 
-    mote1->SendPacket(toSend, mote2, mote3);
+    mote1->SendPacket(toSend, m2, m3);
 }
 
 // GenerateTraffic schedules the generation of packets according to the duration
 // of the experinment and the specified (static) rate.
-void ProtocolStack::GenerateTraffic(Ptr<Node> n, uint32_t pktSize, TelosB *mote1, TelosB *mote2, TelosB *mote3) {
+void ProtocolStack::GenerateTraffic(Ptr<Node> n, uint32_t pktSize, TelosB *m1, TelosB *m2, TelosB *m3) {
     static int curSeqNr = 0;
 
-    GeneratePacket(pktSize, curSeqNr++, mote1, mote2, mote3);
+    GeneratePacket(pktSize, curSeqNr++, m1, m2, m3);
         if (Simulator::Now().GetSeconds() + (1.0 / (double) pps) < duration - 0.02)
                 Simulator::Schedule(Seconds(1.0 / (double) pps) + MicroSeconds(rand() % 100),
-                &ProtocolStack::GenerateTraffic, this, n, /*rand()%(80 + 1)*/pktSize, mote1, mote2, mote3);
+                &ProtocolStack::GenerateTraffic, this, n, pktSize, m1, m2, m3);
 }
 
 
 // GenerateTraffic schedules the generation of packets according to the duration
-// of the experinment and the specified (static) rate.
-void ProtocolStack::GenerateTraffic2(Ptr<Node> n, uint32_t pktSize, Time time, TelosB *mote1, TelosB *mote2, TelosB *mote3) {
-    Simulator::Schedule(time,
-      &ProtocolStack::GenerateTraffic, this, n, /*rand()%(80 + 1)*/pktSize, mote1, mote2, mote3);
+// of the experiment and the specified (static) rate.
+void ProtocolStack::GenerateTraffic2(Ptr<Node> n, uint32_t pktSize, Time time, TelosB *m1, TelosB *m2, TelosB *m3) {
+    Simulator::Schedule(time, &ProtocolStack::GenerateTraffic, this, n, pktSize, m1, m2, m3);
 }
 
 int main(int argc, char *argv[])
@@ -721,8 +720,8 @@ int main(int argc, char *argv[])
 #define READ_TRACES 0
 #define ONE_CONTEXT 0
 #define SIMULATION_OVERHEAD_TEST 0
-#define ALL_CONTEXTS 0
-#define CC2420_MODEL 1
+#define ALL_CONTEXTS 1
+#define CC2420_MODEL 0
 #if CC2420_MODEL
     CC2420Helper cc2420;
 
@@ -737,7 +736,8 @@ int main(int argc, char *argv[])
 
     MobilityHelper mobility;
 
-    // The way we want to configure this: mote 1 receives the packet from mote 2, but mote 3 does not receive it. Mote 3 receives the packet from mote 2.
+    // The way we want to configure this: mote 1 receives the packet from mote 2, but mote 3 does not receive it.
+    // Mote 3 receives the packet from mote 2.
     mobility.SetPositionAllocator ("ns3::GridPositionAllocator",
                                    "MinX", DoubleValue (0.0),
                                    "MinY", DoubleValue (0.0),
@@ -754,47 +754,15 @@ int main(int argc, char *argv[])
 
     Ipv4InterfaceContainer interfaces = address.Assign(devices);
 
-    //Ipv4InterfaceAddress src = interfaces.Get(0).first->GetAddress (1, 0);  // 10.0.0.1
-    //Ipv4InterfaceAddress dst = interfaces.Get(2).first->GetAddress (1, 0);  // 10.0.0.3
     Ptr<CC2420InterfaceNetDevice> netDevice1 = nodes.Get(0)->GetDevice(0)->GetObject<CC2420InterfaceNetDevice>();
     Ptr<CC2420InterfaceNetDevice> netDevice2 = nodes.Get(1)->GetDevice(0)->GetObject<CC2420InterfaceNetDevice>();
     Ptr<CC2420InterfaceNetDevice> netDevice3 = nodes.Get(2)->GetDevice(0)->GetObject<CC2420InterfaceNetDevice>();
     TelosB *mote1 = new TelosB(nodes.Get(0), InetSocketAddress(interfaces.GetAddress(0), 9), netDevice1);
-    //mote1->Send(src, dst, packet);  // Use case
-    TelosB *mote2 = new TelosB(nodes.Get(1), InetSocketAddress(interfaces.GetAddress(1), 9), InetSocketAddress(interfaces.GetAddress(2), 9), netDevice2);
+    TelosB *mote2 = new TelosB(nodes.Get(1), InetSocketAddress(interfaces.GetAddress(1), 9),
+                               InetSocketAddress(interfaces.GetAddress(2), 9), netDevice2);
     TelosB *mote3 = new TelosB(nodes.Get(2), InetSocketAddress(interfaces.GetAddress(2), 9), netDevice3);
     print = false;
 
-    // Send (Ptr<Packet> packet, bool checkCCA, const Address& dest, uint16_t protocolNumber);
-    // Mote 1 sends packet to mote 3
-    //DynamicCast<CC2420InterfaceNetDevice>(devices.Get (0))->Send (Create<Packet>(124), InetSocketAddress(interfaces.GetAddress(1), 9), 0);
-
-    //uint32_t m_pktSize = 88;
-    //uint8_t nullBuffer[m_pktSize];
-    //for(uint32_t i=0; i<m_pktSize; i++) nullBuffer[i] = 0;
-
-    // send with CCA
-    //Ptr<CC2420Send> msg = CreateObject<CC2420Send>(nullBuffer, m_pktSize, true);
-
-    //m_totBytes += m_pktSize;
-
-    //NS_LOG_INFO ("At time " << Simulator::Now ().GetSeconds ()
-    //        << "s on-off-cc2420 application sent " <<  m_pktSize << " bytes"
-    //        << " total Tx " << m_totBytes << " bytes");
-    //uint8_t channelNo = 12; // channel number is changed from default value 11 to 12
-    //uint8_t power = 31; // power remains on default value of 31
-    //Ptr<CC2420Message> msg2 = CreateObject<CC2420Setup>(channelNo, power);
-    //construct Config message (default power, changed channel)
-    //DynamicCast<CC2420InterfaceNetDevice>(devices.Get(0))->descendingSignal(msg2);
-
-    // request current status
-    //DynamicCast<CC2420InterfaceNetDevice>(devices.Get(0))->descendingSignal(CreateObject<CC2420StatusReq>());
-    //DynamicCast<CC2420InterfaceNetDevice>(devices.Get(0))->descendingSignal(msg);
-    /*DynamicCast<CC2420InterfaceNetDevice>(devices.Get (0))->Send (Create<Packet>(124), InetSocketAddress(interfaces.GetAddress(2), 9), 0);
-    DynamicCast<CC2420InterfaceNetDevice>(devices.Get (0))->Send (Create<Packet>(124), InetSocketAddress(interfaces.GetAddress(2), 9), 0);
-    DynamicCast<CC2420InterfaceNetDevice>(devices.Get (0))->Send (Create<Packet>(124), InetSocketAddress(interfaces.GetAddress(2), 9), 0);
-    DynamicCast<CC2420InterfaceNetDevice>(devices.Get (0))->Send (Create<Packet>(124), InetSocketAddress(interfaces.GetAddress(2), 9), 0);
-    DynamicCast<CC2420InterfaceNetDevice>(devices.Get (0))->Send (Create<Packet>(124), InetSocketAddress(interfaces.GetAddress(2), 9), 0);*/
     Ptr<ExecEnvHelper> eeh = CreateObjectWithAttributes<ExecEnvHelper>(
             "cacheLineSize", UintegerValue(64), "tracingOverhead",
             UintegerValue(0));
@@ -810,17 +778,7 @@ int main(int argc, char *argv[])
     onoff.SetAttribute("DataRate", StringValue(kbps));
     onoff.SetAttribute("PacketSize", StringValue(SSTR( packet_size ))); //default is 512, which is too much for CC2420
 
-    // second simulation (DataRate too high, PacketSize ok)
-    //onoff.SetAttribute("DataRate", StringValue("90kbps"));
-    //onoff.SetAttribute("PacketSize", StringValue("20"));
-
-    // third simulation (DataRate ok, PacketSize too big)
-    //onoff.SetAttribute("DataRate", StringValue("70kbps"));
-    //onoff.SetAttribute("PacketSize", StringValue("150"));
-
     ApplicationContainer clientApps = onoff.Install(nodes.Get(0));
-    //clientApps.Start(Seconds(1.0));
-    //clientApps.Stop(Seconds(5.0));
 
     netDevice2->SetMessageCallback(MakeCallback(&TelosB::HandleRead, mote2));
 
@@ -844,7 +802,12 @@ int main(int argc, char *argv[])
     Simulator::Run();
     Simulator::Destroy();
 
-    NS_LOG_INFO ("UDP payload: " << packet_size << ", pps: " << pps << ", RXFIFO flushes: " << nr_rxfifo_flushes << ", bad CRC: " << nr_packets_dropped_bad_crc << ", radio collision: " << nr_packets_collision_missed << ", ip layer drop: " << nr_packets_dropped_ip_layer << ", successfully forwarded: " << nr_packets_forwarded << " / " << nr_packets_total << " = " << (nr_packets_forwarded/(float)nr_packets_total)*100 << "% in " << (duration/2 + (int)duration % 2) << " seconds, actual pps=" << (nr_packets_forwarded/(duration/2 + (int)duration % 2)));
+    NS_LOG_INFO ("UDP payload: " << packet_size << ", pps: " << pps << ", RXFIFO flushes: " << nr_rxfifo_flushes <<
+                 ", bad CRC: " << nr_packets_dropped_bad_crc << ", radio collision: " << nr_packets_collision_missed <<
+                 ", ip layer drop: " << nr_packets_dropped_ip_layer << ", successfully forwarded: " <<
+                 nr_packets_forwarded << " / " << nr_packets_total << " = " <<
+                 (nr_packets_forwarded/(float)nr_packets_total)*100 << "% in " << (duration/2 + (int)duration % 2) <<
+                 " seconds, actual pps=" << (nr_packets_forwarded/(duration/2 + (int)duration % 2)));
 
 #elif READ_TRACES
     Ptr<ExecEnvHelper> eeh = CreateObjectWithAttributes<ExecEnvHelper>(
@@ -893,10 +856,12 @@ int main(int argc, char *argv[])
             first_time = next_time;
           continue;
         }
-        protocolStack->GenerateTraffic2(c.Get(0), packet_size-36, MicroSeconds ((next_time-first_time).GetMicroSeconds()*0.87), mote1, mote2, mote3);
+        protocolStack->GenerateTraffic2(c.Get(0), packet_size-36, MicroSeconds
+                                        ((next_time-first_time).GetMicroSeconds()*0.87), mote1, mote2, mote3);
         //Simulator::Schedule(MicroSeconds(atoi(line.c_str())),
-        //                    &ProtocolStack::GeneratePacket, protocolStack, packet_size, curSeqNr++, mote1, mote2, mote3);
-        NS_LOG_INFO ("Sending packet at " << packet_size-36 << " or in microseconds " << (next_time-first_time).GetMicroSeconds());
+        //                    &ProtocolStack::GeneratePacket, protocolStack, packet_size, curSeqNr++, mote2, mote3);
+        NS_LOG_INFO ("Sending packet at " << packet_size-36 << " or in microseconds " <<
+                     (next_time-first_time).GetMicroSeconds());
     }
     Simulator::Stop(Seconds(duration));
     Simulator::Run();
@@ -904,10 +869,15 @@ int main(int argc, char *argv[])
 
     createPlot(&intraOsDelayPlot, "intraOsDelay.png", "Intra-OS delay", &intraOsDelayDataSet);
     for (int i = 0; i < all_intra_os_delays.size(); ++i) {
-        NS_LOG_INFO ("3 " /*<< i << " " << forwarded_packets_seqnos[i] << " " << time_received_packets[i] << " " */<< all_intra_os_delays[i]);
+        NS_LOG_INFO ("3 " << all_intra_os_delays[i]);
         intraOsDelayDataSet->Add(forwarded_packets_seqnos[i], all_intra_os_delays[i]);
     }
-    NS_LOG_INFO ("UDP payload: " << packet_size << ", pps: " << pps << ", RXFIFO flushes: " << nr_rxfifo_flushes << ", bad CRC: " << nr_packets_dropped_bad_crc << ", radio collision: " << nr_packets_collision_missed << ", ip layer drop: " << nr_packets_dropped_ip_layer << ", successfully forwarded: " << nr_packets_forwarded << " / " << nr_packets_total << " = " << (nr_packets_forwarded/(float)nr_packets_total)*100 << "% Intra OS median: " << all_intra_os_delays.at(all_intra_os_delays.size()/2));
+    NS_LOG_INFO ("UDP payload: " << packet_size << ", pps: " << pps << ", RXFIFO flushes: " << nr_rxfifo_flushes <<
+                 ", bad CRC: " << nr_packets_dropped_bad_crc << ", radio collision: " << nr_packets_collision_missed <<
+                 ", ip layer drop: " << nr_packets_dropped_ip_layer << ", successfully forwarded: " <<
+                 nr_packets_forwarded << " / " << nr_packets_total << " = " <<
+                 (nr_packets_forwarded/(float)nr_packets_total)*100 << "% Intra OS median: " <<
+                 all_intra_os_delays.at(all_intra_os_delays.size()/2));
 
     writePlot(intraOsDelayPlot, "plots/intraOsDelay.gnu", intraOsDelayDataSet);
 
@@ -945,10 +915,15 @@ int main(int argc, char *argv[])
     Simulator::Run();
     t = clock() - t;
     Simulator::Destroy();
-    NS_LOG_INFO ("UDP payload: " << packet_size << ", pps: " << pps << ", RXFIFO flushes: " << nr_rxfifo_flushes << ", bad CRC: " << nr_packets_dropped_bad_crc << ", radio collision: " << nr_packets_collision_missed << ", ip layer drop: " << nr_packets_dropped_ip_layer << ", successfully forwarded: " << nr_packets_forwarded << " / " << nr_packets_total << " = " << (nr_packets_forwarded/(float)nr_packets_total)*100 << "%");
+    NS_LOG_INFO ("UDP payload: " << packet_size << ", pps: " << pps << ", RXFIFO flushes: " << nr_rxfifo_flushes <<
+                 ", bad CRC: " << nr_packets_dropped_bad_crc << ", radio collision: " << nr_packets_collision_missed <<
+                 ", ip layer drop: " << nr_packets_dropped_ip_layer << ", successfully forwarded: " <<
+                 nr_packets_forwarded << " / " << nr_packets_total << " = " <<
+                 (nr_packets_forwarded/(float)nr_packets_total)*100 << "%");
     NS_LOG_INFO ("1 " << packet_size << " " << pps << " " << (nr_packets_forwarded/(float)nr_packets_total)*100 << "\n";
-    NS_LOG_INFO ("2 " << packet_size << " " << pps << " " << (nr_packets_dropped_ip_layer/(float)nr_packets_total)*100 << "\n";
-    NS_LOG_INFO ("3 " << packet_size << " " << pps << " " << total_intra_os_delay/(float)nr_packets_total/*all_intra_os_delays.at(all_intra_os_delays.size()/2)*/ << "\n";
+    NS_LOG_INFO ("2 " << packet_size << " " << pps << " " <<
+                 (nr_packets_dropped_ip_layer/(float)nr_packets_total)*100 << "\n";
+    NS_LOG_INFO ("3 " << packet_size << " " << pps << " " << total_intra_os_delay/(float)nr_packets_total << "\n";
     NS_LOG_INFO ("Milliseconds it took to simulate: " << t);
 #elif SIMULATION_OVERHEAD_TEST
     NodeContainer c;
@@ -1020,7 +995,8 @@ int main(int argc, char *argv[])
     eeh->Install(deviceFile, c);
     for (int i = 0; i < numberMotes; i++) {
         ScheduleInterrupt (c.Get(i), Create<Packet>(0), "HIRQ-12", Seconds(0));
-        protocolStack->GenerateTraffic(c.Get(i), packet_size, new TelosB(c.Get(i)), new TelosB(c.Get(i)), new TelosB(c.Get(i)));
+        protocolStack->GenerateTraffic(c.Get(i), packet_size, new TelosB(c.Get(i)),
+                                       new TelosB(c.Get(i)), new TelosB(c.Get(i)));
     }
     install_time = clock() - install_time;
 
@@ -1091,15 +1067,21 @@ int main(int argc, char *argv[])
     Simulator::Run();
     t = clock() - t;
     Simulator::Destroy();
-    NS_LOG_INFO ("UDP payload: " << packet_size << ", pps: " << pps << ", RXFIFO flushes: " << nr_rxfifo_flushes << ", bad CRC: " << nr_packets_dropped_bad_crc << ", radio collision: " << nr_packets_collision_missed << ", ip layer drop: " << nr_packets_dropped_ip_layer << ", successfully forwarded: " << nr_packets_forwarded << " / " << nr_packets_total << " = " << (nr_packets_forwarded/(float)nr_packets_total)*100 << "%");
+    NS_LOG_INFO ("UDP payload: " << packet_size << ", pps: " << pps << ", RXFIFO flushes: " << nr_rxfifo_flushes <<
+                 ", bad CRC: " << nr_packets_dropped_bad_crc << ", radio collision: " << nr_packets_collision_missed <<
+                 ", ip layer drop: " << nr_packets_dropped_ip_layer << ", successfully forwarded: " <<
+                 nr_packets_forwarded << " / " << nr_packets_total << " = " <<
+                 (nr_packets_forwarded/(float)nr_packets_total)*100 << "%");
     NS_LOG_INFO ("1 " << packet_size << " " << pps << " " << (nr_packets_forwarded/(float)nr_packets_total)*100 << "\n";
-    NS_LOG_INFO ("2 " << packet_size << " " << pps << " " << (nr_packets_dropped_ip_layer/(float)nr_packets_total)*100 << "\n";
-    NS_LOG_INFO ("3 " << packet_size << " " << pps << " " << total_intra_os_delay/(float)nr_packets_total/*all_intra_os_delays.at(all_intra_os_delays.size()/2)*/ << "\n";
-    NS_LOG_INFO ("Microseconds to simulate " << numberMotes << " motes for " << duration << " seconds: " << t << ", install time in microseconds: " << install_time);
+    NS_LOG_INFO ("2 " << packet_size << " " << pps << " " <<
+                 (nr_packets_dropped_ip_layer/(float)nr_packets_total)*100 << "\n";
+    NS_LOG_INFO ("3 " << packet_size << " " << pps << " " << total_intra_os_delay/(float)nr_packets_total << "\n";
+    NS_LOG_INFO ("Microseconds to simulate " << numberMotes << " motes for " << duration << " seconds: " <<
+                 t << ", install time in microseconds: " << install_time);
 #elif ALL_CONTEXTS
-    Ptr<ExecEnvHelper> eeh = CreateObjectWithAttributes<ExecEnvHelper>(
-            "cacheLineSize", UintegerValue(64), "tracingOverhead",
-            UintegerValue(0));
+    //Ptr<ExecEnvHelper> eeh = CreateObjectWithAttributes<ExecEnvHelper>(
+    //        "cacheLineSize", UintegerValue(64), "tracingOverhead",
+    //        UintegerValue(0));
 
     // Create node with ExecEnv
     NodeContainer c;
@@ -1113,22 +1095,28 @@ int main(int argc, char *argv[])
     }
     for (int i = 88; i >= 0; i-=8) {
         packet_size = i;
-        std::ostringstream os;
-        os << packet_size;
-        createPlot(&numberForwardedPlot, "numberForwarded"+os.str()+".png", "Forwarded at packet size: "+os.str(), &numberForwardedDataSet);
-        createPlot2(&packetOutcomePlot, "packetOutcome"+os.str()+".png", "Packet outcome at packet size: "+os.str(), &numberForwardedDataSet2, "Forwarded");
-        createPlot(&numberCollidedPlot, "numberCollided"+os.str()+".png", "Collided at packet size: "+os.str(), &numberCollidedDataSet);
-        createPlot(&numberRxfifoFlushesPlot, "numberRxfifoFlushes"+os.str()+".png", "RXFIFO flushes at packet size: "+os.str(), &numberRxfifoFlushesDataSet);
-        createPlot(&numberBadCrcPlot, "numberBadCrc"+os.str()+".png", "Bad CRC at packet size: "+os.str(), &numberBadCrcDataSet);
-        createPlot(&numberIPDroppedPlot, "numberIPdropped"+os.str()+".png", "Dropped at IP layer - packet size: "+os.str(), &numberIPDroppedDataSet);
-        createPlot(&intraOsDelayPlot, "intraOsDelay"+os.str()+".png", "Intra-OS delay - packet size: "+os.str(), &intraOsDelayDataSet);
+        std::ostringstream os << packet_size;
+        createPlot(&numberForwardedPlot, "numberForwarded"+os.str()+".png", "Forwarded at packet size: "+os.str(),
+                   &numberForwardedDataSet);
+        createPlot2(&packetOutcomePlot, "packetOutcome"+os.str()+".png", "Packet outcome at packet size: "+os.str(),
+                    &numberForwardedDataSet2, "Forwarded");
+        createPlot(&numberCollidedPlot, "numberCollided"+os.str()+".png", "Collided at packet size: "+os.str(),
+                   &numberCollidedDataSet);
+        createPlot(&numberRxfifoFlushesPlot, "numberRxfifoFlushes"+os.str()+".png",
+                   "RXFIFO flushes at packet size: "+os.str(), &numberRxfifoFlushesDataSet);
+        createPlot(&numberBadCrcPlot, "numberBadCrc"+os.str()+".png", "Bad CRC at packet size: "+os.str(),
+                   &numberBadCrcDataSet);
+        createPlot(&numberIPDroppedPlot, "numberIPdropped"+os.str()+".png",
+                   "Dropped at IP layer - packet size: "+os.str(), &numberIPDroppedDataSet);
+        createPlot(&intraOsDelayPlot, "intraOsDelay"+os.str()+".png", "Intra-OS delay - packet size: "+os.str(),
+                   &intraOsDelayDataSet);
         numberForwardedPlot->AppendExtra ("set xrange [37:]");
         numberCollidedPlot->AppendExtra ("set xrange [37:]");
         numberRxfifoFlushesPlot->AppendExtra ("set xrange [37:]");
         numberBadCrcPlot->AppendExtra ("set xrange [37:]");
         numberIPDroppedPlot->AppendExtra ("set xrange [37:]");
 
-        for (float j = 0; j <= 150; j++) {
+        for (int j = 0; j <= 150; j++) {
             pps = j;
 
             nr_packets_forwarded = 0;
@@ -1141,28 +1129,28 @@ int main(int argc, char *argv[])
             all_intra_os_delays.empty();
 
             // Create node with ExecEnv
-            NodeContainer c;
-            memset(&c, 0, sizeof(NodeContainer));
-            c.Create(3);
+            NodeContainer node_container;
+            memset(&node_container, 0, sizeof(NodeContainer));
+          node_container.Create(3);
 
             Ptr<ExecEnvHelper> eeh = CreateObjectWithAttributes<ExecEnvHelper>(
                     "cacheLineSize", UintegerValue(64), "tracingOverhead",
                     UintegerValue(0));
 
-            eeh->Install(deviceFile, c.Get(0));
-            eeh->Install(deviceFile, c.Get(1));
-            eeh->Install(deviceFile, c.Get(2));
+            eeh->Install(deviceFile, node_container.Get(0));
+            eeh->Install(deviceFile, node_container.Get(1));
+            eeh->Install(deviceFile, cnode_containernode_container.Get(2));
 
-            Ptr<ExecEnv> ee1 = c.Get(0)->GetObject<ExecEnv>();
-            Ptr<ExecEnv> ee2 = c.Get(1)->GetObject<ExecEnv>();
-            Ptr<ExecEnv> ee3 = c.Get(2)->GetObject<ExecEnv>();
+            //Ptr<ExecEnv> ee1 = node_container.Get(0)->GetObject<ExecEnv>();
+            //Ptr<ExecEnv> ee2 = node_container.Get(1)->GetObject<ExecEnv>();
+            //Ptr<ExecEnv> ee3 = node_container.Get(2)->GetObject<ExecEnv>();
             ProtocolStack *protocolStack = new ProtocolStack();
 
-            TelosB *mote1 = new TelosB(c.Get(0));
-            TelosB *mote2 = new TelosB(c.Get(1));
-            TelosB *mote3 = new TelosB(c.Get(2));
+            TelosB *mote1 = new TelosB(node_container.Get(0));
+            TelosB *mote2 = new TelosB(node_container.Get(1));
+            TelosB *mote3 = new TelosB(node_container.Get(2));
 
-            protocolStack->GenerateTraffic(c.Get(0), packet_size, mote1, mote2, mote3);
+            protocolStack->GenerateTraffic(node_container.Get(0), packet_size, mote1, mote2, mote3);
             Simulator::Stop(Seconds(duration));
             Simulator::Run();
             Simulator::Destroy();
@@ -1172,23 +1160,27 @@ int main(int argc, char *argv[])
             numberCollidedDataSet->Add(pps, (nr_packets_collision_missed/(float)nr_packets_total)*100);
             numberRxfifoFlushesDataSet->Add(pps, nr_rxfifo_flushes);
             numberIPDroppedDataSet->Add(pps, (nr_packets_dropped_ip_layer/(float)nr_packets_total)*100);
-            //intraOsDelayDataSet->Add(pps, total_intra_os_delay/(float)nr_packets_total);
             intraOsDelayDataSet->Add(pps, all_intra_os_delays.at(all_intra_os_delays.size()/2));
 
             numberForwardedFile << std::flush;
-            numberForwardedFile << "1 " << i << " " << pps << " " << (nr_packets_forwarded/(float)nr_packets_total)*100 << "\n";
+            numberForwardedFile << "1 " << i << " " << pps << " " << (nr_packets_forwarded/(float)nr_packets_total)*100
+                                << "\n";
             numberForwardedFile << std::flush;
-            numberForwardedFile << "2 " << i << " " << pps << " " << (nr_packets_dropped_ip_layer/(float)nr_packets_total)*100 << "\n";
+            numberForwardedFile << "2 " << i << " " << pps << " "
+                                << (nr_packets_dropped_ip_layer/(float)nr_packets_total)*100 << "\n";
             numberForwardedFile << std::flush;
-            numberForwardedFile << "3 " << i << " " << pps << " " << all_intra_os_delays.at(all_intra_os_delays.size()/2) << "\n";
+            numberForwardedFile << "3 " << i << " " << pps << " "
+                                << all_intra_os_delays.at(all_intra_os_delays.size()/2) << "\n";
             numberForwardedFile << std::flush;
 
-            //writePlot(ppsPlot, "testplot.gnu", ppsDataSet);
-            //writePlot(delayPlot, "delay.gnu", delayDataSet);
-            NS_LOG_INFO ("UDP payload: " << packet_size << ", pps: " << pps << ", RXFIFO flushes: " << nr_rxfifo_flushes << ", bad CRC: " << nr_packets_dropped_bad_crc << ", radio collision: " << nr_packets_collision_missed << ", ip layer drop: " << nr_packets_dropped_ip_layer << ", successfully forwarded: " << nr_packets_forwarded << " / " << nr_packets_total << " = " << (nr_packets_forwarded/(float)nr_packets_total)*100 << "% Intra OS median: " << all_intra_os_delays.at(all_intra_os_delays.size()/2));
-            //memset(mote1, 0, sizeof(TelosB));
-            //memset(mote2, 0, sizeof(TelosB));
-            //memset(mote3, 0, sizeof(TelosB));
+            NS_LOG_INFO ("UDP payload: " << packet_size << ", pps: " << pps << ", RXFIFO flushes: " <<
+                         nr_rxfifo_flushes << ", bad CRC: " << nr_packets_dropped_bad_crc << ", radio collision: " <<
+                         nr_packets_collision_missed <<
+                         ", ip layer drop: " << nr_packets_dropped_ip_layer << ", successfully forwarded: " <<
+                         nr_packets_forwarded << " / " << nr_packets_total << " = " <<
+                         (nr_packets_forwarded/(float)nr_packets_total)*100 <<
+                         "% Intra OS median: " << all_intra_os_delays.at(all_intra_os_delays.size()/2));
+
             delete mote1;
             delete mote2;
             delete mote3;
@@ -1196,7 +1188,8 @@ int main(int argc, char *argv[])
             memset(eeh, 0, sizeof(ExecEnvHelper));
         }
 
-        writePlot2Lines(packetOutcomePlot, "plots/numberForwardedNumberBadCrc" + os.str() + ".gnu", numberForwardedDataSet2, numberIPDroppedDataSet);
+        writePlot2Lines(packetOutcomePlot, "plots/numberForwardedNumberBadCrc" + os.str() + ".gnu",
+                        numberForwardedDataSet2, numberIPDroppedDataSet);
         writePlot(numberForwardedPlot, "plots/numberForwarded" + os.str() + ".gnu", numberForwardedDataSet);
         writePlot(numberIPDroppedPlot, "plots/numberIPDropped" + os.str() + ".gnu", numberIPDroppedDataSet);
         writePlot(numberCollidedPlot, "plots/numberCollided" + os.str() + ".gnu", numberCollidedDataSet);
