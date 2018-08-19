@@ -1,15 +1,21 @@
 [submodule "instrumented-omap-plus-extended-ns3"]
 	path = instrumented-omap-plus-extended-ns3
 	url = https://github.com/espv/instrumented-omap-plus-extended-ns3.git
-[submodule "instrumented-tinyos-plus-extended-ns3"]
-	path = instrumented-tinyos-plus-extended-ns3
-	url = git@github.com:espv/instrumented-tinyos-plus-extended-ns3.git
-[submodule "instrumented-trex-plus-extended-ns3"]
-	path = instrumented-trex-plus-extended-ns3
-	url = git@github.com:espv/instrumented-trex-plus-extended-ns3.git
 [submodule "latest_ns3_implementation2"]
 	path = latest_ns3_implementation2
 	url = git@github.com:espv/ns-3-extended-with-execution-environment.git
 [submodule "ns-3-extended-with-execution-environment"]
 	path = ns-3-extended-with-execution-environment
 	url = git@github.com:espv/ns-3-extended-with-execution-environment.git
+[submodule "instrumented-omap-plus-configs-and-scripts"]
+	path = instrumented-omap-plus-configs-and-scripts
+	url = git@github.com:espv/instrumented-omap-plus-configs-and-scripts.git
+[submodule "instrumented-flinkcep-plus-configs-and-scripts"]
+	path = instrumented-flinkcep-plus-configs-and-scripts
+	url = git@github.com:espv/instrumented-flinkcep-plus-configs-and-scripts.git
+[submodule "instrumented-tinyos-plus-configs-and-scripts"]
+	path = instrumented-tinyos-plus-configs-and-scripts
+	url = git@github.com:espv/instrumented-tinyos-plus-configs-and-scripts.git
+[submodule "instrumented-trex-plus-configs-and-scripts"]
+	path = instrumented-trex-plus-configs-and-scripts
+	url = git@github.com:espv/instrumented-trex-plus-configs-and-scripts.git
