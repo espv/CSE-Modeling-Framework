@@ -7,3 +7,6 @@
 [submodule "instrumented-trex-plus-extended-ns3"]
 	path = instrumented-trex-plus-extended-ns3
 	url = git@github.com:espv/instrumented-trex-plus-extended-ns3.git
+[submodule "instrumented-flinkcep-plus-extended-ns3"]
+	path = instrumented-flinkcep-plus-extended-ns3
+	url = git@github.com:espv/instrumented-flinkcep-plus-extended-ns3.git
