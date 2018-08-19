@@ -5,12 +5,16 @@
 [submodule "instrumented-code-plus-output/instrumented-flinkcep-plus-configs-and-scripts"]
 	path = instrumented-code-plus-output/instrumented-flinkcep-plus-configs-and-scripts
 	url = git@github.com:espv/instrumented-flinkcep-plus-configs-and-scripts.git
+	branch = master
 [submodule "instrumented-code-plus-output/instrumented-omap-plus-configs-and-scripts"]
 	path = instrumented-code-plus-output/instrumented-omap-plus-configs-and-scripts
 	url = git@github.com:espv/instrumented-omap-plus-configs-and-scripts.git
+	branch = master
 [submodule "instrumented-code-plus-output/instrumented-tinyos-plus-configs-and-scripts"]
 	path = instrumented-code-plus-output/instrumented-tinyos-plus-configs-and-scripts
 	url = git@github.com:espv/instrumented-tinyos-plus-configs-and-scripts.git
+	branch = master
 [submodule "instrumented-code-plus-output/instrumented-trex-plus-configs-and-scripts"]
 	path = instrumented-code-plus-output/instrumented-trex-plus-configs-and-scripts
 	url = git@github.com:espv/instrumented-trex-plus-configs-and-scripts.git
+	branch = master
