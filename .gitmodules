@@ -1,3 +1,6 @@
 [submodule "tinyos-instrumented-for-telosb"]
 	path = tinyos-instrumented-for-telosb
 	url = https://github.com/espv/tinyos-instrumented-for-telosb
+[submodule "instrumented-omap-plus-extended-ns3"]
+	path = instrumented-omap-plus-extended-ns3
+	url = https://github.com/espv/instrumented-omap-plus-extended-ns3.git
