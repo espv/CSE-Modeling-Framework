@@ -10,3 +10,6 @@
 [submodule "instrumented-flinkcep-plus-extended-ns3"]
 	path = instrumented-flinkcep-plus-extended-ns3
 	url = git@github.com:espv/instrumented-flinkcep-plus-extended-ns3.git
+[submodule "latest_ns3_implementation2"]
+	path = latest_ns3_implementation2
+	url = git@github.com:espv/ns-3-extended-with-execution-environment.git
