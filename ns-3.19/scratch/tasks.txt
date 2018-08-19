@@ -1,1 +1,0 @@
-When RXFIFO overflow occurs, adjust the number of bytes in the received packet. Do this when sending the packet.
