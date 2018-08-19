@@ -1,0 +1,22 @@
+SIGSTART
+NAME net_os_set_suspend+58
+PEU cpu
+RESOURCES cycles normal
+FRACTION 100%  304 304
+
+0 START
+x                                PROCESS		4011 814
+process_backlog+30                  ENQUEUE		PKTQUEUE 0 ip::sendinfo
+x                                PROCESS		473 101
+__netif_receive_skb+6a4             QUEUECOND	ip::sendinfo ip::sendinfo empty
+x                                PROCESS		709 138
+process_backlog+a8                  ENQUEUE		SRVQUEUE 3 softirq::rx
+x                                PROCESS		714 108
+napi_frags_skb+34                   QUEUECOND	softirq::hi softirq::hrtimer notempty
+x                                PROCESS		711 91
+__do_softirq+660                    LOOP		__do_softirq+660 0 softirq::hi softirq::hrtimer 10
+x                                PROCESS		1462 125
+0 STOP
+
+SIGEND
+

@@ -1,0 +1,451 @@
+
+# BCM4430 TRS: http://linux-sunxi.org/images/0/05/4330-DS206-R.pdf
+# Page 84, figure 34
+# NIC Rx memory: 10kb
+# NIC Tx memory: 32kb
+
+QUEUES
+
+HIRQ	 FIFO 	 -1    services
+
+# TODO: Guesstimate better numbers
+ip::backlog FIFO 1000 packets
+bcm4329::driver::tx FIFO 256 packets
+nic::rx FIFO 10240 bytes
+bcm4329::driver::rx FIFO 100 packets
+nic::tx FIFO 32768 bytes
+
+softirq::hi             FIFO   1   services
+softirq::timer          FIFO   1   services
+softirq::tx             FIFO   1   services
+softirq::rx             FIFO   1   services
+softirq::block          FIFO   1   services
+softirq::block-iopoll   FIFO   1   services
+softirq::tasklet        FIFO   1   services
+softirq::sched          FIFO   1   services
+softirq::hrtimer        FIFO   1   services
+
+HARDWARE
+# Format: MEMBUS||PEU frequency [name if PEU] [scheduler if PEU] 
+# TODO: Verify the processor speed (245 here) and the trace overhead (289 here)
+PEU 1200 cpu0 ns3::processing::RoundRobinScheduler 0 irq_enter HIRQ
+PEU 1200 cpu1 ns3::processing::RoundRobinScheduler 0 irq_enter HIRQ
+
+SYNCH
+dhd_dpc_sem 0 0
+
+CONDITIONS
+
+TRIGGERS
+SERVICE ip_rcv ip::receive
+
+# Proceed on nic::receive when dequeueing from nic::rx
+# QUEUE nic::rx nicdriver::receive
+LOC dhdsdio_readframes+2110 nicdriver::receive
+
+LOC dhdsdio_txpkt.constprop.10+5b8 nic::transmit
+
+# QUEUE bcm4329::driver::tx nicdriver::transmit
+# LOC dhdsdio_sendfromq+3bc nicdriver::transmit
+LOC dhd_bus_dpc+1600 nicdriver::transmit
+# LOC dhdsdio_txpkt.constprop.10+5b8 nicdriver::transmit
+
+# This ISR will up the semaphore that the driver is sleeping on.
+#
+# OK
+SIGSTART
+NAME dhdsdio_isr
+PEU cpu
+RESOURCES cycles normal
+FRACTION 100%  35 35
+
+0 START
+x                                PROCESS		2596 1140
+dhd_sched_dpc+30                                 SEMUP		dhd_dpc_sem global
+x                                PROCESS		4739 2216
+0 STOP
+
+SIGEND
+
+# This interrupt is enabled by dhd when it wants to be notified of new packets
+# on the NIC. The interrupt is handled by dhdsdio_isr.
+# The driver will be sleeping, and this IRQ will wake it up.
+#
+# OK
+SIGSTART
+NAME HIRQ-162
+PEU cpu
+RESOURCES cycles normal
+FRACTION 100%  35 35
+
+0 START
+x                                PROCESS		2212 804
+dhdsdio_isr+36c                                  CALL		dhdsdio_isr
+x                                PROCESS		400 80
+0 STOP
+
+SIGEND
+
+
+SIGSTART
+NAME omap_hsmmc_dma_cb
+PEU cpu
+RESOURCES cycles normal
+FRACTION 0%  9 15437
+
+0 START
+x                                PROCESS		2799 581
+# omap_start_dma+380 PEUSTART HIRQ-91 293217 415191
+# omap_start_dma+380 PEUSTART HIRQ-91 69985 13481
+0 STOP
+
+SIGEND
+
+
+# This interrupt is used by the MMC subsystem.
+#
+# OK
+SIGSTART
+NAME HIRQ-91
+PEU cpu
+RESOURCES cycles normal
+FRACTION 46%  179 382
+
+0 START
+x                                PROCESS		1232 340
+mmc_wait_done+1c                                 COMPL	(TEMP) global
+x                                PROCESS		631 191
+# default_wake_function+1c                         TTWAKEUP	dhd_dpc 0
+x                                PROCESS		4113 953
+0 STOP
+
+SIGEND
+
+SIGSTART
+NAME HIRQ-44
+PEU cpu
+RESOURCES cycles normal
+FRACTION 99%  100719 100720
+
+0 START
+x DEBUG HERE
+x                                PROCESS		1045 68
+# omap2_dma_irq_handler+448                        CALL		omap_hsmmc_dma_cb
+x                                PROCESS		2799 581
+omap_start_dma+380 PEUSTART HIRQ-91 69985 13481
+x                                PROCESS		454 278
+0 STOP
+
+SIGEND
+
+
+# OK
+SIGSTART
+NAME irq_enter
+PEU cpu
+RESOURCES cycles normal
+FRACTION 70%  11552 16388
+
+0 START
+x                                PROCESS		1925 763
+handle_irq_event_percpu+3d0                      DEQUEUE		SRVQUEUE 0 HIRQ
+x                                PROCESS		2154 859
+0 STOP
+
+SIGEND
+
+SIGSTART
+NAME ip_rcv
+PEU cpu
+RESOURCES cycles normal
+FRACTION 99%  13721 13725
+
+0 START
+x                                PROCESS		2468 745
+dhd_prec_enq+180                                 ENQUEUE		PKTQUEUE 0 bcm4329::driver::tx
+x                                PROCESS		869 302
+# dhd_bus_txdata+1f8                               QUEUECOND	bcm4329::driver::tx bcm4329::driver::tx notempty
+x                                PROCESS		4120 1311
+0 STOP
+
+SIGEND
+
+SIGSTART
+NAME process_backlog+368
+PEU cpu
+RESOURCES cycles normal
+FRACTION 50%  13835 27669
+
+0 LOOPSTART		0 ip::backlog ip::backlog 64
+x                                PROCESS		229 22
+0 RESTART
+SIGEND
+
+SIGSTART
+NAME process_backlog+368
+PEU cpu
+RESOURCES cycles normal
+FRACTION 49%  13723 27669
+
+0 LOOPSTART		0 ip::backlog ip::backlog 1
+x                                PROCESS		237 16
+process_backlog+2d8                              DEQUEUE		PKTQUEUE 0 ip::backlog
+x                                PROCESS		789 127
+__netif_receive_skb+698                          CALL		0
+x                                PROCESS		467 67
+0 RESTART
+SIGEND
+
+
+SIGSTART
+NAME net_rx_action
+PEU cpu
+RESOURCES cycles normal
+FRACTION 100%  13833 13833
+
+0 START
+x                                PROCESS		505 105
+process_backlog+368                              LOOP		process_backlog+368 0 ip::backlog ip::backlog 64
+x                                PROCESS		407 27
+process_backlog+368                              LOOP		process_backlog+368 0 ip::backlog ip::backlog 1
+x                                PROCESS		621 129
+0 STOP
+
+SIGEND
+
+SIGSTART
+NAME __do_softirq+4a8
+PEU cpu
+RESOURCES cycles normal
+FRACTION 25%  18299 72553
+
+0 LOOPSTART		1 softirq::hi softirq::hrtimer 1
+x                                PROCESS		249 28
+__do_softirq+354                                 DEQUEUE		SRVQUEUE 0 0
+x                                PROCESS		378 79
+0 RESTART
+SIGEND
+
+
+SIGSTART
+NAME __do_softirq+4a8
+PEU cpu
+RESOURCES cycles normal
+FRACTION 74%  54254 72553
+
+0 LOOPSTART		1 softirq::hi softirq::hrtimer 1
+x                                PROCESS		191 37
+0 RESTART
+SIGEND
+
+
+SIGSTART
+NAME __do_softirq+660
+PEU cpu
+RESOURCES cycles normal
+FRACTION 100%  29835 29835
+
+0 LOOPSTART		0 softirq::hi softirq::hrtimer 10
+x                                PROCESS		1033 1465
+__do_softirq+4a8                                 LOOP		__do_softirq+4a8 1 softirq::hi softirq::hrtimer 1
+x                                PROCESS		270 18
+0 RESTART
+
+SIGEND
+
+# OK
+SIGSTART
+NAME dhd_rx_frame
+PEU cpu
+RESOURCES cycles normal
+FRACTION 99%  13716 13833
+
+0 START
+x                                PROCESS		1691 456
+enqueue_to_backlog+358                           ENQUEUE		PKTQUEUE 0 ip::backlog
+x                                PROCESS		296 25
+enqueue_to_backlog+2cc                           QUEUECOND	ip::backlog ip::backlog empty
+x                                PROCESS		368 30
+enqueue_to_backlog+3d0                           ENQUEUE		SRVQUEUE net_rx_action softirq::rx
+x                                PROCESS		477 29
+netif_rx_ni+cc                                   QUEUECOND	softirq::hi softirq::hrtimer notempty
+x                                PROCESS		454 70
+__do_softirq+660                                 LOOP		__do_softirq+660 0 softirq::hi softirq::hrtimer 10
+x                                PROCESS		953 77
+0 STOP
+
+SIGEND
+
+
+SIGSTART
+NAME dhdsdio_readframes+29b0
+PEU cpu
+RESOURCES cycles normal
+FRACTION 34%  60357 176856
+
+0 LOOPSTART		0 nic::rx nic::rx 50
+x                                PROCESS		4009 343
+mmc_wait_for_req+4c                              TEMPSYNCH	-1 dhdsdio_readframes+29b0 1 HIRQ-91 global
+x                                PROCESS		6689 631
+omap_start_dma+380 PEUSTART HIRQ-91 13617 820
+x                                PROCESS		564 34
+mmc_wait_for_req+114                             WAITCOMPL	(TEMP) global
+x                                PROCESS		27369 1962
+dhdsdio_readframes+2110                          DEQUEUE		PKTQUEUE 0 nic::rx
+x                                process		889 146
+# dhd_os_sdunlock+38                               semup		c72d2b60
+x                                process		644 183
+dhd_rx_frame+4d4                                 CALL		dhd_rx_frame
+
+x                                PROCESS		1339 357
+0 RESTART
+
+SIGEND
+
+
+SIGSTART
+NAME dhdsdio_readframes
+PEU cpu
+RESOURCES cycles normal
+FRACTION 100%  31 31
+
+0 START
+x                                PROCESS		397 107
+# Old dhdsdio_readframes
+# dhdsdio_readframes+2ae4                          LOOP		dhdsdio_readframes+2ae4 0 nic::Q bcm4329::driver::tx 50
+# dhdsdio_readframes+29b0                          LOOP		dhdsdio_readframes+29b0 0 bcm4329::driver::tx nic::rx 50
+dhdsdio_readframes+29b0                          LOOP		dhdsdio_readframes+29b0 0 nic::rx nic::rx 50
+x                                PROCESS		307 60
+0 STOP
+
+SIGEND
+
+
+SIGSTART
+NAME dhd_bus_dpc+16a8
+PEU cpu
+RESOURCES cycles normal
+FRACTION 98%  26507 26813
+
+0 LOOPSTART		0 bcm4329::driver::tx bcm4329::driver::tx 20
+x                                PROCESS		554 80
+dhd_bus_dpc+1600                                 DEQUEUE		PKTQUEUE 0 bcm4329::driver::tx
+x                                PROCESS		4310 391
+mmc_wait_for_req+4c                              TEMPSYNCH	-1 dhd_bus_dpc+16a8 1 HIRQ-91 global
+x                                PROCESS		7284 871
+omap_start_dma+380 PEUSTART HIRQ-91 13908 2174
+x                                PROCESS		715 269
+mmc_wait_for_req+114                             WAITCOMPL	(TEMP) global
+x                                PROCESS		25175 3740
+dhdsdio_txpkt.constprop.10+5b8                   ENQUEUE		PKTQUEUE 0 nic::tx
+x                                PROCESS		2208 293
+0 RESTART
+
+SIGEND
+
+
+SIGSTART
+NAME dhd_dpc_thread
+PEU cpu
+RESOURCES cycles normal
+FRACTION 20%  9873 49259
+
+0 START
+x                                PROCESS		316 63
+dhd_dpc_thread+dc                                SEMDOWN		dhd_dpc_sem global
+x                                PROCESS		3098 3453
+# dhd_os_sdlock+38                                 SEMDOWN		c73c3360 global
+x                                PROCESS		6130 1110
+mmc_wait_for_req+4c                              TEMPSYNCH	-1 dhd_dpc_thread 1 HIRQ-91 global
+x                                PROCESS		10144 1283
+omap_start_dma+380 PEUSTART HIRQ-91 16937 3056
+x                                PROCESS		1199 688
+mmc_wait_for_req+114                             WAITCOMPL	(TEMP) global
+x                                PROCESS		30987 6430
+mmc_wait_for_req+4c                              TEMPSYNCH	-1 dhd_dpc_thread 1 HIRQ-91 global
+x                                PROCESS		8210 1143
+omap_start_dma+380 PEUSTART HIRQ-91 14358 1650
+x                                PROCESS		679 192
+mmc_wait_for_req+114                             WAITCOMPL	(TEMP) global
+x                                PROCESS		25284 2825
+dhdsdio_readframes+2c1c                          CALL		dhdsdio_readframes
+x                                PROCESS		25868 2663
+dhd_bus_dpc+106c                                 QUEUECOND	bcm4329::driver::tx bcm4329::driver::tx empty
+x                                PROCESS		816 392
+# dhd_os_sdunlock+38                               SEMUP		c73c3360
+x                                PROCESS		666 215
+dhd_dpc_thread+2f0                               QUEUECOND	nic::rx nic::rx notempty
+x                                PROCESS		322 170
+dhd_dpc_thread+138                               SEMUP		dhd_dpc_sem global
+x                                PROCESS		441 63
+0 STOP
+
+SIGEND
+
+SIGSTART
+NAME dhd_dpc_thread
+PEU cpu
+RESOURCES cycles normal
+FRACTION 15%  7408 49259
+
+0 START
+x                                PROCESS		312 65
+dhd_dpc_thread+dc                                SEMDOWN		dhd_dpc_sem global
+x                                PROCESS		2787 3143
+# dhd_os_sdlock+38                                 SEMDOWN		c73c3360
+x                                PROCESS		6093 1085
+mmc_wait_for_req+4c                              TEMPSYNCH	-1 dhd_dpc_thread 1 HIRQ-91 global
+x                                PROCESS		10275 1201
+omap_start_dma+380 PEUSTART HIRQ-91 16492 3072
+x                                PROCESS		1339 799
+mmc_wait_for_req+114                             WAITCOMPL	(TEMP) global
+x                                PROCESS		29840 6758
+mmc_wait_for_req+4c                              TEMPSYNCH	-1 dhd_dpc_thread 1 HIRQ-91 global
+x                                PROCESS		9413 2411
+omap_start_dma+380 PEUSTART HIRQ-91 14379 1744
+x                                PROCESS		688 213
+mmc_wait_for_req+114                             WAITCOMPL	(TEMP) global
+x                                PROCESS		25345 2898
+dhdsdio_readframes+2c1c                          CALL		dhdsdio_readframes
+x                                PROCESS		26824 2699
+
+# This is the part that is used for forwarding without early tx
+
+dhd_bus_dpc+139c                                 QUEUECOND	bcm4329::driver::tx bcm4329::driver::tx notempty
+x                                PROCESS		834 442
+# dhd_bus_dpc+1740                                 QUEUECOND	nic::Q nic::Q empty
+x                                PROCESS		399 161
+dhd_bus_dpc+16a8                                 LOOP		dhd_bus_dpc+16a8 0 bcm4329::driver::tx bcm4329::driver::tx 20
+x                                PROCESS		622 46
+# dhd_os_sdunlock+38                               SEMUP		c72d2b60
+
+
+x                                PROCESS		622 52
+dhd_dpc_thread+2f0                               QUEUECOND	nic::rx nic::rx notempty
+x                                PROCESS		334 188
+dhd_dpc_thread+138                               SEMUP		dhd_dpc_sem global
+x                                PROCESS		445 68
+0 STOP
+
+SIGEND
+
+SIGSTART
+NAME background_work
+PEU cpu
+RESOURCES cycles normal
+FRACTION 100%  1 1
+
+0 START
+x PROCESS 5000000 0
+0 STOP
+
+SIGEND
+
+THREADS
+dhd_dpc dhd_dpc_thread infinite -99
+# peutest_thread peutest infinite 0
+# background1 background_work infinite 0
+# background2 background_work infinite 0
+# background3 background_work infinite 0
+#background4 background_work infinite 0
+# background5 background_work infinite 0

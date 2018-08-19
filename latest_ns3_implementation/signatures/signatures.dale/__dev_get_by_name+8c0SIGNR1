@@ -1,0 +1,16 @@
+SIGSTART
+NAME __dev_get_by_name+8c
+PEU cpu
+RESOURCES cycles normal
+FRACTION 48%  325 674
+
+0 LOOPSTART		0 ip::sendinfo ip::sendinfo 1
+x                                PROCESS		285 51
+netdev_boot_setup_check+84          DEQUEUE		PKTQUEUE 0 ip::sendinfo
+x                                PROCESS		2087 575
+ptype_seq_start+30                  CALL		0
+x                                PROCESS		568 94
+0 RESTART
+
+SIGEND
+

@@ -1,0 +1,28 @@
+SIGSTART
+NAME dhd_bus_txctl+64
+PEU cpu
+RESOURCES cycles normal
+FRACTION 4%  34 809
+
+0 LOOPSTART		0 nic::Q nic::Q 50
+x                                PROCESS		631 127
+dhdsdio_readframes+286c             QUEUECOND	softirq::rx softirq::rx notempty
+x                                PROCESS		5757 382
+mmc_set_ungated+c                   TEMPSYNCH	-1 dhd_bus_txctl+64 1 omap_hsmmc_irq+98	global
+x                                PROCESS		9664 1683
+omap_start_dma+380 PEUSTART HIRQ-0 0 0
+x                                PROCESS		1924 1322
+mmc_vddrange_to_ocrmask+64          WAITCOMPL		c6c13bcc	global
+x                                PROCESS		32611 7446
+mmc_set_ungated+c                   TEMPSYNCH	-1 dhd_bus_txctl+64 1 omap_hsmmc_irq+98	global
+x                                PROCESS		8234 1508
+omap_start_dma+380 PEUSTART HIRQ-0 0 0
+x                                PROCESS		2084 1304
+mmc_vddrange_to_ocrmask+64          WAITCOMPL		c6c13b84	global
+x                                PROCESS		24205 6811
+default_wake_function+1c            TTWAKEUP	UNKNOWN-LEU(pid=480) 0
+x                                PROCESS		7016 1284
+0 RESTART
+
+SIGEND
+

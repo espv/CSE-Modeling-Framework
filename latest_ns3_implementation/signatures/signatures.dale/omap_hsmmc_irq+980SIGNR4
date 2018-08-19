@@ -1,0 +1,14 @@
+SIGSTART
+NAME omap_hsmmc_irq+98
+PEU cpu
+RESOURCES cycles normal
+FRACTION 0%  12 2836
+
+0 START
+x                                PROCESS		2406 728
+mmc_host_deeper_disable+38          COMPL		c6c13d3c	global
+x                                PROCESS		2536 1115
+0 STOP
+
+SIGEND
+

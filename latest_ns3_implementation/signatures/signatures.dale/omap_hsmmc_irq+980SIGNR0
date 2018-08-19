@@ -1,0 +1,12 @@
+SIGSTART
+NAME omap_hsmmc_irq+98
+PEU cpu
+RESOURCES cycles normal
+FRACTION 71%  2029 2836
+
+0 START
+x                                PROCESS		3058 988
+0 STOP
+
+SIGEND
+

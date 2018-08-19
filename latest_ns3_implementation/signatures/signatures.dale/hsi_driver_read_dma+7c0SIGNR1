@@ -1,0 +1,14 @@
+SIGSTART
+NAME hsi_driver_read_dma+7c
+PEU cpu
+RESOURCES cycles normal
+FRACTION 31%  16 51
+
+0 START
+x                                PROCESS		3823 413
+mipi_hsi_start_work+6c              SEMUP		c701b16c	global
+x                                PROCESS		5395 1538
+0 STOP
+
+SIGEND
+

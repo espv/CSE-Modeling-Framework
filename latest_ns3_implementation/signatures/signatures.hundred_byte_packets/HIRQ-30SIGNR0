@@ -1,0 +1,20 @@
+SIGSTART
+NAME HIRQ-3
+PEU cpu
+RESOURCES cycles normal
+FRACTION 100%  3143 3143
+
+0 START
+x                                PROCESS		0 0
+readDoneFcf        COMPL		(TEMP)	global
+x                                PROCESS		247 0
+readDonePayload    TEMPSYNCH	-1 HIRQ-3 1 HIRQ-4	global
+x                                PROCESS		0 0
+s PEUSTART HIRQ-4 9036 0
+x                                PROCESS		0 0
+readDonePayload    WAITCOMPL		(TEMP)	global
+x                                PROCESS		31 1
+0 STOP
+
+SIGEND
+

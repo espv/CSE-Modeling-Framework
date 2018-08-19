@@ -1,0 +1,34 @@
+SIGSTART
+NAME dhd_os_wd_timer
+PEU cpu
+RESOURCES cycles normal
+FRACTION 48%  383 787
+
+0 START
+x                                PROCESS		334 25
+dhd_os_wd_timer+dc                  SEMDOWN		c729b384	global
+x                                PROCESS		12413 2171
+dhd_dev_get_pno_status              SEMDOWN		c729b360	global
+x                                PROCESS		43038 8456
+mmc_set_ungated+c                   TEMPSYNCH	-1 dhd_os_wd_timer 1 HIRQ-91	global
+x                                PROCESS		1955 516
+mmc_vddrange_to_ocrmask+64          WAITCOMPL		c6c13d2c	global
+x                                PROCESS		32011 2908
+mmc_set_ungated+c                   TEMPSYNCH	-1 dhd_os_wd_timer 1 HIRQ-91	global
+x                                PROCESS		746 136
+mmc_vddrange_to_ocrmask+64          WAITCOMPL		c6c13d24	global
+x                                PROCESS		27991 2723
+dhd_bus_pub+8                       QUEUECOND	softirq::rx softirq::rx notempty
+x                                PROCESS		1139 246
+dhdsdio_readframes+c30              QUEUECOND	nic::Q nic::Q empty
+x                                PROCESS		484 84
+dhdsdio_readframes+bac              LOOP		dhdsdio_readframes+bac 0 softirq::rx softirq::rx 20
+x                                PROCESS		1217 229
+dhd_os_send_hang_message+1c         SEMUP		c729b360	global
+x                                PROCESS		737 92
+dhd_bus_start+1d8                   QUEUECOND	nic::Q nic::Q empty
+x                                PROCESS		4693 480
+0 STOP
+
+SIGEND
+

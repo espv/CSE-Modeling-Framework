@@ -1,0 +1,20 @@
+SIGSTART
+NAME HIRQ-57
+PEU cpu
+RESOURCES cycles normal
+FRACTION 3%  29 936
+
+0 START
+x                                PROCESS		4822 1158
+wake_up_process+34                  TTWAKEUP	UNKNOWN-LEU(pid=19) 0
+x                                PROCESS		11488 1276
+wake_up_process+34                  TTWAKEUP	UNKNOWN-LEU(pid=767) 0
+x                                PROCESS		4048 947
+wake_up_process+34                  TTWAKEUP	UNKNOWN-LEU(pid=767) 0
+x                                PROCESS		6537 431
+dispc_runtime_get+540               COMPL		c7b0fe54	global
+x                                PROCESS		3426 301
+0 STOP
+
+SIGEND
+

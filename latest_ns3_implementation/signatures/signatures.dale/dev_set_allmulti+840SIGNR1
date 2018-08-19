@@ -1,0 +1,16 @@
+SIGSTART
+NAME dev_set_allmulti+84
+PEU cpu
+RESOURCES cycles normal
+FRACTION 2%  8 333
+
+0 START
+x                                PROCESS		1207 357
+__dev_get_by_name+8c                LOOP		__dev_get_by_name+8c 0 ip::sendinfo ip::sendinfo 64
+x                                PROCESS		550 54
+__dev_get_by_name+8c                LOOP		__dev_get_by_name+8c 0 ip::sendinfo ip::sendinfo 2
+x                                PROCESS		810 176
+0 STOP
+
+SIGEND
+

@@ -1,0 +1,12 @@
+SIGSTART
+NAME __dev_get_by_name+8c
+PEU cpu
+RESOURCES cycles normal
+FRACTION 49%  333 674
+
+0 LOOPSTART		0 ip::sendinfo ip::sendinfo 64
+x                                PROCESS		340 71
+0 RESTART
+
+SIGEND
+

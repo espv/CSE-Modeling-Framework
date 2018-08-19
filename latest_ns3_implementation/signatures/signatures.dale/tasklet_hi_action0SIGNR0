@@ -1,0 +1,14 @@
+SIGSTART
+NAME tasklet_hi_action
+PEU cpu
+RESOURCES cycles normal
+FRACTION 100%  226 226
+
+0 START
+x                                PROCESS		424 202
+tasklet_hi_action+398               LOOP		tasklet_hi_action+398 0 tasklet::scheduled-hi tasklet::scheduled-hi 4294967295
+x                                PROCESS		295 42
+0 STOP
+
+SIGEND
+

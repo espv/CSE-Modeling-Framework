@@ -1,0 +1,12 @@
+SIGSTART
+NAME run_rebalance_domains
+PEU cpu
+RESOURCES cycles normal
+FRACTION 100%  5448 5448
+
+0 START
+x                                PROCESS		5067 1693
+0 STOP
+
+SIGEND
+

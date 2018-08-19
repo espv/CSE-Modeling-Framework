@@ -1,0 +1,12 @@
+SIGSTART
+NAME HIRQ-53
+PEU cpu
+RESOURCES cycles normal
+FRACTION 21%  1144 5209
+
+0 START
+x                                PROCESS		3886 355
+0 STOP
+
+SIGEND
+

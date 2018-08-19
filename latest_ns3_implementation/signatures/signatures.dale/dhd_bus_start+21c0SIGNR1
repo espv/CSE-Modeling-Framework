@@ -1,0 +1,16 @@
+SIGSTART
+NAME dhd_bus_start+21c
+PEU cpu
+RESOURCES cycles normal
+FRACTION 1%  1 91
+
+0 START
+x                                PROCESS		1781 0
+wl_event_to_host_order+15c          ENQUEUE		PKTQUEUE 0 softirq::rx
+x                                PROCESS		719 0
+dhdsdio_download_firmware.isra.8+dc QUEUECOND	softirq::rx softirq::rx notempty
+x                                PROCESS		1127 0
+0 STOP
+
+SIGEND
+

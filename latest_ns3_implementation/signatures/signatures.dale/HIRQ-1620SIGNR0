@@ -1,0 +1,14 @@
+SIGSTART
+NAME HIRQ-162
+PEU cpu
+RESOURCES cycles normal
+FRACTION 100%  404 404
+
+0 START
+x                                PROCESS		3206 585
+dhdsdio_htclk.isra.3+3a0            CALL		dhdsdio_htclk.isra.3+34
+x                                PROCESS		715 523
+0 STOP
+
+SIGEND
+

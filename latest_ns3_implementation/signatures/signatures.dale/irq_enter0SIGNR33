@@ -1,0 +1,14 @@
+SIGSTART
+NAME irq_enter
+PEU cpu
+RESOURCES cycles normal
+FRACTION 0%  9 119087
+
+0 START
+x                                PROCESS		13817 1486
+default_wake_function+1c            TTWAKEUP	UNKNOWN-LEU(pid=444) 0
+x                                PROCESS		10574 1120
+0 STOP
+
+SIGEND
+

@@ -1,0 +1,18 @@
+SIGSTART
+NAME receiveDone_task
+PEU cpu
+RESOURCES cycles normal
+FRACTION 100%  3142 3142
+
+0 START
+x                                PROCESS		9415 39
+s                  ENQUEUE		PKTQUEUE 0 ip::sendpackets
+x                                PROCESS		1965 7
+0                  ENQUEUE		SRVQUEUE sendTask softirq::rx
+x                                PROCESS		380 1
+s                  CALL		waitForNextPacket
+x                                PROCESS		110 1
+0 STOP
+
+SIGEND
+

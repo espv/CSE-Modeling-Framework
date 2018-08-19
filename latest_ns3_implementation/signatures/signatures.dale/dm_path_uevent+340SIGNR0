@@ -1,0 +1,12 @@
+SIGSTART
+NAME dm_path_uevent+34
+PEU cpu
+RESOURCES cycles normal
+FRACTION 100%  21 21
+
+0 START
+x                                PROCESS		455 35
+0 STOP
+
+SIGEND
+

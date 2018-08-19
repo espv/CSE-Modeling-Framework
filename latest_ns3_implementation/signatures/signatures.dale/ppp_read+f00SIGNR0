@@ -1,0 +1,18 @@
+SIGSTART
+NAME ppp_read+f0
+PEU cpu
+RESOURCES cycles normal
+FRACTION 78%  29 37
+
+0 START
+x                                PROCESS		3054 477
+process_backlog+30                  ENQUEUE		PKTQUEUE 0 ip::sendinfo
+x                                PROCESS		599 150
+__netif_receive_skb+6a4             QUEUECOND	ip::sendinfo ip::sendinfo empty
+x                                PROCESS		541 124
+process_backlog+a8                  ENQUEUE		SRVQUEUE 3 softirq::rx
+x                                PROCESS		1002 134
+0 STOP
+
+SIGEND
+

@@ -1,0 +1,14 @@
+SIGSTART
+NAME task_loop
+PEU cpu
+RESOURCES cycles normal
+FRACTION 100%  253 253
+
+0 LOOPSTART		0 noloc noloc 2
+x                                PROCESS		219711462 324678967
+s                  DEQUEUE		SRVQUEUE 0 sch::tasks
+x                                PROCESS		94861 171725
+0 RESTART
+
+SIGEND
+

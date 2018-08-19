@@ -1,0 +1,14 @@
+SIGSTART
+NAME neigh_table_init_no_netlink+68ip_append_page+2e4
+PEU cpu
+RESOURCES cycles normal
+FRACTION 2%  1 38
+
+0 START
+x                                PROCESS		8272 0
+dev_queue_xmit+65c                  CALL		ppp_read+f0
+x                                PROCESS		972 0
+0 STOP
+
+SIGEND
+

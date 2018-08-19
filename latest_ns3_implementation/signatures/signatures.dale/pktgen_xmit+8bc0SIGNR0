@@ -1,0 +1,18 @@
+SIGSTART
+NAME pktgen_xmit+8bc
+PEU cpu
+RESOURCES cycles normal
+FRACTION 100%  294 294
+
+0 START
+x                                PROCESS		1188675935 19285744
+wl_event_to_host_order+15c          ENQUEUE		PKTQUEUE 0 softirq::rx
+x                                PROCESS		1652 278
+dhdsdio_download_firmware.isra.8+dc QUEUECOND	softirq::rx softirq::rx notempty
+x                                PROCESS		926 183
+dhd_ioctl_entry+49c                 SEMUP		c729b384	global
+x                                PROCESS		11756 8090
+0 STOP
+
+SIGEND
+

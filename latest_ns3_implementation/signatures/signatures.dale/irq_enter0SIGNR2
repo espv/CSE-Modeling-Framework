@@ -1,0 +1,12 @@
+SIGSTART
+NAME irq_enter
+PEU cpu
+RESOURCES cycles normal
+FRACTION 4%  5090 119087
+
+0 START
+x                                PROCESS		5505 2036
+0 STOP
+
+SIGEND
+

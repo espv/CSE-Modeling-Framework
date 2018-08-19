@@ -1,0 +1,14 @@
+SIGSTART
+NAME HIRQ-125
+PEU cpu
+RESOURCES cycles normal
+FRACTION 46%  72 156
+
+0 START
+x                                PROCESS		4243 627
+default_wake_function+1c            TTWAKEUP	UNKNOWN-LEU(pid=138) 0
+x                                PROCESS		4115 342
+0 STOP
+
+SIGEND
+
