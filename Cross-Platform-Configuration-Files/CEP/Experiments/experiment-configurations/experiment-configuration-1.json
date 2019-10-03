@@ -1,0 +1,395 @@
+{
+  "name": "Experiment configuration",
+  "description": "Experiment that pushes the throughput of the CEP system while varying the number of queries.",
+  "query-location": "~/Research/CEP/Queries",
+  "event-location": "~/Research/CEP/Events",
+  "experiments": [
+    {
+      "name": "experiment 1 --- varying the number of queries",
+      "id": 1,
+      "flow": [
+        {"command": "setIntervalBetweenEvents", "arguments": [1000000]},
+        {"command": "setEventBatchSize", "arguments": [5]},
+        {
+          "command": "addEvents",
+          "arguments": [
+            {
+              "name": "temperature_46degrees",
+              "stream-id": 10,
+              "stream-name": "Temperature",
+              "attributes": [
+                {"name": "value", "value": 46},
+                {"name": "area", "value": "office"}
+              ]
+            },
+            1
+          ]
+        },
+        {
+          "command": "addEvents",
+          "arguments": [
+            {
+              "name": "temperature_22degrees",
+              "stream-id": 10,
+              "stream-name": "Temperature",
+              "attributes": [
+                {"name": "value", "value": 2},
+                {"name": "area", "value": "office"}
+              ]
+            },
+            100
+          ]
+        },
+        {
+          "command": "addEvents",
+          "arguments": [
+            {
+              "name": "humidity_24percent",
+              "stream-id": 11,
+              "stream-name": "Humidity",
+              "attributes": [
+                {"name": "percentage", "value": 24},
+                {"name": "area", "value": "office"}
+              ]
+            },
+            1
+          ]
+        },
+        {
+          "command": "addEvents",
+          "arguments": [
+            {
+              "name": "humidity_44percent",
+              "stream-id": 11,
+              "stream-name": "Humidity",
+              "attributes": [
+                {"name": "percentage", "value": 44},
+                {"name": "area", "value": "office"}
+              ]
+            },
+            1
+          ]
+        },
+        {"command": "addQueries", "arguments":
+          [
+            {
+              "name": "then_operator_2states",
+              "number_states": 2,
+              "temperature": 45
+            },
+            1
+          ]
+        },
+        {"command": "processEvents", "arguments": [10000]},
+        {"command": "clearQueries"},
+        {"command": "addQueries", "arguments":
+          [
+            {
+              "name": "then_operator_2states",
+              "number_states": 2,
+              "temperature": 45
+            },
+            10
+          ]
+        },
+        {"command": "processEvents", "arguments": [10000]},
+        {"command": "clearQueries"},
+        {"command": "addQueries", "arguments":
+          [
+            {
+              "name": "then_operator_2states",
+              "number_states": 2,
+              "temperature": 45
+            },
+            100
+          ]
+        },
+        {"command": "processEvents", "arguments": [10000]},
+        {"command": "clearQueries"},
+        {"command": "addQueries", "arguments":
+          [
+            {
+              "name": "then_operator_2states",
+              "number_states": 2,
+              "temperature": 45
+            },
+            1000
+          ]
+        },
+        {"command": "processEvents", "arguments": [10000]},
+        {"command": "clearQueries"},
+        {"command": "clearEvents"}
+      ]
+    },
+    {
+      "name": "experiment 2 --- varying the number of states in the sequence operator",
+      "id": 2,
+      "flow": [
+        {"command": "setIntervalBetweenEvents", "arguments": [0]},
+        {
+          "command": "addEvents",
+          "arguments": [
+            {
+              "name": "temperature_46degrees",
+              "stream-id": 10,
+              "stream-name": "Temperature",
+              "attributes": [
+                {"name": "value", "value": 46},
+                {"name": "area", "value": "office"}
+              ]
+            },
+            1
+          ]
+        },
+        {
+          "command": "addEvents",
+          "arguments": [
+            {
+              "name": "temperature_22degrees",
+              "stream-id": 10,
+              "stream-name": "Temperature",
+              "attributes": [
+                {"name": "value", "value": 2},
+                {"name": "area", "value": "office"}
+              ]
+            },
+            100
+          ]
+        },
+        {
+          "command": "addEvents",
+          "arguments": [
+            {
+              "name": "humidity_24percent",
+              "stream-id": 11,
+              "stream-name": "Humidity",
+              "attributes": [
+                {"name": "percentage", "value": 24},
+                {"name": "area", "value": "office"}
+              ]
+            },
+            100
+          ]
+        },
+        {
+          "command": "addEvents",
+          "arguments": [
+            {
+              "name": "humidity_24percent",
+              "stream-id": 11,
+              "stream-name": "Humidity",
+              "attributes": [
+                {"name": "percentage", "value": 24},
+                {"name": "area", "value": "office"}
+              ]
+            },
+            100
+          ]
+        },
+        {
+          "command": "addEvents",
+          "arguments": [
+            {
+              "name": "humidity_44percent",
+              "stream-id": 11,
+              "stream-name": "Humidity",
+              "attributes": [
+                {"name": "percentage", "value": 44},
+                {"name": "area", "value": "office"}
+              ]
+            },
+            1
+          ]
+        },
+        {"command": "addQueries", "arguments":
+        [
+          {
+            "name": "then_operator_2states",
+            "number_states": 2,
+            "temperature": 45
+          },
+          1
+        ]
+        },
+        {"command": "processEvents", "arguments": [1000]},
+        {"command": "clearQueries"},
+        {"command": "addQueries", "arguments":
+          [
+            {
+              "name": "then_operator_10states",
+              "number_states": 10,
+              "temperature": 45
+            },
+            1
+          ]
+        },
+        {"command": "processEvents", "arguments": [1000]},
+        {"command": "clearQueries"},
+        {"command": "addQueries", "arguments":
+        [
+          {
+            "name": "then_operator_2states",
+            "number_states": 100,
+            "temperature": 45
+          },
+          1
+        ]
+        },
+        {"command": "processEvents", "arguments": [1000]},
+        {"command": "clearQueries"},
+        {"command": "clearEvents"}
+      ]
+    },
+    {
+      "name": "experiment 3 --- varying the number of unrelated queries",
+      "id": 3,
+      "flow": [
+        {"command": "setIntervalBetweenEvents", "arguments": [0]},
+        {
+          "command": "addEvents",
+          "arguments": [
+            {
+              "name": "temperature_46degrees",
+              "stream-id": 10,
+              "stream-name": "Temperature",
+              "attributes": [
+                {"name": "value", "value": 46},
+                {"name": "area", "value": "office"}
+              ]
+            },
+            1
+          ]
+        },
+        {
+          "command": "addEvents",
+          "arguments": [
+            {
+              "name": "temperature_22degrees",
+              "stream-id": 10,
+              "stream-name": "Temperature",
+              "attributes": [
+                {"name": "value", "value": 2},
+                {"name": "area", "value": "office"}
+              ]
+            },
+            100
+          ]
+        },
+        {
+          "command": "addEvents",
+          "arguments": [
+            {
+              "name": "humidity_24percent",
+              "stream-id": 11,
+              "stream-name": "Humidity",
+              "attributes": [
+                {"name": "percentage", "value": 24},
+                {"name": "area", "value": "office"}
+              ]
+            },
+            1
+          ]
+        },
+        {
+          "command": "addEvents",
+          "arguments": [
+            {
+              "name": "humidity_44percent",
+              "stream-id": 11,
+              "stream-name": "Humidity",
+              "attributes": [
+                {"name": "percentage", "value": 44},
+                {"name": "area", "value": "office"}
+              ]
+            },
+            1
+          ]
+        },
+        {"command": "addQueries", "arguments":
+          [
+            {
+              "name": "unrelated_query",
+              "number_states": 2,
+              "temperature": 1000
+            },
+            1
+          ]
+        },
+        {"command": "processEvents", "arguments": [1000]},
+        {"command": "clearQueries"},
+        {"command": "addQueries", "arguments":
+          [
+            {
+              "name": "unrelated_query",
+              "number_states": 2,
+              "temperature": 1000
+            },
+            10
+          ]
+        },
+        {"command": "processEvents", "arguments": [1000]},
+        {"command": "clearQueries"},
+        {"command": "addQueries", "arguments":
+          [
+            {
+              "name": "unrelated_query",
+              "number_states": 2,
+              "temperature": 1000
+            },
+            100
+          ]
+        },
+        {"command": "processEvents", "arguments": [1000]},
+        {"command": "clearQueries"},
+        {"command": "clearEvents"}
+      ]
+    }
+  ],
+  "tracepoints": [
+    {
+      "ID": 1,
+      "name": "receive_event",
+      "description": "",
+      "category": {
+        "isModelEvent": true,
+        "isScalingEvent": false,
+        "isMilestoneEvent": false,
+        "isSimulationEvent": false
+      }
+    },
+    {
+      "ID": 2,
+      "name": "",
+      "description": "",
+      "category": {
+        "isModelEvent": true,
+        "isScalingEvent": false,
+        "isMilestoneEvent": false,
+        "isSimulationEvent": false
+      }
+    },
+    {
+      "ID": 3,
+      "name": "",
+      "description": "",
+      "category": {
+        "isModelEvent": true,
+        "isScalingEvent": false,
+        "isMilestoneEvent": false,
+        "isSimulationEvent": false
+      }
+    },
+    {
+      "ID": 100,
+      "name": "",
+      "description": "",
+      "file": "",
+      "category": {
+        "isModelEvent": true,
+        "isScalingEvent": false,
+        "isMilestoneEvent": false,
+        "isSimulationEvent": false
+      }
+    }
+  ]
+}
