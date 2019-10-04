@@ -57,6 +57,12 @@
       "flow": [
         {"command": "setIntervalBetweenEvents", "arguments": [0]},
         {"command": "addEvents", "arguments": [4, 1]},
+        {"command": "addEvents", "arguments": [2, 1]},
+        {"command": "addEvents", "arguments": [4, 1]},
+        {"command": "addEvents", "arguments": [2, 1]},
+        {"command": "addEvents", "arguments": [4, 1]},
+        {"command": "addEvents", "arguments": [2, 1]},
+        {"command": "addEvents", "arguments": [4, 1]},
         {"command": "addEvents", "arguments": [1, 100]},
         {"command": "addEvents", "arguments": [2, 1]},
         {"command": "addEvents", "arguments": [3, 1]},
@@ -77,7 +83,7 @@
     {
       "name": "then_operator_2states",
       "id": 1,
-      "inevents": ["B", "C"],
+      "inevents": [10, 11],
       "constraints": [
         {
           "type": "GTCONSTRAINT",
@@ -89,7 +95,7 @@
     {
       "name": "then_operator_10states",
       "id": 2,
-      "inevents": ["B", "C", "D", "E", "F", "G", "H", "I", "J", "K"],
+      "inevents": [10, 11, "D", "E", "F", "G", "H", "I", "J", "K"],
       "constraints": [
         {
           "type": "GTCONSTRAINT",
@@ -101,7 +107,7 @@
     {
       "name": "then_operator_100states",
       "id": 3,
-      "inevents": ["B",  "C",  "D",  "E",  "F",  "G",  "H",  "I",  "J",  "K",
+      "inevents": [10,   11,   "D",  "E",  "F",  "G",  "H",  "I",  "J",  "K",
                    "AB", "AC", "AD", "AE", "AF", "AG", "AH", "AI", "AJ", "AK",
                    "BB", "BC", "BD", "BE", "BF", "BG", "BH", "BI", "BJ", "BK",
                    "CB", "CC", "CD", "CE", "CF", "CG", "CH", "CI", "CJ", "CK",
@@ -139,7 +145,7 @@
       "stream-id": 10,
       "stream-name": "Temperature",
       "attributes": [
-        {"name": "value", "value": 2},
+        {"name": "value", "value": 22},
         {"name": "area", "value": "office"}
       ]
     },
