@@ -377,7 +377,7 @@
         "isModelEvent": true,
         "isScalingEvent": false,
         "isMilestoneEvent": false,
-        "isSimulationEvent": false
+        "isSimulationEvent": true
       }
     },
     {
@@ -414,17 +414,6 @@
       }
     },
     {
-      "ID": 220,
-      "name": "addEvent",
-      "description": "Traced when adding an event to the allPackets queue. This is a simulation and scaling event.",
-      "category": {
-        "isModelEvent": false,
-        "isScalingEvent": true,
-        "isMilestoneEvent": false,
-        "isSimulationEvent": true
-      }
-    },
-    {
       "ID": 221,
       "name": "addQuery",
       "description": "Traced when deploying a query. This is a simulation and scaling event.",
@@ -447,14 +436,25 @@
       }
     },
     {
-      "ID": 223,
-      "name": "clearEvents",
-      "description": "Traced when clearing all CEP events from allPackets. This is a simulation and scaling event.",
+      "ID": 220,
+      "name": "addEvent",
+      "description": "Traced when adding an event to the allPackets queue. This is a scaling event.",
       "category": {
         "isModelEvent": false,
         "isScalingEvent": true,
         "isMilestoneEvent": false,
-        "isSimulationEvent": true
+        "isSimulationEvent": false
+      }
+    },
+    {
+      "ID": 223,
+      "name": "clearEvents",
+      "description": "Traced when clearing all CEP events from allPackets. This is a scaling event.",
+      "category": {
+        "isModelEvent": false,
+        "isScalingEvent": true,
+        "isMilestoneEvent": false,
+        "isSimulationEvent": false
       }
     }
   ]
