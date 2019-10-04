@@ -371,7 +371,7 @@
   "tracepoints": [
     {
       "ID": 1,
-      "name": "receive_event",
+      "name": "receiveEvent",
       "description": "",
       "category": {
         "isModelEvent": true,
