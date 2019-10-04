@@ -15,6 +15,7 @@
           "arguments": [
             {
               "name": "temperature_46degrees",
+              "id": 4,
               "stream-id": 10,
               "stream-name": "Temperature",
               "attributes": [
@@ -30,6 +31,7 @@
           "arguments": [
             {
               "name": "temperature_22degrees",
+              "id": 1,
               "stream-id": 10,
               "stream-name": "Temperature",
               "attributes": [
@@ -45,6 +47,7 @@
           "arguments": [
             {
               "name": "humidity_24percent",
+              "id": 2,
               "stream-id": 11,
               "stream-name": "Humidity",
               "attributes": [
@@ -60,6 +63,7 @@
           "arguments": [
             {
               "name": "humidity_44percent",
+              "id": 3,
               "stream-id": 11,
               "stream-name": "Humidity",
               "attributes": [
@@ -74,6 +78,7 @@
           [
             {
               "name": "then_operator_2states",
+              "id": 1,
               "number_states": 2,
               "temperature": 45
             },
@@ -86,6 +91,7 @@
           [
             {
               "name": "then_operator_2states",
+              "id": 1,
               "number_states": 2,
               "temperature": 45
             },
@@ -98,6 +104,7 @@
           [
             {
               "name": "then_operator_2states",
+              "id": 1,
               "number_states": 2,
               "temperature": 45
             },
@@ -110,6 +117,7 @@
           [
             {
               "name": "then_operator_2states",
+              "id": 1,
               "number_states": 2,
               "temperature": 45
             },
@@ -131,6 +139,7 @@
           "arguments": [
             {
               "name": "temperature_46degrees",
+              "id": 4,
               "stream-id": 10,
               "stream-name": "Temperature",
               "attributes": [
@@ -146,6 +155,7 @@
           "arguments": [
             {
               "name": "temperature_22degrees",
+              "id": 1,
               "stream-id": 10,
               "stream-name": "Temperature",
               "attributes": [
@@ -161,6 +171,7 @@
           "arguments": [
             {
               "name": "humidity_24percent",
+              "id": 2,
               "stream-id": 11,
               "stream-name": "Humidity",
               "attributes": [
@@ -176,6 +187,7 @@
           "arguments": [
             {
               "name": "humidity_24percent",
+              "id": 2,
               "stream-id": 11,
               "stream-name": "Humidity",
               "attributes": [
@@ -191,6 +203,7 @@
           "arguments": [
             {
               "name": "humidity_44percent",
+              "id": 3,
               "stream-id": 11,
               "stream-name": "Humidity",
               "attributes": [
@@ -205,6 +218,7 @@
         [
           {
             "name": "then_operator_2states",
+            "id": 1,
             "number_states": 2,
             "temperature": 45
           },
@@ -217,6 +231,7 @@
           [
             {
               "name": "then_operator_10states",
+              "id": 2,
               "number_states": 10,
               "temperature": 45
             },
@@ -228,7 +243,8 @@
         {"command": "addQueries", "arguments":
         [
           {
-            "name": "then_operator_2states",
+            "name": "then_operator_100states",
+            "id": 3,
             "number_states": 100,
             "temperature": 45
           },
@@ -250,6 +266,7 @@
           "arguments": [
             {
               "name": "temperature_46degrees",
+              "id": 4,
               "stream-id": 10,
               "stream-name": "Temperature",
               "attributes": [
@@ -265,6 +282,7 @@
           "arguments": [
             {
               "name": "temperature_22degrees",
+              "id": 1,
               "stream-id": 10,
               "stream-name": "Temperature",
               "attributes": [
@@ -280,6 +298,7 @@
           "arguments": [
             {
               "name": "humidity_24percent",
+              "id": 2,
               "stream-id": 11,
               "stream-name": "Humidity",
               "attributes": [
@@ -295,6 +314,7 @@
           "arguments": [
             {
               "name": "humidity_44percent",
+              "id": 3,
               "stream-id": 11,
               "stream-name": "Humidity",
               "attributes": [
@@ -309,6 +329,7 @@
           [
             {
               "name": "unrelated_query",
+              "id": 4,
               "number_states": 2,
               "temperature": 1000
             },
@@ -321,6 +342,7 @@
           [
             {
               "name": "unrelated_query",
+              "id": 4,
               "number_states": 2,
               "temperature": 1000
             },
@@ -333,6 +355,7 @@
           [
             {
               "name": "unrelated_query",
+              "id": 4,
               "number_states": 2,
               "temperature": 1000
             },
