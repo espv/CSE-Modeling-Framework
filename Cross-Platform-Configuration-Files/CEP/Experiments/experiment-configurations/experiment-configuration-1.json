@@ -8,12 +8,12 @@
       "name": "experiment 1 --- varying the number of queries",
       "id": 1,
       "flow": [
-        {"command": "setIntervalBetweenEvents", "arguments": [0]},
+        {"command": "setIntervalBetweenEvents", "arguments": [100000]},
         {"command": "setEventBatchSize", "arguments": [1]},
-        {"command": "addEvents", "arguments": [4, 1]},
-        {"command": "addEvents", "arguments": [1, 100]},
         {"command": "addEvents", "arguments": [2, 1]},
-        {"command": "addEvents", "arguments": [3, 1]},
+        {"command": "addEvents", "arguments": [4, 1]},
+        {"command": "addEvents", "arguments": [2, 1]},
+        {"command": "addEvents", "arguments": [4, 1]},
         {"command": "addQueries", "arguments": [1, 1]},
         {"command": "processEvents", "arguments": [10000]},
         {"command": "clearQueries"},
@@ -83,7 +83,7 @@
     {
       "name": "then_operator_2states",
       "id": 1,
-      "inevents": [10, 11],
+      "inevents": [11, 10],
       "constraints": [
         {
           "type": "GTCONSTRAINT",
@@ -215,6 +215,28 @@
       }
     },
     {
+      "id": 4,
+      "name": "passedConstraints",
+      "description": "Passed constraints for query",
+      "category": {
+        "isModelEvent": true,
+        "isScalingEvent": false,
+        "isMilestoneEvent": false,
+        "isSimulationEvent": false
+      }
+    },
+    {
+      "id": 6,
+      "name": "createdComplexEvent",
+      "description": "A complex event was created",
+      "category": {
+        "isModelEvent": true,
+        "isScalingEvent": false,
+        "isMilestoneEvent": true,
+        "isSimulationEvent": false
+      }
+    },
+    {
       "id": 100,
       "name": "",
       "description": "",
@@ -250,10 +272,10 @@
     {
       "id": 220,
       "name": "addEvent",
-      "description": "Traced when adding an event to the allPackets queue. This is a scaling event.",
+      "description": "Traced when adding an event to the allPackets queue.",
       "category": {
         "isModelEvent": false,
-        "isScalingEvent": true,
+        "isScalingEvent": false,
         "isMilestoneEvent": false,
         "isSimulationEvent": false
       }
