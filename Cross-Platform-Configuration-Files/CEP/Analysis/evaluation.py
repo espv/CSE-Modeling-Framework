@@ -264,6 +264,7 @@ class CompareTraces(object):
             for tuple in v:
                 print(k, ":", tuple)
 
+        # The simulation starts Tx packets at 150 seconds, but the real simulation might start after much longer
         offset = combined_lines[0][0][1]-combined_lines[0][1][1]
         for line in combined_lines:
             print(line)
