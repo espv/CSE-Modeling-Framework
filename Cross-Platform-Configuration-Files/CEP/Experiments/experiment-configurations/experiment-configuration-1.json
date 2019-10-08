@@ -8,7 +8,7 @@
       "name": "experiment 1 --- varying the number of queries",
       "id": 1,
       "flow": [
-        {"command": "setIntervalBetweenEvents", "arguments": [100000]},
+        {"command": "setIntervalBetweenEvents", "arguments": [0]},
         {"command": "setEventBatchSize", "arguments": [1]},
         {"command": "addEvents", "arguments": [2, 1]},
         {"command": "addEvents", "arguments": [4, 1]},
