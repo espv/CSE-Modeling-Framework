@@ -26,3 +26,4 @@ Steps to compile TinyOS: (requires a working java installation >= java 5, instal
 
 The ForwardPacketsAndTraceCSW application has been used to trace the temporal behavior of the CSW of TinyOS while doing packet forwarding. You can test the app out on a real topology with three motes or by using COOJA (COntiki Os JAva simulator). The behavior of each node depends on their node ID that is automatically assigned in COOJA and explicitly assigned when compiling for real motes.
 
+The ns-3-extended-with-execution-environment repo also includes the DCEP-Sim module from the repo https://github.com/fabricesb/DCEP-Sim and publication in https://dl.acm.org/citation.cfm?id=3093919. It contains the software execution model from the paper https://dl.acm.org/citation.cfm?id=3332508 of the CEP system T-Rex running on a Raspberry Pi 3B. The device file for the model is in device-files/trex.device. Any simulation program that uses this device file is using this model.
