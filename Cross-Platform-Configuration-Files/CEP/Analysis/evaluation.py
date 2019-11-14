@@ -1,5 +1,6 @@
 import argparse
 import errno
+import json
 import os
 import re
 
@@ -9,12 +10,12 @@ import seaborn as sns
 from matplotlib import pyplot as plt
 
 parser = argparse.ArgumentParser(description='Compare two trace files.')
-parser.add_argument('trace_location', type=str,
-                    help='Location of trace files')
-parser.add_argument('trace_file1', type=str,
-                    help='First trace file')
-parser.add_argument('trace_file2', type=str,
-                    help='Second trace file')
+parser.add_argument('json_config', type=str,
+                    help='Location of json config file')
+parser.add_argument('trace_file', type=str,
+                    help='Real-world trace file')
+parser.add_argument('x_variable', type=str,
+                    help='The variable that represents the x-axis on the figure')
 
 args = parser.parse_args()
 
@@ -239,7 +240,14 @@ class CompareTraces(object):
 
         return filtered_t1, t1_map
 
-    def main(self, trace_file1, trace_file2):
+    def main(self, json_config, trace_file1, trace_file2, x_variable):
+        json_config = json.load(open(json_config))
+        scaling_tracepoints = []
+
+        for t in json_config.get("tracepoints"):
+            if t.get("x_variable") == x_variable:
+                scaling_tracepoints.append(t)
+
         t1 = list(open(trace_file1))
         t2 = list(open(trace_file2))
         combined_map = {}
@@ -250,26 +258,85 @@ class CompareTraces(object):
         combined_lines = []
 
         for zipped_line in zip(filtered_t1, filtered_t2):
+            #ft1 = re.search(r'\t|\n', zipped_line[0]).groups()
+            #ft2 = re.search(r'\t|\n', zipped_line[1]).groups()
             ft1 = re.split("\t|\n", zipped_line[0])
             ft2 = re.split("\t|\n", zipped_line[1])
-            combined_lines.append(((ft1[0], int(ft1[4])), (ft2[0], int(ft2[4]))))
+            combined_lines.append(([int(i) for i in ft1 if i], [int(i) for i in ft2 if i]))
 
         for k, v in t1_map.items():
             if t2_map.get(k) is not None:
                 # We zip 'em
                 combined_map[k] = list(zip(v, t2_map[k]))
 
-        for k, v in combined_map.items():
-            print("Key:", k)
-            for tuple in v:
-                print(k, ":", tuple)
+        #for k, v in combined_map.items():
+        #    print("Key:", k)
+        #    for tuple in v:
+        #        print(k, ":", tuple)
 
         # The simulation starts Tx packets at 150 seconds, but the real simulation might start after much longer
         offset = combined_lines[0][0][1]-combined_lines[0][1][1]
-        for line in combined_lines:
-            print(line)
-            print(line[1][1]+offset-line[0][1])
+        #for line in combined_lines:
+        #    print(line)
+        #    print(line[1][1]+offset-line[0][1])
+
+        scaling_events = {}
+        milestone_events = {}
+        # Read json config file and populate a dict that contains a mapping between tracepoints and categories
+        # We only care about scaling and milestone events, and each event can only be categorized as one of them.
+        for t in json_config.get("tracepoints"):
+            if t.get("category").get("isScalingEvent"):
+                scaling_events[t.get("id")] = True
+            if t.get("category").get("isMilestoneEvent"):
+                milestone_events[t.get("id")] = True
+
+        x = 0
+        # Create figures (Only execution time is relevant for trace)
+        # Start with the entire execution time, and then move on to milestone measurements
+        # But for all the figures, use the trace event categories so that the system will work even when we make changes
+
+        # Only when a milestone event is processed, will the y value have an effect, which means the y value may go from
+        # 1000 to 0, and from 0 to 2000; and on the figure, it'll look like the data goes from 1000 to 2000. That's the
+        # intended effect.
+        for l in combined_lines:
+            e = l[0]
+            e2 = l[1]
+            #print("t[0]:", t[0], "t2[0]:", t2[0])
+            assert e[0] == e2[0], "The tracepoints in the real-world and simulated traces differ"
+            if scaling_events.get(e[0]):
+                # The event is a scaling event and the x-axis will be affected
+                for t in scaling_tracepoints:
+                    if t.get("id") == e[0]:
+                        #print("This scaling event will affect the x-axis on the figure")
+                        scaling_tp = t.get("name")
+                        if scaling_tp == "addQuery":
+                            x += 1
+                        elif scaling_tp == "clearQueries":
+                            x = 0
+                        elif scaling_tp == "addEvent":
+                            x += 1
+                        elif scaling_tp == "clearEvents":
+                            x = 0
+                        else:
+                            raise RuntimeError("Unidentified scaling tracepoint")
+                        print(e[0], "is a scaling event, x is now", x)
+            if milestone_events.get(e[0]):
+                #print(e[0], "is a milestone event")
+                tracepoint = None
+                for t in json_config.get("tracepoints"):
+                    if t.get("id") == e[0]:
+                        tracepoint = t
+                        break
+
+                if tracepoint["name"] == "receiveEvent":
+                    print("Event", e[2], "received at", e[1])
+                elif tracepoint["name"] == "passedConstraints":
+                    print("Event", e[2], "passed constraints at", e[1])
+                elif tracepoint["name"] == "createdComplexEvent":
+                    print("Event", e[2], "caused the creation of a complex event at", e[1])
+                elif tracepoint["name"] == "finishedProcessingEvent":
+                    print("Finished processing event", e[2], "at", e[1])
 
 
 if __name__ == '__main__':
-    CompareTraces().main(args.trace_location+"/"+args.trace_file1, args.trace_location+"/"+args.trace_file2)
+    CompareTraces().main(args.json_config, args.trace_file, args.trace_file+"_simulated", args.x_variable)
