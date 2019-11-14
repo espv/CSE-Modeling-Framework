@@ -3,6 +3,11 @@
   "description": "Experiment that pushes the throughput of the CEP system while varying the number of queries.",
   "query-location": "~/Research/CEP/Queries",
   "event-location": "~/Research/CEP/Events",
+  "tracepoint-format": {
+    "tracepointId": "int",
+    "threadId": "int",
+    "timestamp": "long"
+  },
   "experiments": [
     {
       "name": "experiment 1 --- varying the number of queries",
@@ -10,21 +15,22 @@
       "flow": [
         {"command": "setIntervalBetweenEvents", "arguments": [0]},
         {"command": "setEventBatchSize", "arguments": [1]},
-        {"command": "addEvents", "arguments": [2, 1]},
+        {"command": "addStreamDefinition", "arguments": [1]},
+        {"command": "addStreamDefinition", "arguments": [2]},
+        {"command": "addStreamDefinition", "arguments": [3]},
         {"command": "addEvents", "arguments": [4, 1]},
         {"command": "addEvents", "arguments": [2, 1]},
-        {"command": "addEvents", "arguments": [4, 1]},
         {"command": "addQueries", "arguments": [1, 1]},
-        {"command": "processEvents", "arguments": [10000]},
+        {"command": "processEvents", "arguments": [100]},
         {"command": "clearQueries"},
         {"command": "addQueries", "arguments": [1, 10]},
-        {"command": "processEvents", "arguments": [10000]},
+        {"command": "processEvents", "arguments": [100]},
         {"command": "clearQueries"},
         {"command": "addQueries", "arguments": [1, 100]},
-        {"command": "processEvents", "arguments": [10000]},
+        {"command": "processEvents", "arguments": [100]},
         {"command": "clearQueries"},
         {"command": "addQueries", "arguments": [1, 1000]},
-        {"command": "processEvents", "arguments": [10000]},
+        {"command": "processEvents", "arguments": [100]},
         {"command": "clearQueries"},
         {"command": "clearEvents"}
       ]
@@ -34,6 +40,9 @@
       "id": 2,
       "flow": [
         {"command": "setIntervalBetweenEvents", "arguments": [0]},
+        {"command": "addStreamDefinition", "arguments": [1]},
+        {"command": "addStreamDefinition", "arguments": [2]},
+        {"command": "addStreamDefinition", "arguments": [3]},
         {"command": "addEvents", "arguments": [4, 1]},
         {"command": "addEvents", "arguments": [1, 100]},
         {"command": "addEvents", "arguments": [2, 100]},
@@ -56,6 +65,9 @@
       "id": 3,
       "flow": [
         {"command": "setIntervalBetweenEvents", "arguments": [0]},
+        {"command": "addStreamDefinition", "arguments": [1]},
+        {"command": "addStreamDefinition", "arguments": [2]},
+        {"command": "addStreamDefinition", "arguments": [3]},
         {"command": "addEvents", "arguments": [4, 1]},
         {"command": "addEvents", "arguments": [2, 1]},
         {"command": "addEvents", "arguments": [4, 1]},
@@ -83,60 +95,90 @@
     {
       "name": "then_operator_2states",
       "id": 1,
-      "inevents": [11, 10],
+      "inevents": [10, 11],
       "constraints": [
         {
           "type": "GTCONSTRAINT",
           "name": "value",
           "value": 45
         }
-      ]
+      ],
+      "literal-query": {
+        "t-rex": "",
+        "siddhi": "from every t = temperatureStream [value > 45] -> (h = humidityStream [percentage < 25]) within 5 seconds select value, percentage, h.area insert into fireStream ;"
+      }
     },
     {
       "name": "then_operator_10states",
       "id": 2,
-      "inevents": [10, 11, "D", "E", "F", "G", "H", "I", "J", "K"],
+      "inevents": [10, 11, 12, 13, 14, 15, 16, 17, 18, 19],
       "constraints": [
         {
           "type": "GTCONSTRAINT",
           "name": "value",
           "value": 45
         }
-      ]
+      ],
+      "literal-query": {
+        "t-rex": "",
+        "siddhi": ""
+      },
+      "stream-definitions": {
+        "siddhi": ""
+      }
     },
     {
       "name": "then_operator_100states",
       "id": 3,
-      "inevents": [10,   11,   "D",  "E",  "F",  "G",  "H",  "I",  "J",  "K",
-                   "AB", "AC", "AD", "AE", "AF", "AG", "AH", "AI", "AJ", "AK",
-                   "BB", "BC", "BD", "BE", "BF", "BG", "BH", "BI", "BJ", "BK",
-                   "CB", "CC", "CD", "CE", "CF", "CG", "CH", "CI", "CJ", "CK",
-                   "DB", "DC", "DD", "DE", "DF", "DG", "DH", "DI", "DJ", "DK",
-                   "EB", "EC", "ED", "EE", "EF", "EG", "EH", "EI", "EJ", "EK",
-                   "FB", "FC", "FD", "FE", "FF", "FG", "FH", "FI", "FJ", "FK",
-                   "GB", "GC", "GD", "GE", "GF", "GG", "GH", "GI", "GJ", "GK",
-                   "HB", "HC", "HD", "HE", "HF", "HG", "HH", "HI", "HJ", "HK",
-                   "IB", "IC", "ID", "IE", "IF", "IG", "IH", "II", "IJ", "IK"],
+      "inevents": [10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+                   20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
+                   30, 31, 32, 33, 34, 35, 36, 37, 38, 39,
+                   40, 41, 42, 43, 44, 45, 46, 47, 48, 49,
+                   50, 51, 52, 53, 54, 55, 56, 57, 58, 59,
+                   60, 61, 62, 63, 64, 65, 66, 67, 68, 69,
+                   70, 71, 72, 73, 74, 75, 76, 77, 78, 79,
+                   80, 81, 82, 83, 84, 85, 86, 87, 88, 89,
+                   90, 91, 92, 93, 94, 95, 96, 97, 98, 99,
+                   100, 101, 102, 103, 104, 105, 106, 107, 108, 109],
       "constraints": [
         {
           "type": "GTCONSTRAINT",
           "name": "value",
           "value": 45
         }
-      ]
+      ],
+      "literal-query": {
+        "t-rex": "",
+        "siddhi": ""
+      },
+      "stream-definitions": {
+        "siddhi": ""
+      }
     },
     {
       "name": "unrelated_query",
       "id": 4,
-      "inevents": ["X", "Z"],
+      "inevents": [112, 113],
       "constraints": [
         {
           "type": "GTCONSTRAINT",
           "name": "value",
           "value": 1000
         }
-      ]
+      ],
+      "literal-query": {
+        "t-rex": "",
+        "siddhi": ""
+      },
+      "stream-definitions": {
+        "siddhi": ""
+      }
     }
+  ],
+  "stream-definitions": [
+    {"id": 1, "siddhi": "define stream temperatureStream (value long, area string);"},
+    {"id": 2, "siddhi": "define stream humidityStream (percentage long, area string);"},
+    {"id": 3, "siddhi": "define stream fireStream (value long, percentage long, area string);"}
   ],
   "cepevents": [
     {
@@ -184,17 +226,25 @@
     {
       "id": 1,
       "name": "receiveEvent",
+      "arguments": [
+        {"name": "tid", "type":  "int"},
+        {"name":  "CurCepEvent", "type":  "int"}
+      ],
       "description": "",
       "category": {
         "isModelEvent": true,
         "isScalingEvent": false,
-        "isMilestoneEvent": false,
+        "isMilestoneEvent": true,
         "isSimulationEvent": true
       }
     },
     {
       "id": 2,
       "name": "",
+      "arguments": [
+        {"name": "tid", "type":  "int"},
+        {"name":  "CurCepEvent", "type":  "int"}
+      ],
       "description": "",
       "category": {
         "isModelEvent": true,
@@ -206,6 +256,10 @@
     {
       "id": 3,
       "name": "",
+      "arguments": [
+        {"name": "tid", "type":  "int"},
+        {"name":  "CurCepEvent", "type":  "int"}
+      ],
       "description": "",
       "category": {
         "isModelEvent": true,
@@ -217,6 +271,10 @@
     {
       "id": 4,
       "name": "passedConstraints",
+      "arguments": [
+        {"name": "tid", "type":  "int"},
+        {"name":  "CurCepEvent", "type":  "int"}
+      ],
       "description": "Passed constraints for query",
       "category": {
         "isModelEvent": true,
@@ -228,6 +286,10 @@
     {
       "id": 6,
       "name": "createdComplexEvent",
+      "arguments": [
+        {"name": "tid", "type":  "int"},
+        {"name":  "CurCepEvent", "type":  "int"}
+      ],
       "description": "A complex event was created",
       "category": {
         "isModelEvent": true,
@@ -238,18 +300,26 @@
     },
     {
       "id": 100,
-      "name": "",
+      "name": "finishedProcessingEvent",
+      "arguments": [
+        {"name": "tid", "type":  "int"},
+        {"name":  "CurCepEvent", "type":  "int"}
+      ],
       "description": "",
       "category": {
         "isModelEvent": true,
         "isScalingEvent": false,
-        "isMilestoneEvent": false,
+        "isMilestoneEvent": true,
         "isSimulationEvent": false
       }
     },
     {
       "id": 221,
       "name": "addQuery",
+      "arguments": [
+        {"name":  "CepQuery", "type":  "int"}
+      ],
+      "x_variable": "numberQueries",
       "description": "Traced when deploying a query. This is a simulation and scaling event.",
       "category": {
         "isModelEvent": false,
@@ -261,6 +331,8 @@
     {
       "id": 222,
       "name": "clearQueries",
+      "arguments": [],
+      "x_variable": "numberQueries",
       "description": "Traced when removing all deployed queries. This is a simulation and scaling event.",
       "category": {
         "isModelEvent": false,
@@ -272,6 +344,11 @@
     {
       "id": 220,
       "name": "addEvent",
+      "arguments": [
+        {"name": "tid", "type":  "int"},
+        {"name": "CepEvent", "type":  "int"}
+      ],
+      "x_variable": "numberEvents",
       "description": "Traced when adding an event to the allPackets queue.",
       "category": {
         "isModelEvent": false,
@@ -283,6 +360,8 @@
     {
       "id": 223,
       "name": "clearEvents",
+      "arguments": [],
+      "x_variable": "numberEvents",
       "description": "Traced when clearing all CEP events from allPackets. This is a scaling event.",
       "category": {
         "isModelEvent": false,
