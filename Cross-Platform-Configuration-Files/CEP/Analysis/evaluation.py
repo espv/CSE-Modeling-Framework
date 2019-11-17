@@ -298,10 +298,11 @@ class CompareTraces(object):
         # Only when a milestone event is processed, will the y value have an effect, which means the y value may go from
         # 1000 to 0, and from 0 to 2000; and on the figure, it'll look like the data goes from 1000 to 2000. That's the
         # intended effect.
-        for l in combined_lines:
+        for i, l in enumerate(combined_lines):
             e = l[0]
             e2 = l[1]
-            #print("t[0]:", t[0], "t2[0]:", t2[0])
+            if e[0] != e2[0]:
+                print("Tracepoint IDs at index", i, ":", e[0], "and", e2[0], "are different")
             assert e[0] == e2[0], "The tracepoints in the real-world and simulated traces differ"
             if scaling_events.get(e[0]):
                 # The event is a scaling event and the x-axis will be affected
