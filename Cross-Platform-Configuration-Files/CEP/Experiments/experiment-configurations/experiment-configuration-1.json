@@ -12,6 +12,12 @@
     {
       "name": "experiment 1 --- varying the number of queries",
       "id": 1,
+      "topology": [
+        {"id":  0, "connected-to":  [2]},
+        {"id":  1, "connected-to":  [2]},
+        {"id":  2, "connected-to":  [0, 1, 3]},
+        {"id":  3, "connected-to":  [2]}
+      ],
       "flow": [
         {"command": "setIntervalBetweenEvents", "arguments": [0]},
         {"command": "setEventBatchSize", "arguments": [1]},
@@ -38,6 +44,12 @@
     {
       "name": "experiment 2 --- varying the number of states in the sequence operator",
       "id": 2,
+      "topology": [
+        {"id":  0, "connected-to":  [2]},
+        {"id":  1, "connected-to":  [2]},
+        {"id":  2, "connected-to":  [0, 1, 3]},
+        {"id":  3, "connected-to":  [2]}
+      ],
       "flow": [
         {"command": "setIntervalBetweenEvents", "arguments": [0]},
         {"command": "addStreamDefinition", "arguments": [1]},
@@ -63,6 +75,12 @@
     {
       "name": "experiment 3 --- varying the number of unrelated queries",
       "id": 3,
+      "topology": [
+        {"id":  0, "connected-to":  [2]},
+        {"id":  1, "connected-to":  [2]},
+        {"id":  2, "connected-to":  [0, 1, 3]},
+        {"id":  3, "connected-to":  [2]}
+      ],
       "flow": [
         {"command": "setIntervalBetweenEvents", "arguments": [0]},
         {"command": "addStreamDefinition", "arguments": [1]},
