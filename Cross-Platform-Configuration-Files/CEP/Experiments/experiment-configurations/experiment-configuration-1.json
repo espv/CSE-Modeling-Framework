@@ -93,18 +93,209 @@
   ],
   "cepqueries": [
     {
-      "name": "then_operator_2states",
-      "id": 1,
-      "inevents": [10, 11],
-      "constraints": [
+      "name": "temperature_GT45_and_humidity_LT25_5sec_window",
+      "id": 0,
+      "indata": [
         {
-          "type": "GTCONSTRAINT",
-          "name": "value",
-          "value": 45
+          "incoming": [
+            {
+              "id": 10,
+              "reference": "temp",
+              "constraints": [
+                {
+                  "type": "GTCONSTRAINT",
+                  "name": "value",
+                  "value": 45
+                }
+              ],
+              "consumption": "SINGLE_USE",
+              "windows": [
+                {
+                  "type": "sliding",
+                  "unit": "tuple",
+                  "size": 1
+                },
+                {
+                  "type": "sliding",
+                  "unit": "millisecond",
+                  "size": 5000
+                }
+              ]
+            },
+            {
+              "id": 11,
+              "reference": "humidity",
+              "constraints": [
+                {
+                  "type": "LTCONSTRAINT",
+                  "name": "percentage",
+                  "value": 25
+                },
+                {
+                  "type": "EQCONSTRAINT",
+                  "name": "area",
+                  "reference": "temp"
+                }
+              ],
+              "consumption": "SINGLE_USE",
+              "windows": [
+                {
+                  "type": "sliding",
+                  "unit": "tuple",
+                  "size": 1
+                },
+                {
+                  "type": "sliding",
+                  "unit": "millisecond",
+                  "size": 5000
+                }
+              ]
+            }
+          ]
         }
       ],
       "literal-query": {
         "t-rex": "",
+        "siddhi": "from every t = temperatureStream [value > 45] and (h = humidityStream [percentage < 25]) select value, percentage, h.area insert into fireStream ;"
+      }
+    },
+    {
+      "name": "temperature_GT45_join_humidity_LT25_5sec_window",
+      "id": 5,
+      "indata": [
+        {
+          "incoming": [
+            {
+              "id": 10,
+              "reference": "temp",
+              "constraints": [
+                {
+                  "type": "GTCONSTRAINT",
+                  "name": "value",
+                  "value": 45,
+                  "aggregation": "median"
+                }
+              ],
+              "windows": [
+                {
+                  "type": "sliding",
+                  "unit": "millisecond",
+                  "size": 5000
+                }
+              ]
+            },
+            {
+              "id": 11,
+              "reference": "humidity",
+              "constraints": [
+                {
+                  "type": "LTCONSTRAINT",
+                  "name": "percentage",
+                  "value": 25,
+                  "aggregation": "median"
+                }
+              ],
+              "windows": [
+                {
+                  "type": "sliding",
+                  "unit": "millisecond",
+                  "size": 5000
+                }
+              ]
+            }
+          ],
+          "constraints": [
+            {
+              "type": "EQCONSTRAINT",
+              "name": "area",
+              "reference1": "temp",
+              "reference2": "humidity"
+            }
+          ]
+        }
+      ],
+      "literal-query": {
+        "t-rex": "",
+        "siddhi": "from every t = temperatureStream [value > 45] and (h = humidityStream [percentage < 25]) select value, percentage, h.area insert into fireStream;"
+      }
+    },
+    {
+      "name": "temperature_GT45_then_humidity_LT25_within_5sec",
+      "id": 6,
+      "indata": [
+        {
+          "windows": [
+            {
+              "type": "tumbling",
+              "unit": "millisecond",
+              "size": 5000
+            }
+          ],
+          "incoming": [
+            {
+              "id": 10,
+              "reference": "temp",
+              "constraints": [
+                {
+                  "type": "GTCONSTRAINT",
+                  "name": "value",
+                  "value": 45
+                }
+              ],
+              "consumption": "SINGLE_USE",
+              "windows": [
+                {
+                  "type": "sliding",
+                  "unit": "millisecond",
+                  "size": 5000
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "incoming": [
+            {
+              "id": 11,
+              "reference": "humidity",
+              "constraints": [
+                {
+                  "type": "LTCONSTRAINT",
+                  "name": "percentage",
+                  "value": 25
+                },
+                {
+                  "type": "EQCONSTRAINT",
+                  "name": "area",
+                  "reference": "temp"
+                }
+              ],
+              "consumption": "SINGLE_USE",
+              "windows": [
+                {
+                  "type": "sliding",
+                  "unit": "millisecond",
+                  "size": 5000
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "literal-query": {
+        "t-rex": "",
+        "siddhi": "from every t = temperatureStream [value > 45] and (h = humidityStream [percentage < 25]) select value, percentage, h.area insert into fireStream ;"
+      }
+    },
+    {
+      "name": "then_operator_2states",
+      "id": 1,
+      "inevents": [10, 11],
+      "constraints": [
+        {"type": "GTCONSTRAINT", "name": "value", "value": 45}
+      ],
+      "literal-query": {
+        "t-rex": "Assign 10 => Temp, 11 => Humidity, 1 => Fire\nDefine  Fire(area: string, temp: float)\nFrom   Humidity(percentage<25 and\nlast   Temp(value>45), [string] area=Temp.area)\nwithin 50000000 from Temp\nWhere   area := Temp.area, temp := Temp.value\nConsuming Temp, Humidity;",
         "siddhi": "from every t = temperatureStream [value > 45] -> (h = humidityStream [percentage < 25]) within 5 seconds select value, percentage, h.area insert into fireStream ;"
       }
     },
