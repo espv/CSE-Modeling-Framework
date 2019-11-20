@@ -107,6 +107,39 @@
         {"command": "clearQueries"},
         {"command": "clearEvents"}
       ]
+    },
+    {
+      "name": "experiment 4 --- varying the number of queries",
+      "id": 4,
+      "topology": [
+        {"id":  0, "connected-to":  [2]},
+        {"id":  1, "connected-to":  [2]},
+        {"id":  2, "connected-to":  [0, 1, 3]},
+        {"id":  3, "connected-to":  [2]}
+      ],
+      "flow": [
+        {"command": "setIntervalBetweenEvents", "arguments": [0]},
+        {"command": "setEventBatchSize", "arguments": [1]},
+        {"command": "addStreamDefinition", "arguments": [1]},
+        {"command": "addStreamDefinition", "arguments": [2]},
+        {"command": "addStreamDefinition", "arguments": [3]},
+        {"command": "addEvents", "arguments": [5, 1]},
+        {"command": "addEvents", "arguments": [4, 1]},
+        {"command": "addEvents", "arguments": [2, 1]},
+        {"command": "addQueries", "arguments": [7, 1]},
+        {"command": "processEvents", "arguments": [100]},
+        {"command": "clearQueries"},
+        {"command": "addQueries", "arguments": [7, 10]},
+        {"command": "processEvents", "arguments": [100]},
+        {"command": "clearQueries"},
+        {"command": "addQueries", "arguments": [7, 100]},
+        {"command": "processEvents", "arguments": [100]},
+        {"command": "clearQueries"},
+        {"command": "addQueries", "arguments": [7, 1000]},
+        {"command": "processEvents", "arguments": [100]},
+        {"command": "clearQueries"},
+        {"command": "clearEvents"}
+      ]
     }
   ],
   "cepqueries": [
@@ -129,12 +162,7 @@
               "consumption": "SINGLE_USE",
               "windows": [
                 {
-                  "type": "sliding",
-                  "unit": "tuple",
-                  "size": 1
-                },
-                {
-                  "type": "sliding",
+                  "type": "tumbling",
                   "unit": "millisecond",
                   "size": 5000
                 }
@@ -158,12 +186,7 @@
               "consumption": "SINGLE_USE",
               "windows": [
                 {
-                  "type": "sliding",
-                  "unit": "tuple",
-                  "size": 1
-                },
-                {
-                  "type": "sliding",
+                  "type": "tumbling",
                   "unit": "millisecond",
                   "size": 5000
                 }
@@ -242,13 +265,6 @@
       "id": 6,
       "indata": [
         {
-          "windows": [
-            {
-              "type": "tumbling",
-              "unit": "millisecond",
-              "size": 5000
-            }
-          ],
           "incoming": [
             {
               "id": 10,
@@ -263,7 +279,7 @@
               "consumption": "SINGLE_USE",
               "windows": [
                 {
-                  "type": "sliding",
+                  "type": "tumbling",
                   "unit": "millisecond",
                   "size": 5000
                 }
@@ -291,7 +307,7 @@
               "consumption": "SINGLE_USE",
               "windows": [
                 {
-                  "type": "sliding",
+                  "type": "tumbling",
                   "unit": "millisecond",
                   "size": 5000
                 }
@@ -303,6 +319,95 @@
       "literal-query": {
         "t-rex": "",
         "siddhi": "from every t = temperatureStream [value > 45] and (h = humidityStream [percentage < 25]) select value, percentage, h.area insert into fireStream ;"
+      }
+    },
+    {
+      "name": "temperature_GT45_then_humidity_LT25_within_5sec_then_smoke_GT50_within_5sec",
+      "id": 7,
+      "indata": [
+        {
+          "incoming": [
+            {
+              "id": 10,
+              "reference": "temp",
+              "constraints": [
+                {
+                  "type": "GTCONSTRAINT",
+                  "name": "value",
+                  "value": 45
+                }
+              ],
+              "consumption": "SINGLE_USE",
+              "windows": [
+                {
+                  "type": "tumbling",
+                  "unit": "millisecond",
+                  "size": 5000
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "incoming": [
+            {
+              "id": 11,
+              "reference": "humidity",
+              "constraints": [
+                {
+                  "type": "LTCONSTRAINT",
+                  "name": "percentage",
+                  "value": 25
+                },
+                {
+                  "type": "EQCONSTRAINT",
+                  "name": "area",
+                  "reference": "temp"
+                }
+              ],
+              "consumption": "SINGLE_USE",
+              "windows": [
+                {
+                  "type": "tumbling",
+                  "unit": "millisecond",
+                  "size": 5000
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "incoming": [
+            {
+              "id": 12,
+              "reference": "smoke",
+              "constraints": [
+                {
+                  "type": "GTCONSTRAINT",
+                  "name": "ppm",
+                  "value": 100
+                },
+                {
+                  "type": "EQCONSTRAINT",
+                  "name": "area",
+                  "reference": "temp"
+                }
+              ],
+              "consumption": "SINGLE_USE",
+              "windows": [
+                {
+                  "type": "tumbling",
+                  "unit": "millisecond",
+                  "size": 5000
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "literal-query": {
+        "t-rex": "Assign 10 => Temp, 11 => Humidity, 12 => Smoke, 1 => Fire\nDefine  Fire(area: string, temp: float)\nFrom   Humidity(percentage<25) and\nlast   Temp(value>45, [string] area=Temp.area)\nwithin 50000000 from Temp and\nlast    Smoke(ppm>100, [string] area=Temp.area)\nwithin 50000000 from Smoke\nWhere   area := Temp.area, temp := Temp.value\nConsuming Temp, Humidity;",
+        "siddhi": "from every t = temperatureStream [value > 45] -> (h = humidityStream [percentage < 25]) within 5 seconds -> (s = smokeStream [ppm > 100]) within 5 seconds select value, percentage, h.area insert into fireStream ;"
       }
     },
     {
@@ -427,6 +532,16 @@
       "stream-name": "Temperature",
       "attributes": [
         {"name": "value", "value": 46},
+        {"name": "area", "value": "office"}
+      ]
+    },
+    {
+      "name": "smoke_101_ppm",
+      "id": 5,
+      "stream-id": 12,
+      "stream-name": "Smoke",
+      "attributes": [
+        {"name": "ppm", "value": 101},
         {"name": "area", "value": "office"}
       ]
     }
@@ -575,6 +690,21 @@
       "category": {
         "isModelEvent": false,
         "isScalingEvent": true,
+        "isMilestoneEvent": false,
+        "isSimulationEvent": false
+      }
+    },
+    {
+      "id": 0,
+      "name": "runExperiment",
+      "arguments": [
+        {"name": "experimentId", "type":  "int"}
+      ],
+      "x_variable": "",
+      "description": "Decides which experiment to run",
+      "category": {
+        "isModelEvent": false,
+        "isScalingEvent": false,
         "isMilestoneEvent": false,
         "isSimulationEvent": false
       }
