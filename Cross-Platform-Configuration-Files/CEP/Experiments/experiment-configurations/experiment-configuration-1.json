@@ -289,7 +289,7 @@
               "id": 10,
               "reference": "temp",
               "constraints": [
-                {"type": "GTCONSTRAINT", "name": "value", "value": 45, "aggregation": "median", "value-type": "number"}
+                {"type": "GTCONSTRAINT", "name": "value", "value": 45, "aggregation": "average", "value-type": "number"}
               ],
               "windows": [{"type": "sliding", "unit": "millisecond", "size": 5000}]
             },
@@ -297,7 +297,7 @@
               "id": 11,
               "reference": "humidity",
               "constraints": [
-                {"type": "LTCONSTRAINT", "name": "percentage", "value": 25, "aggregation": "median", "value-type": "number"},
+                {"type": "LTCONSTRAINT", "name": "percentage", "value": 25, "aggregation": "average", "value-type": "number"},
                 {"type": "EQCONSTRAINT", "name": "area", "reference1": "temp", "reference2": "humidity", "value-type": "string"}
               ],
               "windows": [{"type": "sliding", "unit": "millisecond", "size": 5000}]
@@ -394,6 +394,28 @@
       "literal-query": {
         "t-rex": "Assign 10 => Temp, 11 => Humidity, 12 => Smoke, 1 => Fire\nDefine  Fire(area: string, temp: float)\nFrom   Humidity(percentage<25) and\nlast   Temp(value>45, [string] area=Temp.area)\nwithin 50000000 from Temp and\nlast    Smoke(ppm>100, [string] area=Temp.area)\nwithin 50000000 from Smoke\nWhere   area := Temp.area, temp := Temp.value\nConsuming Smoke, Temp, Humidity;",
         "siddhi": "from every (t = temperatureStream [value > 45]) -> (h = humidityStream [percentage < 25]) \n -> (s = smokeStream [ppm > 100]) within 5 seconds \nselect value, percentage, h.area \ninsert into fireStream ;"
+      }
+    },
+    {
+      "name": "temperature_AVG_GT45_5sec_window",
+      "id": 8,
+      "indata": [
+        {
+          "incoming": [
+            {
+              "id": 10,
+              "reference": "temp",
+              "constraints": [
+                {"type": "GTCONSTRAINT", "name": "value", "value": 45, "aggregation": "average", "value-type": "number"}
+              ],
+              "windows": [{"type": "sliding", "unit": "millisecond", "size": 5000}]
+            }
+          ]
+        }
+      ],
+      "literal-query": {
+        "t-rex": "Assign 10 => Temp, 11 => Humidity, 12 => Smoke, 1 => Fire\nDefine  Fire(area: string, temp: float)\nFrom   Humidity(percentage<25) and\nlast   Temp(value>45, [string] area=Temp.area)\nwithin 50000000 from Temp and\nlast    Smoke(ppm>100, [string] area=Temp.area)\nwithin 50000000 from Smoke\nWhere   area := Temp.area, temp := Temp.value\nConsuming Smoke, Temp, Humidity;",
+        "siddhi": "from temperatureStream[value > 45]#window.time(1 min) as temp\njoin humidityStream[percentage < 25]#window.time(1 min) as humidity\non temp.area==humidity.area\nselect value, percentage, humidity.area\ninsert into fireStream;"
       }
     }
   ],
