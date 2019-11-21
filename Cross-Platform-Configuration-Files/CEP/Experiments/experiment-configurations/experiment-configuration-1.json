@@ -332,7 +332,7 @@
               "reference": "humidity",
               "constraints": [
                 {"type": "LTCONSTRAINT", "name": "percentage", "value": 25, "value-type": "number"},
-                {"type": "EQCONSTRAINT", "name": "area", "reference": "temp", "value-type": "string"}
+                {"type": "EQCONSTRAINT", "name": "area", "reference1": "temp", "reference2": "humidity", "value-type": "string"}
               ],
               "consumption": "SINGLE_USE",
               "windows": [{"type": "tumbling", "unit": "millisecond", "size": 5000}]
