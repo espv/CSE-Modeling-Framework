@@ -338,6 +338,83 @@ class CompareTraces(object):
                 elif tracepoint["name"] == "finishedProcessingEvent":
                     print("Finished processing event", e[2], "at", e[1])
 
+    def filter_trace_tracepoint_ids(self, t1):
+        t1_map = {}
+        filtered_t1 = []
+        for line in t1:
+            tokens = line.split("\t")
+
+            filtered_t1.append(line)
+            t1_map.setdefault(int(tokens[0]), []).append(tokens)
+
+        return filtered_t1, t1_map
+
+    def analyze_trace(self, json_config, trace_file, x_variable):
+        json_config = json.load(open(json_config))
+        scaling_tracepoints = []
+
+        for t in json_config.get("tracepoints"):
+            if t.get("x_variable") == x_variable:
+                scaling_tracepoints.append(t)
+
+        t1 = list(open(trace_file))
+
+        filtered_t1, t1_map = self.filter_trace_tracepoint_ids(t1)
+
+        scaling_events = {}
+        milestone_events = {}
+        # Read json config file and populate a dict that contains a mapping between tracepoints and categories
+        # We only care about scaling and milestone events, and each event can only be categorized as one of them.
+        for t in json_config.get("tracepoints"):
+            if t.get("category").get("isScalingEvent"):
+                scaling_events[t.get("id")] = True
+            if t.get("category").get("isMilestoneEvent"):
+                milestone_events[t.get("id")] = True
+
+        x = 0
+        # Create figures (Only execution time is relevant for trace)
+        # Start with the entire execution time, and then move on to milestone measurements
+        # But for all the figures, use the trace event categories so that the system will work even when we make changes
+
+        # Only when a milestone event is processed, will the y value have an effect, which means the y value may go from
+        # 1000 to 0, and from 0 to 2000; and on the figure, it'll look like the data goes from 1000 to 2000. That's the
+        # intended effect.
+        for i, l in enumerate(filtered_t1):
+            e = re.split('[\t\n]', l)
+            tracepointId = int(e[0])
+            if scaling_events.get(tracepointId):
+                # The event is a scaling event and the x-axis will be affected
+                for t in scaling_tracepoints:
+                    if t.get("id") == tracepointId:
+                        scaling_tp = t.get("name")
+                        if scaling_tp == "addQuery":
+                            x += 1
+                        elif scaling_tp == "clearQueries":
+                            x = 0
+                        elif scaling_tp == "addEvent":
+                            x += 1
+                        elif scaling_tp == "clearEvents":
+                            x = 0
+                        else:
+                            raise RuntimeError("Unidentified scaling tracepoint")
+                        print(tracepointId, "is a scaling event, x is now", x)
+            if milestone_events.get(tracepointId):
+                tracepoint = None
+                for t in json_config.get("tracepoints"):
+                    if t.get("id") == tracepointId:
+                        tracepoint = t
+                        break
+
+                if tracepoint["name"] == "receiveEvent":
+                    print("Event", e[2], "received at", e[1])
+                elif tracepoint["name"] == "passedConstraints":
+                    print("Event", e[2], "passed constraints at", e[1])
+                elif tracepoint["name"] == "createdComplexEvent":
+                    print("Event with tracepoint ID", e[2], "caused the creation of a complex event at", e[1])
+                elif tracepoint["name"] == "finishedProcessingEvent":
+                    print("Finished processing event", e[2], "at", e[1])
+
 
 if __name__ == '__main__':
-    CompareTraces().main(args.json_config, args.trace_file, args.trace_file+"_simulated", args.x_variable)
+    CompareTraces().analyze_trace(args.json_config, args.trace_file, args.x_variable)
+    #CompareTraces().main(args.json_config, args.trace_file, args.trace_file+"_simulated", args.x_variable)
