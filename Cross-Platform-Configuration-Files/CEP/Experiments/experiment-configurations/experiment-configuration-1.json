@@ -191,6 +191,7 @@
         {"command": "addStreamDefinition", "arguments": [2]},
         {"command": "addStreamDefinition", "arguments": [3]},
         {"command": "addStreamDefinition", "arguments": [4]},
+        {"command": "addStreamDefinition", "arguments": [5]},
         {"command": "addEvents", "arguments": [5, 1]},
         {"command": "addEvents", "arguments": [4, 1]},
         {"command": "addEvents", "arguments": [2, 1]},
@@ -198,7 +199,7 @@
         {"command": "addEvents", "arguments": [4, 1]},
         {"command": "addEvents", "arguments": [2, 1]},
         {"command": "addQueries", "arguments": [5, 1]},
-        {"command": "processEvents", "arguments": [100]},
+        {"command": "processEvents", "arguments": [10000]},
         {"command": "clearQueries"},
         {"command": "addQueries", "arguments": [5, 10]},
         {"command": "processEvents", "arguments": [100]},
@@ -225,6 +226,8 @@
         {"command": "addStreamDefinition", "arguments": [2]},
         {"command": "addStreamDefinition", "arguments": [3]},
         {"command": "addStreamDefinition", "arguments": [4]},
+        {"command": "addStreamDefinition", "arguments": [5]},
+        {"command": "addDataset", "arguments": [1]},
         {"command": "addEvents", "arguments": [5, 1]},
         {"command": "addEvents", "arguments": [4, 1]},
         {"command": "addEvents", "arguments": [2, 1]},
@@ -257,7 +260,7 @@
             {
               "id": 10,
               "reference": "temp",
-              "constraints": [{"type": "GTCONSTRAINT", "name": "value", "value": 45, "value-type": "number"}],
+              "constraints": [{"type": "GTCONSTRAINT", "name": "temp_value", "value": 45, "value-type": "long"}],
               "consumption": "SINGLE_USE",
               "windows": [{"type": "tumbling", "unit": "millisecond", "size": 5000}]
             },
@@ -265,7 +268,7 @@
               "id": 11,
               "reference": "humidity",
               "constraints": [
-                {"type": "LTCONSTRAINT", "name": "percentage", "value": 25, "value-type": "number"},
+                {"type": "LTCONSTRAINT", "name": "percentage", "value": 25, "value-type": "long"},
                 {"type": "EQCONSTRAINT", "name": "area", "reference": "temp", "value-type": "string"}
               ],
               "consumption": "SINGLE_USE",
@@ -274,9 +277,9 @@
           ]
         }
       ],
-      "literal-query": {
+      "sql-query": {
         "t-rex": "",
-        "siddhi": "from every t = temperatureStream [value > 45] and (h = humidityStream [percentage < 25]) select value, percentage, h.area insert into fireStream ;"
+        "siddhi": "from every t = temperatureStream [temp_value > 45] and (h = humidityStream [percentage < 25]) select temp_value, percentage, h.area insert into fireStream ;"
       }
     },
     {
@@ -289,7 +292,7 @@
               "id": 10,
               "reference": "temp",
               "constraints": [
-                {"type": "GTCONSTRAINT", "name": "value", "value": 45, "aggregation": "average", "value-type": "number"}
+                {"type": "GTCONSTRAINT", "name": "temp_value", "value": 45, "aggregation": "average", "value-type": "long"}
               ],
               "windows": [{"type": "sliding", "unit": "millisecond", "size": 5000}]
             },
@@ -297,7 +300,7 @@
               "id": 11,
               "reference": "humidity",
               "constraints": [
-                {"type": "LTCONSTRAINT", "name": "percentage", "value": 25, "aggregation": "average", "value-type": "number"},
+                {"type": "LTCONSTRAINT", "name": "percentage", "value": 25, "aggregation": "average", "value-type": "long"},
                 {"type": "EQCONSTRAINT", "name": "area", "reference1": "temp", "reference2": "humidity", "value-type": "string"}
               ],
               "windows": [{"type": "sliding", "unit": "millisecond", "size": 5000}]
@@ -305,9 +308,9 @@
           ]
         }
       ],
-      "literal-query": {
-        "t-rex": "Assign 10 => Temp, 11 => Humidity, 12 => Smoke, 1 => Fire\nDefine  Fire(area: string, temp: float)\nFrom   Humidity(percentage<25) and\nlast   Temp(value>45, [string] area=Temp.area)\nwithin 50000000 from Temp and\nlast    Smoke(ppm>100, [string] area=Temp.area)\nwithin 50000000 from Smoke\nWhere   area := Temp.area, temp := Temp.value\nConsuming Smoke, Temp, Humidity;",
-        "siddhi": "from temperatureStream[value > 45]#window.time(1 min) as temp\njoin humidityStream[percentage < 25]#window.time(1 min) as humidity\non temp.area==humidity.area\nselect value, percentage, humidity.area\ninsert into fireStream;"
+      "sql-query": {
+        "t-rex": "Assign 10 => Temp, 11 => Humidity, 12 => Smoke, 1 => Fire\nDefine  Fire(area: string, temp: float)\nFrom   Humidity(percentage<25) and\nlast   Temp(temp_value>45, [string] area=Temp.area)\nwithin 50000000 from Temp and\nlast    Smoke(ppm>100, [string] area=Temp.area)\nwithin 50000000 from Smoke\nWhere   area := Temp.area, temp := Temp.temp_value\nConsuming Smoke, Temp, Humidity;",
+        "siddhi": "from temperatureStream[temp_value > 45]#window.time(1 min) as temp\njoin humidityStream[percentage < 25]#window.time(1 min) as humidity\non temp.area==humidity.area\nselect temp_value, percentage, humidity.area\ninsert into fireStream;"
       }
     },
     {
@@ -319,7 +322,7 @@
             {
               "id": 10,
               "reference": "temp",
-              "constraints": [{"type": "GTCONSTRAINT", "name": "value", "value": 45, "value-type": "number"}],
+              "constraints": [{"type": "GTCONSTRAINT", "name": "temp_value", "value": 45, "value-type": "long"}],
               "consumption": "SINGLE_USE",
               "windows": [{"type": "tumbling", "unit": "millisecond", "size": 5000}]
             }
@@ -331,7 +334,7 @@
               "id": 11,
               "reference": "humidity",
               "constraints": [
-                {"type": "LTCONSTRAINT", "name": "percentage", "value": 25, "value-type": "number"},
+                {"type": "LTCONSTRAINT", "name": "percentage", "value": 25, "value-type": "long"},
                 {"type": "EQCONSTRAINT", "name": "area", "reference1": "temp", "reference2": "humidity", "value-type": "string"}
               ],
               "consumption": "SINGLE_USE",
@@ -340,9 +343,11 @@
           ]
         }
       ],
-      "literal-query": {
+      "sql-query": {
         "t-rex": "",
-        "siddhi": "from every t = temperatureStream [value > 45] -> (h = humidityStream [percentage < 25]) select value, percentage, h.area insert into fireStream ;"
+        "siddhi": "from every t = temperatureStream [temp_value > 45] -> (h = humidityStream [percentage < 25]) select temp_value, percentage, h.area insert into fireStream ;",
+        "flink": "SELECT *\nFROM Temperature",
+        "esper": "@name('everything') select * from EsperTuple"
       }
     },
     {
@@ -354,7 +359,7 @@
             {
               "id": 10,
               "reference": "temp",
-              "constraints": [{"type": "GTCONSTRAINT", "name": "value", "value": 45, "value-type": "number"}],
+              "constraints": [{"type": "GTCONSTRAINT", "name": "temp_value", "value": 45, "value-type": "long"}],
               "consumption": "SINGLE_USE",
               "windows": [{"type": "tumbling", "unit": "millisecond", "size": 5000}]
             }
@@ -366,7 +371,7 @@
               "id": 11,
               "reference": "humidity",
               "constraints": [
-                {"type": "LTCONSTRAINT", "name": "percentage", "value": 25, "value-type": "number"},
+                {"type": "LTCONSTRAINT", "name": "percentage", "value": 25, "value-type": "long"},
                 {"type": "EQCONSTRAINT", "name": "area", "reference1": "temp", "reference2": "humidity", "value-type": "string"}
               ],
               "consumption": "SINGLE_USE",
@@ -382,7 +387,7 @@
               "id": 12,
               "reference": "smoke",
               "constraints": [
-                {"type": "GTCONSTRAINT", "name": "ppm", "value": 100, "value-type": "number"},
+                {"type": "GTCONSTRAINT", "name": "ppm", "value": 100, "value-type": "long"},
                 {"type": "EQCONSTRAINT", "name": "area", "reference1": "temp", "reference2": "smoke", "value-type": "string"}
               ],
               "consumption": "SINGLE_USE",
@@ -391,9 +396,9 @@
           ]
         }
       ],
-      "literal-query": {
-        "t-rex": "Assign 10 => Temp, 11 => Humidity, 12 => Smoke, 1 => Fire\nDefine  Fire(area: string, temp: float)\nFrom   Humidity(percentage<25) and\nlast   Temp(value>45, [string] area=Temp.area)\nwithin 50000000 from Temp and\nlast    Smoke(ppm>100, [string] area=Temp.area)\nwithin 50000000 from Smoke\nWhere   area := Temp.area, temp := Temp.value\nConsuming Smoke, Temp, Humidity;",
-        "siddhi": "from every (t = temperatureStream [value > 45]) -> (h = humidityStream [percentage < 25]) \n -> (s = smokeStream [ppm > 100]) within 5 seconds \nselect value, percentage, h.area \ninsert into fireStream ;"
+      "sql-query": {
+        "t-rex": "Assign 10 => Temp, 11 => Humidity, 12 => Smoke, 1 => Fire\nDefine  Fire(area: string, temp: float)\nFrom   Humidity(percentage<25) and\nlast   Temp(temp_value>45, [string] area=Temp.area)\nwithin 50000000 from Temp and\nlast    Smoke(ppm>100, [string] area=Temp.area)\nwithin 50000000 from Smoke\nWhere   area := Temp.area, temp := Temp.temp_value\nConsuming Smoke, Temp, Humidity;",
+        "siddhi": "from every (t = temperatureStream [temp_value > 45]) -> (h = humidityStream [percentage < 25]) \n -> (s = smokeStream [ppm > 100]) within 5 seconds \nselect temp_value, percentage, h.area \ninsert into fireStream ;"
       }
     },
     {
@@ -406,24 +411,96 @@
               "id": 10,
               "reference": "temp",
               "constraints": [
-                {"type": "GTCONSTRAINT", "name": "value", "value": 45, "aggregation": "average", "value-type": "number"}
+                {"type": "GTCONSTRAINT", "name": "temp_value", "value": 45, "aggregation": "average", "value-type": "long"}
               ],
               "windows": [{"type": "sliding", "unit": "millisecond", "size": 5000}]
             }
           ]
         }
       ],
-      "literal-query": {
-        "t-rex": "Assign 10 => Temp, 11 => Humidity, 12 => Smoke, 1 => Fire\nDefine  Fire(area: string, temp: float)\nFrom   Humidity(percentage<25) and\nlast   Temp(value>45, [string] area=Temp.area)\nwithin 50000000 from Temp and\nlast    Smoke(ppm>100, [string] area=Temp.area)\nwithin 50000000 from Smoke\nWhere   area := Temp.area, temp := Temp.value\nConsuming Smoke, Temp, Humidity;",
-        "siddhi": "from temperatureStream[value > 45]#window.time(1 min) as temp\njoin humidityStream[percentage < 25]#window.time(1 min) as humidity\non temp.area==humidity.area\nselect value, percentage, humidity.area\ninsert into fireStream;"
+      "sql-query": {
+        "t-rex": "Assign 10 => Temp, 11 => Humidity, 12 => Smoke, 1 => Fire\nDefine  Fire(area: string, temp: float)\nFrom   Humidity(percentage<25) and\nlast   Temp(temp_value>45, [string] area=Temp.area)\nwithin 50000000 from Temp and\nlast    Smoke(ppm>100, [string] area=Temp.area)\nwithin 50000000 from Smoke\nWhere   area := Temp.area, temp := Temp.temp_value\nConsuming Smoke, Temp, Humidity;",
+        "siddhi": "from temperatureStream[temp_value > 45]#window.time(1 min) as temp\njoin humidityStream[percentage < 25]#window.time(1 min) as humidity\non temp.area==humidity.area\nselect temp_value, percentage, humidity.area\ninsert into fireStream;"
       }
     }
   ],
   "stream-definitions": [
-    {"id": 1, "siddhi": "define stream temperatureStream (value long, area string);"},
-    {"id": 2, "siddhi": "define stream humidityStream (percentage long, area string);"},
-    {"id": 3, "siddhi": "define stream fireStream (value long, percentage long, area string);"},
-    {"id": 4, "siddhi": "define stream smokeStream (ppm long, area string);"}
+    {"id": 1,
+      "stream-id": 10,
+      "name": "temperatureStream",
+      "tuple-format": [
+        {"name": "temp_value", "type": "long"},
+        {"name": "area", "type": "string"}
+      ],
+      "siddhi": "define stream temperatureStream (temp_value long, area string);",
+      "flink": {"stream-name": "temperatureStream", "names": ["temp_value", "area"]}
+    },
+    {"id": 2,
+      "stream-id": 11,
+      "name": "humidityStream",
+      "tuple-format": [
+        {"name": "percentage", "type": "long"},
+        {"name": "area", "type": "string"}
+      ],
+      "siddhi": "define stream humidityStream (percentage long, area string);",
+      "flink": {"stream-name": "humidityStream", "names": ["percentage", "area"]}
+    },
+    {"id": 3,
+      "stream-id": 1,
+      "name": "fireStream",
+      "tuple-format": [
+        {"name": "temp_value", "type": "long"},
+        {"name": "percentage", "type": "long"},
+        {"name": "area", "type": "string"}
+      ],
+      "siddhi": "define stream fireStream (temp_value long, percentage long, area string);",
+      "flink": {"stream-name": "fireStream", "names": ["temp_value", "area"]}
+    },
+    {"id": 4,
+      "stream-id": 12,
+      "name": "smokeStream",
+      "tuple-format": [
+        {"name": "ppm", "type": "long"},
+        {"name": "area", "type": "string"}
+      ],
+      "siddhi": "define stream smokeStream (ppm float, area string);",
+      "flink": {"stream-name": "smokeStream", "names": ["ppm", "area"]}
+    },
+    {"id": 5,
+      "stream-id": 13,
+      "name": "weatherStream",
+      "tuple-format": [
+        {"name": "STATION", "type": "string"},
+        {"name": "NAME", "type": "string"},
+        {"name": "DATE", "type": "timestamp"},
+        {"name": "AWND", "type": "float"},
+        {"name": "PRCP", "type": "float"},
+        {"name": "SNOW", "type": "float"},
+        {"name": "SNWD", "type": "float"},
+        {"name": "TMAX", "type": "float"},
+        {"name": "TMIN", "type": "float"}
+      ],
+      "siddhi": "define stream weatherStream (STATION string, NAME string, DATE string, AWND float, PRCP float, SNOW float, SNWD float, TMAX float, TMIN float);"
+    }
+  ],
+  "datasets": [
+    {
+      "name": "Central park weather",
+      "id": 1,
+      "stream-id": 13,
+      "file": "/home/espen/Research/nyc-taxi-data/data/central_park_weather-cleaned.csv",
+      "tuple-format": [
+        {"name": "STATION", "type": "string"},
+        {"name": "NAME", "type": "string"},
+        {"name": "DATE", "type": "timestamp"},
+        {"name": "AWND", "type": "float"},
+        {"name": "PRCP", "type": "float"},
+        {"name": "SNOW", "type": "float"},
+        {"name": "SNWD", "type": "float"},
+        {"name": "TMAX", "type": "float"},
+        {"name": "TMIN", "type": "float"}
+      ]
+    }
   ],
   "cepevents": [
     {
@@ -432,8 +509,8 @@
       "stream-id": 10,
       "stream-name": "Temperature",
       "attributes": [
-        {"name": "value", "value": 22},
-        {"name": "area", "value": "office"}
+        {"name": "temp_value", "value": 22, "value-type": "long"},
+        {"name": "area", "value": "office", "value-type": "string"}
       ]
     },
     {
@@ -442,8 +519,8 @@
       "stream-id": 11,
       "stream-name": "Humidity",
       "attributes": [
-        {"name": "percentage", "value": 24},
-        {"name": "area", "value": "office"}
+        {"name": "percentage", "value": 24, "value-type": "long"},
+        {"name": "area", "value": "office", "value-type": "string"}
       ]
     },
     {
@@ -452,8 +529,8 @@
       "stream-id": 11,
       "stream-name": "Humidity",
       "attributes": [
-        {"name": "percentage", "value": 44},
-        {"name": "area", "value": "office"}
+        {"name": "percentage", "value": 44, "value-type": "long"},
+        {"name": "area", "value": "office", "value-type": "string"}
       ]
     },
     {
@@ -462,8 +539,8 @@
       "stream-id": 10,
       "stream-name": "Temperature",
       "attributes": [
-        {"name": "value", "value": 46},
-        {"name": "area", "value": "office"}
+        {"name": "temp_value", "value": 46, "value-type": "long"},
+        {"name": "area", "value": "office", "value-type": "string"}
       ]
     },
     {
@@ -472,8 +549,8 @@
       "stream-id": 12,
       "stream-name": "Smoke",
       "attributes": [
-        {"name": "ppm", "value": 101},
-        {"name": "area", "value": "office"}
+        {"name": "ppm", "value": 101, "value-type": "long"},
+        {"name": "area", "value": "office", "value-type": "string"}
       ]
     },
     {
@@ -482,8 +559,8 @@
       "stream-id": 12,
       "stream-name": "Smoke",
       "attributes": [
-        {"name": "ppm", "value": 99},
-        {"name": "area", "value": "office"}
+        {"name": "ppm", "value": 99, "value-type": "long"},
+        {"name": "area", "value": "office", "value-type": "string"}
       ]
     }
   ],
