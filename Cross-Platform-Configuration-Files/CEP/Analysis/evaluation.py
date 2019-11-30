@@ -379,8 +379,27 @@ class CompareTraces(object):
         # Only when a milestone event is processed, will the y value have an effect, which means the y value may go from
         # 1000 to 0, and from 0 to 2000; and on the figure, it'll look like the data goes from 1000 to 2000. That's the
         # intended effect.
+        number_tuples_processed = 0
+        last_throughput_timestamp = 0
+        graph_points = []
+        offset = 0
         for i, l in enumerate(filtered_t1):
             e = re.split('[\t\n]', l)
+            timestamp = int(e[1])
+            if offset == 0:
+                offset = timestamp
+            if x_variable == "timestamp" and timestamp - last_throughput_timestamp > 1000000000:
+                throughput = number_tuples_processed
+                if last_throughput_timestamp > 0:
+                    print("Tuples per second at", timestamp, "is:", throughput)
+                last_throughput_timestamp = timestamp
+                number_tuples_processed = 0
+            if number_tuples_processed > 30 and timestamp - last_throughput_timestamp > 800000:
+                time_diff = timestamp - last_throughput_timestamp
+                throughput = (number_tuples_processed * 1000000000) / time_diff
+                print("Throughput:", throughput, "tuples per second")
+                number_tuples_processed = 0
+                graph_points.append((last_throughput_timestamp, throughput))
             tracepointId = int(e[0])
             if scaling_events.get(tracepointId):
                 # The event is a scaling event and the x-axis will be affected
@@ -398,6 +417,16 @@ class CompareTraces(object):
                         else:
                             raise RuntimeError("Unidentified scaling tracepoint")
                         print(tracepointId, "is a scaling event, x is now", x)
+                        if number_tuples_processed > 0:
+                            time_diff = timestamp - last_throughput_timestamp
+                            throughput = (number_tuples_processed*1000000000)/time_diff
+                            print("Throughput:", throughput, "tuples per second")
+                            number_tuples_processed = 0
+                            graph_points.append((last_throughput_timestamp, throughput))
+            else:
+                if x_variable == "timestamp":
+                    x = int(e[1])
+                    print("Time is", x)
             if milestone_events.get(tracepointId):
                 tracepoint = None
                 for t in json_config.get("tracepoints"):
@@ -413,6 +442,11 @@ class CompareTraces(object):
                     print("Event with tracepoint ID", e[2], "caused the creation of a complex event at", e[1])
                 elif tracepoint["name"] == "finishedProcessingEvent":
                     print("Finished processing event", e[2], "at", e[1])
+                    if number_tuples_processed == 0:
+                        last_throughput_timestamp = timestamp
+                    number_tuples_processed += 1
+        plt.plot([(a[0]-offset)/1000000 for a in graph_points], [a[1] for a in graph_points])
+        plt.show()
 
 
 if __name__ == '__main__':
