@@ -9,12 +9,6 @@
     {
       "name": "experiment 1 --- varying the number of queries",
       "id": 1,
-      "topology": [
-        {"id":  0, "connected-to":  [2]},
-        {"id":  1, "connected-to":  [2]},
-        {"id":  2, "connected-to":  [0, 1, 3]},
-        {"id":  3, "connected-to":  [2]}
-      ],
       "flow": [
         {"command": "setIntervalBetweenEvents", "arguments": [0]},
         {"command": "setEventBatchSize", "arguments": [1]},
@@ -41,12 +35,6 @@
     {
       "name": "experiment 2 --- varying the number of states in the sequence operator",
       "id": 2,
-      "topology": [
-        {"id":  0, "connected-to":  [2]},
-        {"id":  1, "connected-to":  [2]},
-        {"id":  2, "connected-to":  [0, 1, 3]},
-        {"id":  3, "connected-to":  [2]}
-      ],
       "flow": [
         {"command": "setIntervalBetweenEvents", "arguments": [0]},
         {"command": "addStreamDefinition", "arguments": [1]},
@@ -72,12 +60,6 @@
     {
       "name": "experiment 3 --- varying the number of unrelated queries",
       "id": 3,
-      "topology": [
-        {"id":  0, "connected-to":  [2]},
-        {"id":  1, "connected-to":  [2]},
-        {"id":  2, "connected-to":  [0, 1, 3]},
-        {"id":  3, "connected-to":  [2]}
-      ],
       "flow": [
         {"command": "setIntervalBetweenEvents", "arguments": [0]},
         {"command": "addStreamDefinition", "arguments": [1]},
@@ -108,12 +90,6 @@
     {
       "name": "experiment 4 --- varying the number of queries",
       "id": 4,
-      "topology": [
-        {"id":  0, "connected-to":  [2]},
-        {"id":  1, "connected-to":  [2]},
-        {"id":  2, "connected-to":  [0, 1, 3]},
-        {"id":  3, "connected-to":  [2]}
-      ],
       "flow": [
         {"command": "setIntervalBetweenEvents", "arguments": [0]},
         {"command": "setEventBatchSize", "arguments": [1]},
@@ -142,12 +118,6 @@
     {
       "name": "experiment 5 --- varying the number of queries",
       "id": 5,
-      "topology": [
-        {"id":  0, "connected-to":  [2]},
-        {"id":  1, "connected-to":  [2]},
-        {"id":  2, "connected-to":  [0, 1, 3]},
-        {"id":  3, "connected-to":  [2]}
-      ],
       "flow": [
         {"command": "setIntervalBetweenEvents", "arguments": [0]},
         {"command": "setEventBatchSize", "arguments": [1]},
@@ -178,12 +148,6 @@
     {
       "name": "experiment 6 --- varying the number of join queries",
       "id": 6,
-      "topology": [
-        {"id":  0, "connected-to":  [2]},
-        {"id":  1, "connected-to":  [2]},
-        {"id":  2, "connected-to":  [0, 1, 3]},
-        {"id":  3, "connected-to":  [2]}
-      ],
       "flow": [
         {"command": "setIntervalBetweenEvents", "arguments": [0]},
         {"command": "setEventBatchSize", "arguments": [1]},
@@ -527,12 +491,6 @@
     {
       "name": "experiment 7 --- varying the number of two-state then queries",
       "id": 7,
-      "topology": [
-        {"id":  0, "connected-to":  [2]},
-        {"id":  1, "connected-to":  [2]},
-        {"id":  2, "connected-to":  [0, 1, 3]},
-        {"id":  3, "connected-to":  [2]}
-      ],
       "flow": [
         {"command": "setIntervalBetweenEvents", "arguments": [0]},
         {"command": "setEventBatchSize", "arguments": [1]},
@@ -568,29 +526,6 @@
     {
       "name": "temperature_GT45_and_humidity_LT25_5sec_window",
       "id": 0,
-      "indata": [
-        {
-          "incoming": [
-            {
-              "id": 10,
-              "reference": "temp",
-              "constraints": [{"type": "GTCONSTRAINT", "name": "temp_value", "value": 45, "value-type": "long"}],
-              "consumption": "SINGLE_USE",
-              "windows": [{"type": "tumbling", "unit": "millisecond", "size": 5000}]
-            },
-            {
-              "id": 11,
-              "reference": "humidity",
-              "constraints": [
-                {"type": "LTCONSTRAINT", "name": "percentage", "value": 25, "value-type": "long"},
-                {"type": "EQCONSTRAINT", "name": "area", "reference": "temp", "value-type": "string"}
-              ],
-              "consumption": "SINGLE_USE",
-              "windows": [{"type": "tumbling", "unit": "millisecond", "size": 5000}]
-            }
-          ]
-        }
-      ],
       "sql-query": {
         "t-rex": " Assign 10 => Temp, 11 => Humidity, 12 => Smoke, 1 => Fire\nDefine  Fire(area: string, temp: float)\nFrom   Humidity(percentage<25) and\nlast   Temp(temp_value>45, [string] area=Temp.area)\nwithin 50000000 from Temp and\nlast    Smoke(ppm>100, [string] area=Temp.area)\nwithin 50000000 from Smoke\nWhere   area := Temp.area, temp := Temp.temp_value\nConsuming Smoke, Temp, Humidity; ",
         "siddhi": "from every t = temperatureStream [temp_value > 45] and (h = humidityStream [percentage < 25]) select temp_value, percentage, h.area insert into fireStream ;",
@@ -641,29 +576,6 @@
     {
       "name": "temperature_GT45_join_humidity_LT25_5sec_window",
       "id": 5,
-      "indata": [
-        {
-          "incoming": [
-            {
-              "id": 10,
-              "reference": "temp",
-              "constraints": [
-                {"type": "GTCONSTRAINT", "name": "temp_value", "value": 45, "aggregation": "average", "value-type": "long"}
-              ],
-              "windows": [{"type": "sliding", "unit": "millisecond", "size": 5000}]
-            },
-            {
-              "id": 11,
-              "reference": "humidity",
-              "constraints": [
-                {"type": "LTCONSTRAINT", "name": "percentage", "value": 25, "aggregation": "average", "value-type": "long"},
-                {"type": "EQCONSTRAINT", "name": "area", "reference1": "temp", "reference2": "humidity", "value-type": "string"}
-              ],
-              "windows": [{"type": "sliding", "unit": "millisecond", "size": 5000}]
-            }
-          ]
-        }
-      ],
       "sql-query": {
         "t-rex": " Assign 10 => Temp, 11 => Humidity, 12 => Smoke, 1 => Fire\nDefine  Fire(area: string, temp: float)\nFrom   Humidity(percentage<25) and\nlast   Temp(temp_value>45, [string] area=Temp.area)\nwithin 50000000 from Temp and\nlast    Smoke(ppm>100, [string] area=Temp.area)\nwithin 50000000 from Smoke\nWhere   area := Temp.area, temp := Temp.temp_value\nConsuming Smoke, Temp, Humidity; ",
         "siddhi": "from temperatureStream[temp_value > 45]#window.time(1 min) as temp\njoin humidityStream[percentage < 25]#window.time(1 min) as humidity\non temp.area==humidity.area\nselect temp_value, percentage, humidity.area\ninsert into fireStream;",
@@ -674,33 +586,6 @@
     {
       "name": "temperature_GT45_then_humidity_LT25_within_5sec",
       "id": 6,
-      "indata": [
-        {
-          "incoming": [
-            {
-              "id": 10,
-              "reference": "temp",
-              "constraints": [{"type": "GTCONSTRAINT", "name": "temp_value", "value": 45, "value-type": "long"}],
-              "consumption": "SINGLE_USE",
-              "windows": [{"type": "tumbling", "unit": "millisecond", "size": 5000}]
-            }
-          ]
-        },
-        {
-          "incoming": [
-            {
-              "id": 11,
-              "reference": "humidity",
-              "constraints": [
-                {"type": "LTCONSTRAINT", "name": "percentage", "value": 25, "value-type": "long"},
-                {"type": "EQCONSTRAINT", "name": "area", "reference1": "temp", "reference2": "humidity", "value-type": "string"}
-              ],
-              "consumption": "SINGLE_USE",
-              "windows": [{"type": "tumbling", "unit": "millisecond", "size": 5000}]
-            }
-          ]
-        }
-      ],
       "sql-query": {
         "t-rex": " Assign 10 => Temp, 11 => Humidity, 12 => Smoke, 1 => Fire\nDefine  Fire(area: string, temp: float)\nFrom   Humidity(percentage<25) and\nlast   Temp(temp_value>45, [string] area=Temp.area)\nwithin 50000000 from Temp and\nlast    Smoke(ppm>100, [string] area=Temp.area)\nwithin 50000000 from Smoke\nWhere   area := Temp.area, temp := Temp.temp_value\nConsuming Smoke, Temp, Humidity; ",
         "siddhi": " from every t = temperatureStream [temp_value > 45] -> (h = humidityStream [percentage < 25]) select temp_value, percentage, h.area insert into fireStream ; ",
@@ -711,49 +596,6 @@
     {
       "name": "temperature_GT45_then_humidity_LT25_within_5sec_then_smoke_GT50_within_5sec",
       "id": 7,
-      "indata": [
-        {
-          "incoming": [
-            {
-              "id": 10,
-              "reference": "temp",
-              "constraints": [{"type": "GTCONSTRAINT", "name": "temp_value", "value": 45, "value-type": "long"}],
-              "consumption": "SINGLE_USE",
-              "windows": [{"type": "tumbling", "unit": "millisecond", "size": 5000}]
-            }
-          ]
-        },
-        {
-          "incoming": [
-            {
-              "id": 11,
-              "reference": "humidity",
-              "constraints": [
-                {"type": "LTCONSTRAINT", "name": "percentage", "value": 25, "value-type": "long"},
-                {"type": "EQCONSTRAINT", "name": "area", "reference1": "temp", "reference2": "humidity", "value-type": "string"}
-              ],
-              "consumption": "SINGLE_USE",
-              "windows": [
-                {"type": "tumbling", "unit": "millisecond", "size": 5000}
-              ]
-            }
-          ]
-        },
-        {
-          "incoming": [
-            {
-              "id": 12,
-              "reference": "smoke",
-              "constraints": [
-                {"type": "GTCONSTRAINT", "name": "ppm", "value": 100, "value-type": "long"},
-                {"type": "EQCONSTRAINT", "name": "area", "reference1": "temp", "reference2": "smoke", "value-type": "string"}
-              ],
-              "consumption": "SINGLE_USE",
-              "windows": [{"type": "tumbling", "unit": "millisecond", "size": 5000}]
-            }
-          ]
-        }
-      ],
       "sql-query": {
         "t-rex": "Assign 10 => Temp, 11 => Humidity, 12 => Smoke, 1 => Fire\nDefine  Fire(area: string, temp: float)\nFrom   Humidity(percentage<25) and\nlast   Temp(temp_value>45, [string] area=Temp.area)\nwithin 50000000 from Temp and\nlast    Smoke(ppm>100, [string] area=Temp.area)\nwithin 50000000 from Smoke\nWhere   area := Temp.area, temp := Temp.temp_value\nConsuming Smoke, Temp, Humidity;",
         "siddhi": "from every (t = temperatureStream [temp_value > 45]) -> (h = humidityStream [percentage < 25]) \n -> (s = smokeStream [ppm > 100]) within 5 seconds \nselect temp_value, percentage, h.area \ninsert into fireStream ;",
@@ -764,20 +606,6 @@
     {
       "name": "temperature_AVG_GT45_5sec_window",
       "id": 8,
-      "indata": [
-        {
-          "incoming": [
-            {
-              "id": 10,
-              "reference": "temp",
-              "constraints": [
-                {"type": "GTCONSTRAINT", "name": "temp_value", "value": 45, "aggregation": "average", "value-type": "long"}
-              ],
-              "windows": [{"type": "sliding", "unit": "millisecond", "size": 5000}]
-            }
-          ]
-        }
-      ],
       "sql-query": {
         "t-rex": "Assign 10 => Temp, 11 => Humidity, 12 => Smoke, 1 => Fire\nDefine  Fire(area: string, temp: float)\nFrom   Humidity(percentage<25) and\nlast   Temp(temp_value>45, [string] area=Temp.area)\nwithin 50000000 from Temp and\nlast    Smoke(ppm>100, [string] area=Temp.area)\nwithin 50000000 from Smoke\nWhere   area := Temp.area, temp := Temp.temp_value\nConsuming Smoke, Temp, Humidity;",
         "siddhi": "from temperatureStream[temp_value > 45]#window.time(1 min) as temp\njoin humidityStream[percentage < 25]#window.time(1 min) as humidity\non temp.area==humidity.area\nselect temp_value, percentage, humidity.area\ninsert into fireStream;",
