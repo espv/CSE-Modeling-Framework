@@ -388,18 +388,19 @@ class CompareTraces(object):
             timestamp = int(e[1])
             if offset == 0:
                 offset = timestamp
-            if x_variable == "timestamp" and timestamp - last_throughput_timestamp > 1000000000:
-                throughput = number_tuples_processed
-                if last_throughput_timestamp > 0:
-                    print("Tuples per second at", timestamp, "is:", throughput)
-                last_throughput_timestamp = timestamp
-                number_tuples_processed = 0
-            if number_tuples_processed > 30 and timestamp - last_throughput_timestamp > 800000:
-                time_diff = timestamp - last_throughput_timestamp
-                throughput = (number_tuples_processed * 1000000000) / time_diff
-                print("Throughput:", throughput, "tuples per second")
-                number_tuples_processed = 0
-                graph_points.append((x, last_throughput_timestamp, throughput))
+            #if x_variable == "timestamp" and number_tuples_processed > 1000:
+            #    time_diff = timestamp - last_throughput_timestamp
+            #    throughput = (number_tuples_processed*1000000000)/time_diff
+            #    if last_throughput_timestamp > 0:
+            #        print("Tuples per second at", timestamp, "is:", throughput)
+            #    last_throughput_timestamp = timestamp
+            #    number_tuples_processed = 0
+            #if number_tuples_processed > 500 and timestamp - last_throughput_timestamp > 1000000:
+            #    time_diff = timestamp - last_throughput_timestamp
+            #    throughput = (number_tuples_processed * 1000000000) / time_diff
+            #    print("Throughput:", throughput, "tuples per second")
+            #    number_tuples_processed = 0
+            #    graph_points.append((x, last_throughput_timestamp, throughput))
             tracepointId = int(e[0])
             if scaling_events.get(tracepointId):
                 # The event is a scaling event and the x-axis will be affected
@@ -446,32 +447,31 @@ class CompareTraces(object):
                         last_throughput_timestamp = timestamp
                     number_tuples_processed += 1
 
-        time_diff = timestamp - last_throughput_timestamp
-        throughput = (number_tuples_processed * 1000000000) / time_diff
-        print("Throughput:", throughput, "tuples per second")
-        number_tuples_processed = 0
-        graph_points.append((x, last_throughput_timestamp, throughput))
-
         fig, ax = plt.subplots()
         ax2 = ax.twiny()
         ax.plot([(a[1]-offset)/1000000 for a in graph_points], [a[2] for a in graph_points])
 
         ax2.set_xlim(ax.get_xlim())
         ax2.set_xlabel(r"Scaling x")
-        xtickslocs = ax.get_xticks()
+        xtickslocs = ax2.get_xticks()
         new_xticks = []
-        for xticklock in xtickslocs:
+        new_xtick_locs = []
+        for xtickloc in xtickslocs:
             latest_xpoint = 0
+            latest_xpoint_value = 0
             for point in graph_points:
-                if latest_xpoint == 0:
-                    latest_xpoint = point[0]
+                if latest_xpoint_value == 0:
+                    latest_xpoint_value = point[0]
+                    latest_xpoint = (point[1]-offset)/1000000
                 offset_timestamp = (point[1]-offset)/1000000
-                if offset_timestamp > xticklock:
+                if offset_timestamp > xtickloc:
                     break
-                latest_xpoint = point[0]
-            new_xticks.append(latest_xpoint)
+                latest_xpoint_value = point[0]
+                latest_xpoint = (point[1] - offset) / 1000000
+            new_xticks.append(latest_xpoint_value)
+            new_xtick_locs.append(latest_xpoint)
         ax2.set_xticklabels(new_xticks)
-        ax2.set_xticks(xtickslocs)
+        ax2.set_xticks(new_xtick_locs)
         plt.show()
 
 
