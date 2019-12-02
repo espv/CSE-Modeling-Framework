@@ -11,18 +11,15 @@ parser.add_argument('dataset2', type=str,
                     help='Location of the second dataset')
 parser.add_argument('outputDataset', type=str,
                     help='Location of the resulting dataset')
-parser.add_argument('datasetId', type=str,
-                    help='Id of the resulting dataset')
 
 args = parser.parse_args()
 
 
 class MergeDatasets(object):
-    def __init__(self, dataset1, dataset2, outputDataset, datasetId):
+    def __init__(self, dataset1, dataset2, outputDataset):
         self.dataset1 = dataset1
         self.dataset2 = dataset2
         self.outputDataset = outputDataset
-        self.datasetId = datasetId
 
     def merge_datasets(self):
         tuples_dataset1 = []
@@ -66,7 +63,6 @@ class MergeDatasets(object):
                 new_dataset.append(t2)
 
         new_json = {
-            "dataset-id": self.datasetId,
             "cepevents": new_dataset
         }
         with open(self.outputDataset, 'w') as json_output_file:
@@ -74,4 +70,4 @@ class MergeDatasets(object):
 
 
 if __name__ == '__main__':
-    MergeDatasets(args.dataset1, args.dataset2, args.outputDataset, args.datasetId).merge_datasets()
+    MergeDatasets(args.dataset1, args.dataset2, args.outputDataset).merge_datasets()
