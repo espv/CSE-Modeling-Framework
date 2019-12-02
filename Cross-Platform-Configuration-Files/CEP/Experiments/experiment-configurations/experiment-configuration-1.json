@@ -368,9 +368,17 @@
   "datasets": [
     {
       "name": "Central park weather",
+      "type": "csv",
       "id": 1,
       "stream-id": 13,
       "file": "/home/espen/Research/nyc-taxi-data/data/central_park_weather-cleaned.csv"
+    },
+    {
+      "name": "Central park weather",
+      "type": "json",
+      "id": 2,
+      "stream-id": 13,
+      "file": "/home/espen/Research/nyc-taxi-data/data/central_park_weather-merged.json"
     }
   ],
   "cepevents": [
