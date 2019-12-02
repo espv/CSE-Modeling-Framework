@@ -870,8 +870,8 @@
       "stream-id": 10,
       "stream-name": "temperatureStream",
       "attributes": [
-        {"name": "temp_value", "value": 22, "value-type": "long"},
-        {"name": "area", "value": "office", "value-type": "string"}
+        {"name": "temp_value", "value": 22},
+        {"name": "area", "value": "office"}
       ]
     },
     {
@@ -880,8 +880,8 @@
       "stream-id": 11,
       "stream-name": "humidityStream",
       "attributes": [
-        {"name": "percentage", "value": 24, "value-type": "long"},
-        {"name": "area", "value": "office", "value-type": "string"}
+        {"name": "percentage", "value": 24},
+        {"name": "area", "value": "office"}
       ]
     },
     {
@@ -890,8 +890,8 @@
       "stream-id": 11,
       "stream-name": "humidityStream",
       "attributes": [
-        {"name": "percentage", "value": 44, "value-type": "long"},
-        {"name": "area", "value": "office", "value-type": "string"}
+        {"name": "percentage", "value": 44},
+        {"name": "area", "value": "office"}
       ]
     },
     {
@@ -900,8 +900,8 @@
       "stream-id": 10,
       "stream-name": "temperatureStream",
       "attributes": [
-        {"name": "temp_value", "value": 46, "value-type": "long"},
-        {"name": "area", "value": "office", "value-type": "string"}
+        {"name": "temp_value", "value": 46},
+        {"name": "area", "value": "office"}
       ]
     },
     {
@@ -910,8 +910,8 @@
       "stream-id": 12,
       "stream-name": "smokeStream",
       "attributes": [
-        {"name": "ppm", "value": 101, "value-type": "long"},
-        {"name": "area", "value": "office", "value-type": "string"}
+        {"name": "ppm", "value": 101},
+        {"name": "area", "value": "office"}
       ]
     },
     {
@@ -920,8 +920,8 @@
       "stream-id": 12,
       "stream-name": "smokeStream",
       "attributes": [
-        {"name": "ppm", "value": 99, "value-type": "long"},
-        {"name": "area", "value": "office", "value-type": "string"}
+        {"name": "ppm", "value": 99},
+        {"name": "area", "value": "office"}
       ]
     }
   ],
