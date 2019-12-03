@@ -12,9 +12,6 @@
       "flow": [
         {"command": "setIntervalBetweenEvents", "arguments": [0]},
         {"command": "setEventBatchSize", "arguments": [1]},
-        {"command": "addStreamDefinition", "arguments": [1]},
-        {"command": "addStreamDefinition", "arguments": [2]},
-        {"command": "addStreamDefinition", "arguments": [3]},
         {"command": "addEvents", "arguments": [4, 1]},
         {"command": "addEvents", "arguments": [2, 1]},
         {"command": "addQueries", "arguments": [1, 1]},
@@ -37,9 +34,7 @@
       "id": 2,
       "flow": [
         {"command": "setIntervalBetweenEvents", "arguments": [0]},
-        {"command": "addStreamDefinition", "arguments": [1]},
-        {"command": "addStreamDefinition", "arguments": [2]},
-        {"command": "addStreamDefinition", "arguments": [3]},
+        {"command": "setEventBatchSize", "arguments": [1]},
         {"command": "addEvents", "arguments": [4, 1]},
         {"command": "addEvents", "arguments": [1, 100]},
         {"command": "addEvents", "arguments": [2, 100]},
@@ -62,9 +57,7 @@
       "id": 3,
       "flow": [
         {"command": "setIntervalBetweenEvents", "arguments": [0]},
-        {"command": "addStreamDefinition", "arguments": [1]},
-        {"command": "addStreamDefinition", "arguments": [2]},
-        {"command": "addStreamDefinition", "arguments": [3]},
+        {"command": "setEventBatchSize", "arguments": [1]},
         {"command": "addEvents", "arguments": [4, 1]},
         {"command": "addEvents", "arguments": [2, 1]},
         {"command": "addEvents", "arguments": [4, 1]},
@@ -93,10 +86,6 @@
       "flow": [
         {"command": "setIntervalBetweenEvents", "arguments": [0]},
         {"command": "setEventBatchSize", "arguments": [1]},
-        {"command": "addStreamDefinition", "arguments": [1]},
-        {"command": "addStreamDefinition", "arguments": [2]},
-        {"command": "addStreamDefinition", "arguments": [3]},
-        {"command": "addStreamDefinition", "arguments": [4]},
         {"command": "addEvents", "arguments": [5, 1]},
         {"command": "addEvents", "arguments": [4, 1]},
         {"command": "addEvents", "arguments": [2, 1]},
@@ -121,9 +110,6 @@
       "flow": [
         {"command": "setIntervalBetweenEvents", "arguments": [0]},
         {"command": "setEventBatchSize", "arguments": [1]},
-        {"command": "addStreamDefinition", "arguments": [1]},
-        {"command": "addStreamDefinition", "arguments": [2]},
-        {"command": "addStreamDefinition", "arguments": [3]},
         {"command": "addEvents", "arguments": [5, 1]},
         {"command": "addEvents", "arguments": [4, 1]},
         {"command": "addEvents", "arguments": [2, 1]},
@@ -151,17 +137,7 @@
       "flow": [
         {"command": "setIntervalBetweenEvents", "arguments": [0]},
         {"command": "setEventBatchSize", "arguments": [1]},
-        {"command": "addStreamDefinition", "arguments": [1]},
-        {"command": "addStreamDefinition", "arguments": [2]},
-        {"command": "addStreamDefinition", "arguments": [3]},
-        {"command": "addStreamDefinition", "arguments": [4]},
-        {"command": "addStreamDefinition", "arguments": [5]},
-        {"command": "addEvents", "arguments": [5, 1]},
-        {"command": "addEvents", "arguments": [4, 1]},
-        {"command": "addEvents", "arguments": [2, 1]},
-        {"command": "addEvents", "arguments": [6, 1]},
-        {"command": "addEvents", "arguments": [4, 1]},
-        {"command": "addEvents", "arguments": [2, 1]},
+        {"command": "addDataset", "arguments": [2]},
         {"command": "addQueries", "arguments": [5, 1]},
         {"command": "loopCommands", "arguments": [
           10,
@@ -176,11 +152,6 @@
       "flow": [
         {"command": "setIntervalBetweenEvents", "arguments": [0]},
         {"command": "setEventBatchSize", "arguments": [1]},
-        {"command": "addStreamDefinition", "arguments": [1]},
-        {"command": "addStreamDefinition", "arguments": [2]},
-        {"command": "addStreamDefinition", "arguments": [3]},
-        {"command": "addStreamDefinition", "arguments": [4]},
-        {"command": "addStreamDefinition", "arguments": [5]},
         {"command": "addDataset", "arguments": [1]},
         {"command": "addEvents", "arguments": [5, 1]},
         {"command": "addEvents", "arguments": [4, 1]},
@@ -208,6 +179,7 @@
     {
       "name": "temperature_GT45_and_humidity_LT25_5sec_window",
       "id": 0,
+      "streams-used-in-query": [10, 11, 12],
       "sql-query": {
         "t-rex": " Assign 10 => Temp, 11 => Humidity, 12 => Smoke, 1 => Fire\nDefine  Fire(area: string, temp: float)\nFrom   Humidity(percentage<25) and\nlast   Temp(temp_value>45, [string] area=Temp.area)\nwithin 50000000 from Temp and\nlast    Smoke(ppm>100, [string] area=Temp.area)\nwithin 50000000 from Smoke\nWhere   area := Temp.area, temp := Temp.temp_value\nConsuming Smoke, Temp, Humidity; ",
         "siddhi": "from every t = temperatureStream [temp_value > 45] and (h = humidityStream [percentage < 25]) select temp_value, percentage, h.area insert into fireStream ;",
@@ -218,26 +190,7 @@
     {
       "name": "temperature_GT45_and_humidity_LT25_5sec_window",
       "id": 1,
-      "sql-query": {
-        "t-rex": " Assign 10 => Temp, 11 => Humidity, 12 => Smoke, 1 => Fire\nDefine  Fire(area: string, temp: float)\nFrom   Humidity(percentage<25) and\nlast   Temp(temp_value>45, [string] area=Temp.area)\nwithin 50000000 from Temp and\nlast    Smoke(ppm>100, [string] area=Temp.area)\nwithin 50000000 from Smoke\nWhere   area := Temp.area, temp := Temp.temp_value\nConsuming Smoke, Temp, Humidity; ",
-        "siddhi": "from every t = temperatureStream [temp_value > 45] and (h = humidityStream [percentage < 25]) select temp_value, percentage, h.area insert into fireStream ;",
-        "flink": " SELECT * FROM temperatureStream t JOIN humidityStream h ON h.area = t.area ",
-        "esper": " select * from pattern[t=temperatureStream(temp_value>45) -> h=humidityStream(percentage<25)]; "
-      }
-    },
-    {
-      "name": "temperature_GT45_and_humidity_LT25_5sec_window",
-      "id": 3,
-      "sql-query": {
-        "t-rex": " Assign 10 => Temp, 11 => Humidity, 12 => Smoke, 1 => Fire\nDefine  Fire(area: string, temp: float)\nFrom   Humidity(percentage<25) and\nlast   Temp(temp_value>45, [string] area=Temp.area)\nwithin 50000000 from Temp and\nlast    Smoke(ppm>100, [string] area=Temp.area)\nwithin 50000000 from Smoke\nWhere   area := Temp.area, temp := Temp.temp_value\nConsuming Smoke, Temp, Humidity; ",
-        "siddhi": "from every t = temperatureStream [temp_value > 45] and (h = humidityStream [percentage < 25]) select temp_value, percentage, h.area insert into fireStream ;",
-        "flink": " SELECT * FROM temperatureStream t JOIN humidityStream h ON h.area = t.area ",
-        "esper": " select * from pattern[t=temperatureStream(temp_value>45) -> h=humidityStream(percentage<25)]; "
-      }
-    },
-    {
-      "name": "temperature_GT45_and_humidity_LT25_5sec_window",
-      "id": 4,
+      "streams-used-in-query": [10, 11, 12],
       "sql-query": {
         "t-rex": " Assign 10 => Temp, 11 => Humidity, 12 => Smoke, 1 => Fire\nDefine  Fire(area: string, temp: float)\nFrom   Humidity(percentage<25) and\nlast   Temp(temp_value>45, [string] area=Temp.area)\nwithin 50000000 from Temp and\nlast    Smoke(ppm>100, [string] area=Temp.area)\nwithin 50000000 from Smoke\nWhere   area := Temp.area, temp := Temp.temp_value\nConsuming Smoke, Temp, Humidity; ",
         "siddhi": "from every t = temperatureStream [temp_value > 45] and (h = humidityStream [percentage < 25]) select temp_value, percentage, h.area insert into fireStream ;",
@@ -248,6 +201,29 @@
     {
       "name": "temperature_GT45_and_humidity_LT25_5sec_window",
       "id": 2,
+      "streams-used-in-query": [10, 11, 12],
+      "sql-query": {
+        "t-rex": " Assign 10 => Temp, 11 => Humidity, 12 => Smoke, 1 => Fire\nDefine  Fire(area: string, temp: float)\nFrom   Humidity(percentage<25) and\nlast   Temp(temp_value>45, [string] area=Temp.area)\nwithin 50000000 from Temp and\nlast    Smoke(ppm>100, [string] area=Temp.area)\nwithin 50000000 from Smoke\nWhere   area := Temp.area, temp := Temp.temp_value\nConsuming Smoke, Temp, Humidity; ",
+        "siddhi": "from every t = temperatureStream [temp_value > 45] and (h = humidityStream [percentage < 25]) select temp_value, percentage, h.area insert into fireStream ;",
+        "flink": " SELECT * FROM temperatureStream t JOIN humidityStream h ON h.area = t.area ",
+        "esper": " select * from pattern[t=temperatureStream(temp_value>45) -> h=humidityStream(percentage<25)]; "
+      }
+    },
+    {
+      "name": "temperature_GT45_and_humidity_LT25_5sec_window",
+      "id": 3,
+      "streams-used-in-query": [10, 11, 12],
+      "sql-query": {
+        "t-rex": " Assign 10 => Temp, 11 => Humidity, 12 => Smoke, 1 => Fire\nDefine  Fire(area: string, temp: float)\nFrom   Humidity(percentage<25) and\nlast   Temp(temp_value>45, [string] area=Temp.area)\nwithin 50000000 from Temp and\nlast    Smoke(ppm>100, [string] area=Temp.area)\nwithin 50000000 from Smoke\nWhere   area := Temp.area, temp := Temp.temp_value\nConsuming Smoke, Temp, Humidity; ",
+        "siddhi": "from every t = temperatureStream [temp_value > 45] and (h = humidityStream [percentage < 25]) select temp_value, percentage, h.area insert into fireStream ;",
+        "flink": " SELECT * FROM temperatureStream t JOIN humidityStream h ON h.area = t.area ",
+        "esper": " select * from pattern[t=temperatureStream(temp_value>45) -> h=humidityStream(percentage<25)]; "
+      }
+    },
+    {
+      "name": "temperature_GT45_and_humidity_LT25_5sec_window",
+      "id": 4,
+      "streams-used-in-query": [10, 11, 12],
       "sql-query": {
         "t-rex": " Assign 10 => Temp, 11 => Humidity, 12 => Smoke, 1 => Fire\nDefine  Fire(area: string, temp: float)\nFrom   Humidity(percentage<25) and\nlast   Temp(temp_value>45, [string] area=Temp.area)\nwithin 50000000 from Temp and\nlast    Smoke(ppm>100, [string] area=Temp.area)\nwithin 50000000 from Smoke\nWhere   area := Temp.area, temp := Temp.temp_value\nConsuming Smoke, Temp, Humidity; ",
         "siddhi": "from every t = temperatureStream [temp_value > 45] and (h = humidityStream [percentage < 25]) select temp_value, percentage, h.area insert into fireStream ;",
@@ -258,16 +234,18 @@
     {
       "name": "temperature_GT45_join_humidity_LT25_5sec_window",
       "id": 5,
+      "streams-used-in-query": [10, 11, 12],
       "sql-query": {
         "t-rex": " Assign 10 => Temp, 11 => Humidity, 12 => Smoke, 1 => Fire\nDefine  Fire(area: string, temp: float)\nFrom   Humidity(percentage<25) and\nlast   Temp(temp_value>45, [string] area=Temp.area)\nwithin 50000000 from Temp and\nlast    Smoke(ppm>100, [string] area=Temp.area)\nwithin 50000000 from Smoke\nWhere   area := Temp.area, temp := Temp.temp_value\nConsuming Smoke, Temp, Humidity; ",
         "siddhi": "from temperatureStream[temp_value > 45]#window.time(1 min) as temp\njoin humidityStream[percentage < 25]#window.time(1 min) as humidity\non temp.area==humidity.area\nselect temp_value, percentage, humidity.area\ninsert into fireStream;",
-        "flink": " SELECT * FROM temperatureStream t JOIN humidityStream h ON h.area = t.area ",
+        "flink": " SELECT * FROM weatherStream ws1 JOIN weatherStream2 ws2 ON ws1.STATION = ws2.STATION ",
         "esper": " select * from pattern[t=temperatureStream -> h=humidityStream];"
       }
     },
     {
       "name": "temperature_GT45_then_humidity_LT25_within_5sec",
       "id": 6,
+      "streams-used-in-query": [10, 11, 12],
       "sql-query": {
         "t-rex": " Assign 10 => Temp, 11 => Humidity, 12 => Smoke, 1 => Fire\nDefine  Fire(area: string, temp: float)\nFrom   Humidity(percentage<25) and\nlast   Temp(temp_value>45, [string] area=Temp.area)\nwithin 50000000 from Temp and\nlast    Smoke(ppm>100, [string] area=Temp.area)\nwithin 50000000 from Smoke\nWhere   area := Temp.area, temp := Temp.temp_value\nConsuming Smoke, Temp, Humidity; ",
         "siddhi": " from every t = temperatureStream [temp_value > 45] -> (h = humidityStream [percentage < 25]) select temp_value, percentage, h.area insert into fireStream ; ",
@@ -278,16 +256,18 @@
     {
       "name": "temperature_GT45_then_humidity_LT25_within_5sec_then_smoke_GT50_within_5sec",
       "id": 7,
+      "streams-used-in-query": [10, 11, 12],
       "sql-query": {
         "t-rex": "Assign 10 => Temp, 11 => Humidity, 12 => Smoke, 1 => Fire\nDefine  Fire(area: string, temp: float)\nFrom   Humidity(percentage<25) and\nlast   Temp(temp_value>45, [string] area=Temp.area)\nwithin 50000000 from Temp and\nlast    Smoke(ppm>100, [string] area=Temp.area)\nwithin 50000000 from Smoke\nWhere   area := Temp.area, temp := Temp.temp_value\nConsuming Smoke, Temp, Humidity;",
         "siddhi": "from every (t = temperatureStream [temp_value > 45]) -> (h = humidityStream [percentage < 25]) \n -> (s = smokeStream [ppm > 100]) within 5 seconds \nselect temp_value, percentage, h.area \ninsert into fireStream ;",
         "flink": " SELECT * FROM temperatureStream ",
-        "esper": " select * from weatherStream; "
+        "esper": " select * from temperatureStream; "
       }
     },
     {
       "name": "temperature_AVG_GT45_5sec_window",
       "id": 8,
+      "streams-used-in-query": [10, 11, 12],
       "sql-query": {
         "t-rex": "Assign 10 => Temp, 11 => Humidity, 12 => Smoke, 1 => Fire\nDefine  Fire(area: string, temp: float)\nFrom   Humidity(percentage<25) and\nlast   Temp(temp_value>45, [string] area=Temp.area)\nwithin 50000000 from Temp and\nlast    Smoke(ppm>100, [string] area=Temp.area)\nwithin 50000000 from Smoke\nWhere   area := Temp.area, temp := Temp.temp_value\nConsuming Smoke, Temp, Humidity;",
         "siddhi": "from temperatureStream[temp_value > 45]#window.time(1 min) as temp\njoin humidityStream[percentage < 25]#window.time(1 min) as humidity\non temp.area==humidity.area\nselect temp_value, percentage, humidity.area\ninsert into fireStream;",
@@ -363,6 +343,24 @@
       ],
       "siddhi": "define stream weatherStream (STATION string, NAME string, DATE string, AWND float, PRCP float, SNOW float, SNWD float, TMAX float, TMIN float);",
       "esper": "create schema weatherStream (STATION String, NAME String, DATE String, AWND float, PRCP float, SNOW float, SNWD float, TMAX float, TMIN float);"
+    },
+    {
+      "id": 6,
+      "stream-id": 14,
+      "name": "weatherStream2",
+      "tuple-format": [
+        {"name": "STATION", "type": "string"},
+        {"name": "NAME", "type": "string"},
+        {"name": "DATE", "type": "timestamp"},
+        {"name": "AWND", "type": "float"},
+        {"name": "PRCP", "type": "float"},
+        {"name": "SNOW", "type": "float"},
+        {"name": "SNWD", "type": "float"},
+        {"name": "TMAX", "type": "float"},
+        {"name": "TMIN", "type": "float"}
+      ],
+      "siddhi": "define stream weatherStream2 (STATION string, NAME string, DATE string, AWND float, PRCP float, SNOW float, SNWD float, TMAX float, TMIN float);",
+      "esper": "create schema weatherStream2 (STATION String, NAME String, DATE String, AWND float, PRCP float, SNOW float, SNWD float, TMAX float, TMIN float);"
     }
   ],
   "datasets": [
@@ -377,7 +375,6 @@
       "name": "Central park weather",
       "type": "json",
       "id": 2,
-      "stream-id": 13,
       "file": "/home/espen/Research/nyc-taxi-data/data/central_park_weather-merged.json"
     }
   ],
