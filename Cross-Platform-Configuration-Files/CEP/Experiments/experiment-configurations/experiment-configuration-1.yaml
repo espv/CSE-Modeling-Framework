@@ -412,10 +412,8 @@ tracepoints:
         type: int
     description:
     category:
-      isModelEvent: true
       isScalingEvent: false
       isMilestoneEvent: true
-      isSimulationEvent: true
 
   - id: 2
     name:
@@ -426,10 +424,8 @@ tracepoints:
         type: int
     description:
     category:
-      isModelEvent: true
       isScalingEvent: false
       isMilestoneEvent: false
-      isSimulationEvent: false
 
   - id: 3
     name:
@@ -440,10 +436,8 @@ tracepoints:
         type: int
     description:
     category:
-      isModelEvent: true
       isScalingEvent: false
       isMilestoneEvent: false
-      isSimulationEvent: false
 
   - id: 4
     name: passedConstraints
@@ -454,10 +448,8 @@ tracepoints:
         type: int
     description: Passed constraints for query
     category:
-      isModelEvent: true
       isScalingEvent: false
       isMilestoneEvent: false
-      isSimulationEvent: false
 
   - id: 6
     name: createdComplexEvent
@@ -468,10 +460,8 @@ tracepoints:
         type: int
     description: A complex event was created
     category:
-      isModelEvent: true
       isScalingEvent: false
       isMilestoneEvent: true
-      isSimulationEvent: false
 
   - id: 100
     name: finishedProcessingEvent
@@ -482,10 +472,8 @@ tracepoints:
         type: int
     description:
     category:
-      isModelEvent: true
       isScalingEvent: false
       isMilestoneEvent: true
-      isSimulationEvent: false
 
   - id: 221
     name: addQuery
@@ -495,10 +483,8 @@ tracepoints:
     x_variable: numberQueries
     description: Traced when deploying a query. This is a simulation and scaling event.
     category:
-      isModelEvent: false
       isScalingEvent: true
       isMilestoneEvent: false
-      isSimulationEvent: true
 
   - id: 222
     name: clearQueries
@@ -506,10 +492,8 @@ tracepoints:
     x_variable: numberQueries
     description: Traced when removing all deployed queries. This is a simulation and scaling event.
     category:
-      isModelEvent: false
       isScalingEvent: true
       isMilestoneEvent: false
-      isSimulationEvent: true
 
   - id: 220
     name: addEvent
@@ -521,10 +505,8 @@ tracepoints:
     x_variable: numberEvents
     description: Traced when adding an event to the allPackets queue.
     category:
-      isModelEvent: false
       isScalingEvent: false
       isMilestoneEvent: false
-      isSimulationEvent: false
 
   - id: 223
     name: clearEvents
@@ -532,10 +514,8 @@ tracepoints:
     x_variable: numberEvents
     description: Traced when clearing all CEP events from allPackets. This is a scaling event.
     category:
-      isModelEvent: false
       isScalingEvent: true
       isMilestoneEvent: false
-      isSimulationEvent: false
 
   - id: 0
     name: runExperiment
@@ -545,7 +525,5 @@ tracepoints:
     x_variable:
     description: Decides which experiment to run
     category:
-      isModelEvent: false
       isScalingEvent: false
       isMilestoneEvent: false
-      isSimulationEvent: false
