@@ -410,6 +410,7 @@ cepevents:
 tracepoints:
   - id: 1
     name: receiveEvent
+    active: true
     arguments:
       - name: tid
         type: int
@@ -422,6 +423,7 @@ tracepoints:
 
   - id: 2
     name:
+    active: false
     arguments:
       - name: tid
         type: int
@@ -434,6 +436,7 @@ tracepoints:
 
   - id: 3
     name:
+    active: false
     arguments:
       - name: tid
         type: int
@@ -446,6 +449,7 @@ tracepoints:
 
   - id: 4
     name: passedConstraints
+    active: false
     arguments:
       - name: tid
         type: int
@@ -458,6 +462,7 @@ tracepoints:
 
   - id: 6
     name: createdComplexEvent
+    active: false
     arguments:
       - name: tid
         type: int
@@ -470,6 +475,7 @@ tracepoints:
 
   - id: 100
     name: finishedProcessingEvent
+    active: true
     arguments:
       - name: tid
         type: int
@@ -482,6 +488,7 @@ tracepoints:
 
   - id: 221
     name: addQuery
+    active: true
     arguments:
       - name: CepQuery
         type: int
@@ -493,6 +500,7 @@ tracepoints:
 
   - id: 222
     name: clearQueries
+    active: true
     arguments: []
     x_variable: numberQueries
     description: Traced when removing all deployed queries. This is a simulation and scaling event.
@@ -502,6 +510,7 @@ tracepoints:
 
   - id: 220
     name: addEvent
+    active: true
     arguments:
       - name: tid
         type: int
@@ -515,6 +524,7 @@ tracepoints:
 
   - id: 223
     name: clearEvents
+    active: true
     arguments: []
     x_variable: numberEvents
     description: Traced when clearing all CEP events from allPackets. This is a scaling event.
@@ -524,6 +534,7 @@ tracepoints:
 
   - id: 0
     name: runExperiment
+    active: true
     arguments:
       - name: experimentId
         type: int
