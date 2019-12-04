@@ -304,46 +304,57 @@ cepqueries:
                   D as D.temp_value > C.temp_value
               ); '
 stream-definitions:
-  - {id: 1, stream-id: 10, name: temperatureStream,
-     tuple-format: [{name: temp_value, type: long}, {name: area, type: string}],
-     siddhi: 'define stream temperatureStream (temp_value long, area string);',
-     esper: 'create schema temperatureStream as (temp_value long, area String);',
-     flink: {attributes: [{name: temp_value, type: long}, {name: area, type: string}]}}
-  - {id: 2, stream-id: 11, name: humidityStream,
-     tuple-format: [{name: percentage, type: long}, {name: area, type: string}],
-     siddhi: 'define stream humidityStream (percentage long, area string);',
-     esper: 'create schema humidityStream (percentage long, area String);',
-     flink: {attributes: [{name: percentage, type: long}, {name: area, type: string}]}}
-  - {id: 3, stream-id: 1, name: fireStream,
-     tuple-format: [{name: temp_value, type: long}, {name: percentage, type: long}, {name: area, type: string}],
-     siddhi: 'define stream fireStream (temp_value long, percentage long, area string);',
-     esper: 'create schema fireStream (temp_value long, percentage long, area String);',
-     flink: {attributes: [{name: temp_value, type: long}, {name: percentage, type: long}, {name: area, type: string}]}}
-  - {id: 4, stream-id: 12, name: smokeStream,
-     tuple-format: [{name: ppm, type: long}, {name: area, type: string}],
-     siddhi: 'define stream smokeStream (ppm float, area string);',
-     esper: 'create schema smokeStream (ppm float, area String);'}
-  - {id: 5, stream-id: 13, name: weatherStream,
-     tuple-format: [{name: STATION, type: string}, {name: NAME, type: string}, {name: DATE, type: timestamp},
-                    {name: AWND, type: float}, {name: PRCP, type: float}, {name: SNOW, type: float},
-                    {name: SNWD, type: float}, {name: TMAX, type: float}, {name: TMIN, type: float}],
-     siddhi: 'define stream weatherStream (STATION string, NAME string, DATE string, AWND float, PRCP float,
-                                           SNOW float, SNWD float, TMAX float, TMIN float);',
-     esper: 'create schema weatherStream (STATION String, NAME String, DATE String, AWND float, PRCP float,
-                                          SNOW float, SNWD float, TMAX float, TMIN float);'}
-  - {id: 6, stream-id: 14, name: weatherStream2,
-     tuple-format: [{name: STATION, type: string}, {name: NAME, type: string}, {name: DATE, type: timestamp},
-                    {name: AWND, type: float}, {name: PRCP, type: float}, {name: SNOW, type: float},
-                    {name: SNWD, type: float}, {name: TMAX, type: float}, {name: TMIN, type: float}],
-     siddhi: 'define stream weatherStream2 (STATION string, NAME string, DATE string, AWND float, PRCP float,
-                                           SNOW float, SNWD float, TMAX float, TMIN float);',
-     esper: 'create schema weatherStream2 (STATION String, NAME String, DATE String, AWND float, PRCP float,
-                                          SNOW float, SNWD float, TMAX float, TMIN float);'}
-  - {id: 7, stream-id: 15, name: TripStream,
-     tuple-format: [{name: Dispatching_base_num, type: string}, {name: Pickup_date, type: timestamp},
-                    {name: locationID, type: string}],
-     siddhi: 'define stream TripStream (Dispatching_base_num string, Pickup_date string, locationID string);',
-     esper: 'create schema TripStream (Dispatching_base_num String, Pickup_date String, locationID String);'}
+  - id: 1
+    stream-id: 10
+    name: temperatureStream
+    tuple-format: [{name: temp_value, type: long}, {name: area, type: string}]
+    siddhi: 'define stream temperatureStream (temp_value long, area string);'
+    esper: 'create schema temperatureStream as (temp_value long, area String);'
+  - id: 2
+    stream-id: 11
+    name: humidityStream
+    tuple-format: [{name: percentage, type: long}, {name: area, type: string}]
+    siddhi: 'define stream humidityStream (percentage long, area string);'
+    esper: 'create schema humidityStream (percentage long, area String);'
+  - id: 3
+    stream-id: 1
+    name: fireStream
+    tuple-format: [{name: temp_value, type: long}, {name: percentage, type: long}, {name: area, type: string}]
+    siddhi: 'define stream fireStream (temp_value long, percentage long, area string);'
+    esper: 'create schema fireStream (temp_value long, percentage long, area String);'
+  - id: 4
+    stream-id: 12
+    name: smokeStream
+    tuple-format: [{name: ppm, type: long}, {name: area, type: string}]
+    siddhi: 'define stream smokeStream (ppm float, area string);'
+    esper: 'create schema smokeStream (ppm float, area String);'
+  - id: 5
+    stream-id: 13
+    name: weatherStream
+    tuple-format: [{name: STATION, type: string}, {name: NAME, type: string}, {name: DATE, type: timestamp},
+                   {name: AWND, type: float}, {name: PRCP, type: float}, {name: SNOW, type: float},
+                   {name: SNWD, type: float}, {name: TMAX, type: float}, {name: TMIN, type: float}]
+    siddhi: 'define stream weatherStream (STATION string, NAME string, DATE string, AWND float, PRCP float,
+                                          SNOW float, SNWD float, TMAX float, TMIN float);'
+    esper: 'create schema weatherStream (STATION String, NAME String, DATE String, AWND float, PRCP float,
+                                         SNOW float, SNWD float, TMAX float, TMIN float);'
+  - id: 6
+    stream-id: 14
+    name: weatherStream2
+    tuple-format: [{name: STATION, type: string}, {name: NAME, type: string}, {name: DATE, type: timestamp},
+                   {name: AWND, type: float}, {name: PRCP, type: float}, {name: SNOW, type: float},
+                   {name: SNWD, type: float}, {name: TMAX, type: float}, {name: TMIN, type: float}]
+    siddhi: 'define stream weatherStream2 (STATION string, NAME string, DATE string, AWND float, PRCP float,
+                                          SNOW float, SNWD float, TMAX float, TMIN float);'
+    esper: 'create schema weatherStream2 (STATION String, NAME String, DATE String, AWND float, PRCP float,
+                                         SNOW float, SNWD float, TMAX float, TMIN float);'
+  - id: 7
+    stream-id: 15
+    name: TripStream
+    tuple-format: [{name: Dispatching_base_num, type: string}, {name: Pickup_date, type: timestamp},
+                   {name: locationID, type: string}]
+    siddhi: 'define stream TripStream (Dispatching_base_num string, Pickup_date string, locationID string);'
+    esper: 'create schema TripStream (Dispatching_base_num String, Pickup_date String, locationID String);'
 datasets:
   - {name: Central park weather, type: csv, id: 1, stream-id: 13,
      file: /home/espen/Research/nyc-taxi-data/data/central_park_weather-cleaned.csv}
