@@ -4,138 +4,246 @@ tracepoint-format:
   threadId: int
   timestamp: long
 experiments:
-  - {name: 'experiment 1 --- varying the number of queries', id: 1, flow: [
-  {command: setIntervalBetweenEvents, arguments: [0]},
-  {command: setEventBatchSize, arguments: [1]},
-  {command: addEvents, arguments: [4, 1]},
-  {command: addEvents, arguments: [2, 1]},
-  {command: addQueries, arguments: [1, 1]},
-  {command: processEvents, arguments: [100]},
-  {command: clearQueries},
-  {command: addQueries, arguments: [1, 10]},
-  {command: processEvents, arguments: [100]},
-  {command: clearQueries},
-  {command: addQueries, arguments: [1, 100]},
-  {command: processEvents, arguments: [100]},
-  {command: clearQueries},
-  {command: addQueries, arguments: [1, 1000]},
-  {command: processEvents, arguments: [100]},
-  {command: clearQueries},
-  {command: clearEvents}]}
+  - {name: 'experiment 1 --- varying the number of queries', id: 1,
+     flow: [
+       {command: setIntervalBetweenEvents, arguments: [0]},
+       {command: setEventBatchSize, arguments: [1]},
+       {command: addEvents, arguments: [4, 1]},
+       {command: addEvents, arguments: [2, 1]},
+       {command: addQueries, arguments: [1, 1]},
+       {command: processEvents, arguments: [100]},
+       {command: clearQueries},
+       {command: addQueries, arguments: [1, 10]},
+       {command: processEvents, arguments: [100]},
+       {command: clearQueries},
+       {command: addQueries, arguments: [1, 100]},
+       {command: processEvents, arguments: [100]},
+       {command: clearQueries},
+       {command: addQueries, arguments: [1, 1000]},
+       {command: processEvents, arguments: [100]},
+       {command: clearQueries},
+{command: clearEvents}]}
   - {name: 'experiment 2 --- varying the number of states in the sequence operator', id: 2,
      flow: [
-     {command: setIntervalBetweenEvents, arguments: [0]},
-     {command: setEventBatchSize, arguments: [1]},
-     {command: addEvents, arguments: [4, 1]},
-     {command: addEvents, arguments: [1, 100]},
-     {command: addEvents, arguments: [2, 100]},
-     {command: addEvents, arguments: [2, 100]},
-     {command: addEvents, arguments: [3, 1]},
-     {command: addQueries, arguments: [1, 1]},
-     {command: processEvents, arguments: [1000]},
-     {command: clearQueries},
-     {command: addQueries, arguments: [2, 1]},
-     {command: processEvents, arguments: [1000]},
-     {command: clearQueries},
-     {command: addQueries, arguments: [3, 1]},
-     {command: processEvents, arguments: [1000]},
-     {command: clearQueries}, {command: clearEvents}]}
+       {command: setIntervalBetweenEvents, arguments: [0]},
+       {command: setEventBatchSize, arguments: [1]},
+       {command: addEvents, arguments: [4, 1]},
+       {command: addEvents, arguments: [1, 100]},
+       {command: addEvents, arguments: [2, 100]},
+       {command: addEvents, arguments: [2, 100]},
+       {command: addEvents, arguments: [3, 1]},
+       {command: addQueries, arguments: [1, 1]},
+       {command: processEvents, arguments: [1000]},
+       {command: clearQueries},
+       {command: addQueries, arguments: [2, 1]},
+       {command: processEvents, arguments: [1000]},
+       {command: clearQueries},
+       {command: addQueries, arguments: [3, 1]},
+       {command: processEvents, arguments: [1000]},
+       {command: clearQueries}, {command: clearEvents}]}
   - {name: 'experiment 3 --- varying the number of unrelated queries', id: 3,
      flow: [
-     {command: setIntervalBetweenEvents, arguments: [0]},
-     {command: setEventBatchSize, arguments: [1]},
-     {command: addEvents, arguments: [4, 1]},
-     {command: addEvents, arguments: [2, 1]},
-     {command: addEvents, arguments: [4, 1]},
-     {command: addEvents, arguments: [2, 1]},
-     {command: addEvents, arguments: [4, 1]},
-     {command: addEvents, arguments: [2, 1]},
-     {command: addEvents, arguments: [4, 1]},
-     {command: addEvents, arguments: [1, 100]},
-     {command: addEvents, arguments: [2, 1]},
-     {command: addEvents, arguments: [3, 1]},
-     {command: addQueries, arguments: [4, 1]},
-     {command: processEvents, arguments: [1000]},
-     {command: clearQueries},
-     {command: addQueries, arguments: [4, 10]},
-     {command: processEvents, arguments: [1000]},
-     {command: clearQueries},
-     {command: addQueries, arguments: [4, 100]},
-     {command: processEvents, arguments: [1000]},
-     {command: clearQueries}, {command: clearEvents}]}
+       {command: setIntervalBetweenEvents, arguments: [0]},
+       {command: setEventBatchSize, arguments: [1]},
+       {command: addEvents, arguments: [4, 1]},
+       {command: addEvents, arguments: [2, 1]},
+       {command: addEvents, arguments: [4, 1]},
+       {command: addEvents, arguments: [2, 1]},
+       {command: addEvents, arguments: [4, 1]},
+       {command: addEvents, arguments: [2, 1]},
+       {command: addEvents, arguments: [4, 1]},
+       {command: addEvents, arguments: [1, 100]},
+       {command: addEvents, arguments: [2, 1]},
+       {command: addEvents, arguments: [3, 1]},
+       {command: addQueries, arguments: [4, 1]},
+       {command: processEvents, arguments: [1000]},
+       {command: clearQueries},
+       {command: addQueries, arguments: [4, 10]},
+       {command: processEvents, arguments: [1000]},
+       {command: clearQueries},
+       {command: addQueries, arguments: [4, 100]},
+       {command: processEvents, arguments: [1000]},
+       {command: clearQueries}, {command: clearEvents}]}
   - {name: 'experiment 4 --- varying the number of queries', id: 4,
      flow: [
-     {command: setIntervalBetweenEvents, arguments: [0]},
-     {command: setEventBatchSize, arguments: [1]},
-     {command: addEvents, arguments: [5, 1]},
-     {command: addEvents, arguments: [4, 1]},
-     {command: addEvents, arguments: [2, 1]},
-     {command: addQueries, arguments: [7, 1]},
-     {command: processEvents, arguments: [100]},
-     {command: clearQueries},
-     {command: addQueries, arguments: [7, 10]},
-     {command: processEvents, arguments: [100]},
-     {command: clearQueries},
-     {command: addQueries, arguments: [7, 100]},
-     {command: processEvents, arguments: [100]},
-     {command: clearQueries},
-     {command: addQueries, arguments: [7, 1000]},
-     {command: processEvents, arguments: [100]},
-     {command: clearQueries},
-     {command: clearEvents}]}
+       {command: setIntervalBetweenEvents, arguments: [0]},
+       {command: setEventBatchSize, arguments: [1]},
+       {command: addEvents, arguments: [5, 1]},
+       {command: addEvents, arguments: [4, 1]},
+       {command: addEvents, arguments: [2, 1]},
+       {command: addQueries, arguments: [7, 1]},
+       {command: processEvents, arguments: [100]},
+       {command: clearQueries},
+       {command: addQueries, arguments: [7, 10]},
+       {command: processEvents, arguments: [100]},
+       {command: clearQueries},
+       {command: addQueries, arguments: [7, 100]},
+       {command: processEvents, arguments: [100]},
+       {command: clearQueries},
+       {command: addQueries, arguments: [7, 1000]},
+       {command: processEvents, arguments: [100]},
+       {command: clearQueries},
+       {command: clearEvents}]}
   - {name: 'experiment 5 --- varying the number of queries', id: 5,
      flow: [
-     {command: setIntervalBetweenEvents, arguments: [0]},
-     {command: setEventBatchSize, arguments: [1]},
-     {command: addDataset, arguments: [1]},
-     {command: addQueries, arguments: [7, 1]},
-     {command: processEvents, arguments: [100]},
-     {command: clearQueries},
-     {command: addQueries, arguments: [7, 10]},
-     {command: processEvents, arguments: [100]},
-     {command: clearQueries},
-     {command: addQueries, arguments: [7, 100]},
-     {command: processEvents, arguments: [100]},
-     {command: clearQueries},
-     {command: addQueries, arguments: [7, 1000]},
-     {command: processEvents, arguments: [100]},
-     {command: clearQueries}, {command: clearEvents}]}
+       {command: setIntervalBetweenEvents, arguments: [0]},
+       {command: setEventBatchSize, arguments: [1]},
+       {command: addDataset, arguments: [1]},
+       {command: addQueries, arguments: [7, 1]},
+       {command: processEvents, arguments: [100]},
+       {command: clearQueries},
+       {command: addQueries, arguments: [7, 10]},
+       {command: processEvents, arguments: [100]},
+       {command: clearQueries},
+       {command: addQueries, arguments: [7, 100]},
+       {command: processEvents, arguments: [100]},
+       {command: clearQueries},
+       {command: addQueries, arguments: [7, 1000]},
+       {command: processEvents, arguments: [100]},
+       {command: clearQueries}, {command: clearEvents}]}
   - {name: 'experiment 6 --- varying the number of join queries', id: 6,
      flow: [
-     {command: setIntervalBetweenEvents, arguments: [0]},
-     {command: setEventBatchSize, arguments: [1]},
-     {command: addDataset, arguments: [2]},
-     {command: addQueries, arguments: [5, 1]},
-     {command: loopCommands,
-      arguments: [10, [{command: processEvents, arguments: [100]},
-                       {command: addQueries, arguments: [5, 1]}]]},
-     {command: clearEvents}]}
+       {command: setIntervalBetweenEvents, arguments: [0]},
+       {command: setEventBatchSize, arguments: [1]},
+       {command: addDataset, arguments: [2]},
+       {command: addQueries, arguments: [5, 1]},
+       {command: loopCommands,
+        arguments: [10, [{command: processEvents, arguments: [100]},
+                         {command: addQueries, arguments: [5, 1]}]]},
+       {command: clearEvents}]}
   - {name: 'experiment 7 --- varying the number of two-state then queries', id: 7,
      flow: [
-     {command: setIntervalBetweenEvents, arguments: [0]},
-     {command: setEventBatchSize, arguments: [1]},
-     {command: addEvents, arguments: [4, 1]},
-     {command: addEvents, arguments: [4, 1]},
-     {command: addEvents, arguments: [4, 1]},
-     {command: addEvents, arguments: [1, 1]},
-     {command: addEvents, arguments: [1, 1]},
-     {command: addEvents, arguments: [1, 1]},
-     {command: addQueries, arguments: [9, 1]},
-     {command: processEvents, arguments: [100]},
-     {command: clearQueries},
-     {command: addQueries, arguments: [9, 10]},
-     {command: processEvents, arguments: [100]},
-     {command: clearQueries},
-     {command: addQueries, arguments: [9, 100]},
-     {command: processEvents, arguments: [100]},
-     {command: clearQueries},
-     {command: addQueries, arguments: [9, 1000]},
-     {command: processEvents, arguments: [100]},
-     {command: clearQueries},
-     {command: clearEvents}]}
+       {command: setIntervalBetweenEvents, arguments: [0]},
+       {command: setEventBatchSize, arguments: [1]},
+       {command: addEvents, arguments: [4, 1]},
+       {command: addEvents, arguments: [4, 1]},
+       {command: addEvents, arguments: [4, 1]},
+       {command: addEvents, arguments: [1, 1]},
+       {command: addEvents, arguments: [1, 1]},
+       {command: addEvents, arguments: [1, 1]},
+       {command: addQueries, arguments: [9, 1]},
+       {command: processEvents, arguments: [100]},
+       {command: clearQueries},
+       {command: addQueries, arguments: [9, 10]},
+       {command: processEvents, arguments: [100]},
+       {command: clearQueries},
+       {command: addQueries, arguments: [9, 100]},
+       {command: processEvents, arguments: [100]},
+       {command: clearQueries},
+       {command: addQueries, arguments: [9, 1000]},
+       {command: processEvents, arguments: [100]},
+       {command: clearQueries},
+       {command: clearEvents}]}
 cepqueries:
-  - {name: temperature_GT45_and_humidity_LT25_5sec_window, id: 0, streams-used-in-query: [10, 11, 12], sql-query:
-    {t-rex: [' Assign 10 => Temp, 11 => Humidity, 12 => Smoke, 1 => Fire
+  - {name: temperature_GT45_and_humidity_LT25_5sec_window, id: 0, streams-used-in-query: [10, 11, 12],
+     sql-query: {
+       t-rex: ' Assign 10 => Temp, 11 => Humidity, 12 => Smoke, 1 => Fire
+                Define  Fire(area: string, temp: float)
+                From   Humidity(percentage<25) and
+                last   Temp(temp_value>45, [string] area=Temp.area)
+                within 50000000 from Temp and
+                last    Smoke(ppm>100, [string] area=Temp.area)
+                within 50000000 from Smoke
+                Where   area := Temp.area, temp := Temp.temp_value
+                Consuming Smoke, Temp, Humidity; ',
+      siddhi: ' from every t = temperatureStream [temp_value > 45] and
+                           (h = humidityStream [percentage < 25])
+                 select temp_value, percentage, h.area
+                 insert into fireStream ; ',
+      flink: ' SELECT *
+                FROM temperatureStream t
+                JOIN humidityStream h
+                ON h.area = t.area ',
+      esper: ' select *
+                from pattern[t=temperatureStream(temp_value>45) ->
+                             h=humidityStream(percentage<25)]; '}}
+  - {name: temperature_GT45_join_humidity_LT25_5sec_window, id: 5, streams-used-in-query: [10, 11, 12],
+     sql-query: {
+       t-rex: ' Assign 10 => Temp, 11 => Humidity, 12 => Smoke, 1 => Fire
+                Define  Fire(area: string, temp: float)
+                From   Humidity(percentage<25) and
+                last   Temp(temp_value>45, [string] area=Temp.area)
+                within 50000000 from Temp and
+                last    Smoke(ppm>100, [string] area=Temp.area)
+                within 50000000 from Smoke
+                Where   area := Temp.area, temp := Temp.temp_value
+                Consuming Smoke, Temp, Humidity; ',
+      siddhi: ' from temperatureStream[temp_value > 45]#window.time(1 min) as temp
+                 join humidityStream[percentage < 25]#window.time(1 min) as humidity
+                 on temp.area==humidity.area
+                 select temp_value, percentage, humidity.area
+                 insert into fireStream; ',
+      flink: ' SELECT *
+                FROM TripStream ts ',
+      esper: ' select *
+                from pattern[t=temperatureStream ->
+                             h=humidityStream]; '}}
+  - {name: temperature_GT45_then_humidity_LT25_within_5sec, id: 6, streams-used-in-query: [10, 11, 12],
+     sql-query: {
+       t-rex: ' Assign 10 => Temp, 11 => Humidity, 12 => Smoke, 1 => Fire
+                Define  Fire(area: string, temp: float)
+                From   Humidity(percentage<25) and
+                last   Temp(temp_value>45, [string] area=Temp.area)
+                within 50000000 from Temp and
+                last    Smoke(ppm>100, [string] area=Temp.area)
+                within 50000000 from Smoke
+                Where   area := Temp.area, temp := Temp.temp_value
+                Consuming Smoke, Temp, Humidity; ',
+      siddhi: ' from every t = temperatureStream [temp_value > 45] ->
+                           (h = humidityStream [percentage < 25])
+                 select temp_value, percentage, h.area
+                 insert into fireStream ; ',
+      flink: ' SELECT *
+                FROM temperatureStream ',
+      esper: ' select *
+                from weatherStream; '}}
+  - {name: temperature_GT45_then_humidity_LT25_within_5sec_then_smoke_GT50_within_5sec, id: 7,
+     streams-used-in-query: [10, 11, 12],
+     sql-query: {
+       t-rex: ' Assign 10 => Temp, 11 => Humidity, 12 => Smoke, 1 => Fire
+                             Define  Fire(area: string, temp: float)
+                             From   Humidity(percentage<25) and
+                             last   Temp(temp_value>45, [string] area=Temp.area)
+                             within 50000000 from Temp and
+                             last    Smoke(ppm>100, [string] area=Temp.area)
+                             within 50000000 from Smoke
+                             Where   area := Temp.area, temp := Temp.temp_value
+                             Consuming Smoke, Temp, Humidity; ',
+       siddhi: ' from every (t = temperatureStream [temp_value > 45]) ->
+                             (h = humidityStream [percentage < 25]) ->
+                             (s = smokeStream [ppm > 100]) within 5 seconds
+                  select temp_value, percentage, h.area
+                  insert into fireStream ;',
+       flink: ' SELECT *
+                 FROM temperatureStream ',
+       esper: ' select *
+                 from temperatureStream; '}}
+  - {name: temperature_AVG_GT45_5sec_window, id: 8,
+     streams-used-in-query: [10, 11, 12],
+     sql-query: {
+       t-rex: ' Assign 10 => Temp, 11 => Humidity, 12 => Smoke, 1 => Fire
+                Define  Fire(area: string, temp: float)
+                From   Humidity(percentage<25) and
+                last   Temp(temp_value>45, [string] area=Temp.area)
+                within 50000000 from Temp and
+                last    Smoke(ppm>100, [string] area=Temp.area)
+                within 50000000 from Smoke
+                Where   area := Temp.area, temp := Temp.temp_value
+                Consuming Smoke, Temp, Humidity; ',
+       siddhi: ' from temperatureStream[temp_value > 45]#window.time(1 min) as temp
+                 join humidityStream[percentage < 25]#window.time(1 min) as humidity
+                 on temp.area==humidity.area
+                 select temp_value, percentage, humidity.area
+                 insert into fireStream;',
+       flink: ' SELECT *
+                 FROM temperatureStream ',
+       esper: ' select *
+                from weatherStream; '}}
+  - name: temperature_AVG_GT45_5sec_window,
+    id: 9,
+    streams-used-in-query: [10, 11, 12],
+    sql-query: {
+      t-rex: ' Assign 10 => Temp, 11 => Humidity, 12 => Smoke, 1 => Fire
                Define  Fire(area: string, temp: float)
                From   Humidity(percentage<25) and
                last   Temp(temp_value>45, [string] area=Temp.area)
@@ -143,141 +251,41 @@ cepqueries:
                last    Smoke(ppm>100, [string] area=Temp.area)
                within 50000000 from Smoke
                Where   area := Temp.area, temp := Temp.temp_value
-               Consuming Smoke, Temp, Humidity; '],
-     siddhi: [' from every t = temperatureStream [temp_value > 45] and
-                          (h = humidityStream [percentage < 25])
-                select temp_value, percentage, h.area
-                insert into fireStream ; '],
-     flink: [' SELECT *
-               FROM temperatureStream t
-               JOIN humidityStream h
-               ON h.area = t.area '],
-     esper: [' select *
-               from pattern[t=temperatureStream(temp_value>45) ->
-                            h=humidityStream(percentage<25)]; ']}}
-  - {name: temperature_GT45_join_humidity_LT25_5sec_window, id: 5, streams-used-in-query: [10, 11, 12],
-     sql-query: {t-rex: [' Assign 10 => Temp, 11 => Humidity, 12 => Smoke, 1 => Fire
-                                       Define  Fire(area: string, temp: float)
-                                       From   Humidity(percentage<25) and
-                                       last   Temp(temp_value>45, [string] area=Temp.area)
-                                       within 50000000 from Temp and
-                                       last    Smoke(ppm>100, [string] area=Temp.area)
-                                       within 50000000 from Smoke
-                                       Where   area := Temp.area, temp := Temp.temp_value
-                                       Consuming Smoke, Temp, Humidity; '],
-                 siddhi: [' from temperatureStream[temp_value > 45]#window.time(1 min) as temp
-                            join humidityStream[percentage < 25]#window.time(1 min) as humidity
-                            on temp.area==humidity.area
-                            select temp_value, percentage, humidity.area
-                            insert into fireStream; '],
-                 flink: [' SELECT *
-                           FROM TripStream ts '],
-                 esper: [' select *
-                           from pattern[t=temperatureStream ->
-                                        h=humidityStream]; ']}}
-  - {name: temperature_GT45_then_humidity_LT25_within_5sec, id: 6, streams-used-in-query: [10, 11, 12],
-     sql-query: {t-rex: [' Assign 10 => Temp, 11 => Humidity, 12 => Smoke, 1 => Fire
-                                       Define  Fire(area: string, temp: float)
-                                       From   Humidity(percentage<25) and
-                                       last   Temp(temp_value>45, [string] area=Temp.area)
-                                       within 50000000 from Temp and
-                                       last    Smoke(ppm>100, [string] area=Temp.area)
-                                       within 50000000 from Smoke
-                                       Where   area := Temp.area, temp := Temp.temp_value
-                                       Consuming Smoke, Temp, Humidity; '],
-                 siddhi: [' from every t = temperatureStream [temp_value > 45] ->
-                                      (h = humidityStream [percentage < 25])
-                            select temp_value, percentage, h.area
-                            insert into fireStream ; '],
-                 flink: [' SELECT *
-                           FROM temperatureStream '],
-                 esper: [' select *
-                           from weatherStream; ']}}
-  - {name: temperature_GT45_then_humidity_LT25_within_5sec_then_smoke_GT50_within_5sec, id: 7,
-     streams-used-in-query: [10, 11, 12],
-     sql-query: {
-       t-rex: [' Assign 10 => Temp, 11 => Humidity, 12 => Smoke, 1 => Fire
-                             Define  Fire(area: string, temp: float)
-                             From   Humidity(percentage<25) and
-                             last   Temp(temp_value>45, [string] area=Temp.area)
-                             within 50000000 from Temp and
-                             last    Smoke(ppm>100, [string] area=Temp.area)
-                             within 50000000 from Smoke
-                             Where   area := Temp.area, temp := Temp.temp_value
-                             Consuming Smoke, Temp, Humidity; '],
-       siddhi: [' from every (t = temperatureStream [temp_value > 45]) ->
-                             (h = humidityStream [percentage < 25]) ->
-                             (s = smokeStream [ppm > 100]) within 5 seconds
-                  select temp_value, percentage, h.area
-                  insert into fireStream ;'],
-       flink: [' SELECT *
-                 FROM temperatureStream '],
-       esper: [' select *
-                 from temperatureStream; ']}}
-  - {name: temperature_AVG_GT45_5sec_window, id: 8,
-     streams-used-in-query: [10, 11, 12],
-     sql-query: {
-       t-rex: [' Assign 10 => Temp, 11 => Humidity, 12 => Smoke, 1 => Fire
-                      Define  Fire(area: string, temp: float)
-                      From   Humidity(percentage<25) and
-                      last   Temp(temp_value>45, [string] area=Temp.area)
-                      within 50000000 from Temp and
-                      last    Smoke(ppm>100, [string] area=Temp.area)
-                      within 50000000 from Smoke
-                      Where   area := Temp.area, temp := Temp.temp_value
-                      Consuming Smoke, Temp, Humidity; '],
-       siddhi: [' from temperatureStream[temp_value > 45]#window.time(1 min) as temp
-                  join humidityStream[percentage < 25]#window.time(1 min) as humidity
-                  on temp.area==humidity.area
-                  select temp_value, percentage, humidity.area
-                  insert into fireStream;'],
-       flink: [' SELECT *
-                 FROM temperatureStream '],
-       esper: [' select *
-                 from weatherStream; ']}}
-  - {name: temperature_AVG_GT45_5sec_window, id: 9, streams-used-in-query: [10, 11, 12],
-     sql-query: {
-       t-rex: [' Assign 10 => Temp, 11 => Humidity, 12 => Smoke, 1 => Fire
-                             Define  Fire(area: string, temp: float)
-                             From   Humidity(percentage<25) and
-                             last   Temp(temp_value>45, [string] area=Temp.area)
-                             within 50000000 from Temp and
-                             last    Smoke(ppm>100, [string] area=Temp.area)
-                             within 50000000 from Smoke
-                             Where   area := Temp.area, temp := Temp.temp_value
-                             Consuming Smoke, Temp, Humidity; '],
-       siddhi: [' from temperatureStream[temp_value > 45]#window.time(1 min) as temp
-                  join humidityStream[percentage < 25]#window.time(1 min) as humidity
-                  on temp.area==humidity.area
-                  select temp_value, percentage, humidity.area
-                  insert into fireStream;'],
-       flink: [' SELECT *
-                 FROM temperatureStream
-                 MATCH_RECOGNIZE (
-                   PARTITION BY area
-                   ORDER BY proctime
-                   MEASURES
-                   FIRST(A.proctime) AS start_tstamp,
-                   LAST(A.proctime) AS end_tstamp,
-                   AVG(A.temp_value) AS avgTemp
-                   ONE ROW PER MATCH
-                   AFTER MATCH SKIP PAST LAST ROW
-                   PATTERN (A B C D)
-                   DEFINE
-                     B AS B.temp_value > A.temp_value,
-                     C AS C.temp_value > B.temp_value,
-                     D AS D.temp_value > C.temp_value
-                 ) MR '],
-       esper: [' select * from temperatureStream
-                 match_recognize (
-                   partition by area
-                   measures A.temp_value as a_temp, B.temp_value as b_temp
-                   pattern (A B C D)
-                   define
-                     B as B.temp_value > A.temp_value,
-                     C as C.temp_value > B.temp_value,
-                     D as D.temp_value > C.temp_value
-                   ); ']}}
+               Consuming Smoke, Temp, Humidity; ',
+      siddhi: ' from temperatureStream[temp_value > 45]#window.time(1 min) as temp
+                join humidityStream[percentage < 25]#window.time(1 min) as humidity
+                on temp.area==humidity.area
+                select temp_value, percentage, humidity.area
+                insert into fireStream; ',
+      flink: ' SELECT *
+               FROM temperatureStream
+               MATCH_RECOGNIZE (
+                 PARTITION BY area
+                 ORDER BY proctime
+                 MEASURES
+                 FIRST(A.proctime) AS start_tstamp,
+                 LAST(A.proctime) AS end_tstamp,
+                 AVG(A.temp_value) AS avgTemp
+                 ONE ROW PER MATCH
+                 AFTER MATCH SKIP PAST LAST ROW
+                 PATTERN (A B C D)
+                 DEFINE
+                   B AS B.temp_value > A.temp_value,
+                   C AS C.temp_value > B.temp_value,
+                   D AS D.temp_value > C.temp_value
+               ) MR ',
+      esper: ' select *
+               from temperatureStream
+               match_recognize (
+                 partition by area
+                 measures A.temp_value as a_temp, B.temp_value as b_temp
+                 pattern (A B C D)
+                 define
+                   B as B.temp_value > A.temp_value,
+                   C as C.temp_value > B.temp_value,
+                   D as D.temp_value > C.temp_value
+               ); '
+    }
 stream-definitions:
   - {id: 1, stream-id: 10, name: temperatureStream,
      tuple-format: [{name: temp_value, type: long}, {name: area, type: string}],
