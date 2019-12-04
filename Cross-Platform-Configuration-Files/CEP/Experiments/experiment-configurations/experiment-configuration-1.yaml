@@ -356,10 +356,15 @@ stream-definitions:
     siddhi: 'define stream TripStream (Dispatching_base_num string, Pickup_date string, locationID string);'
     esper: 'create schema TripStream (Dispatching_base_num String, Pickup_date String, locationID String);'
 datasets:
-  - {name: Central park weather, type: csv, id: 1, stream-id: 13,
-     file: /home/espen/Research/nyc-taxi-data/data/central_park_weather-cleaned.csv}
-  - {name: Central park weather, type: yaml, id: 2,
-     file: /home/espen/Research/nyc-taxi-data/data/central_park_weather-merged.yaml}
+  - name: Central park weather (CSV)
+    type: csv
+    id: 1
+    stream-id: 13
+    file: /home/espen/Research/nyc-taxi-data/data/central_park_weather-cleaned.csv
+  - name: Central park weather (YAML)
+    type: yaml
+    id: 2
+    file: /home/espen/Research/nyc-taxi-data/data/central_park_weather-merged.yaml
 cepevents:
   - {name: temperature_22degrees, id: 1, stream-id: 10, stream-name: temperatureStream,
      attributes: [{name: temp_value, value: 22}, {name: area, value: office}]}
