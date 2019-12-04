@@ -3,6 +3,7 @@ tracepoint-format:
   tracepointId: int
   threadId: int
   timestamp: long
+
 experiments:
   - name: experiment 1 --- varying the number of queries
     id: 1
@@ -24,6 +25,7 @@ experiments:
       - {command: processEvents,                    arguments: [100]}
       - {command: clearQueries}
       - {command: clearEvents}
+
   - name: experiment 2 --- varying the number of states in the sequence operator
     id: 2
     flow:
@@ -44,6 +46,7 @@ experiments:
       - {command: processEvents,                    arguments: [1000]}
       - {command: clearQueries}
       - {command: clearEvents}
+
   - name: experiment 3 --- varying the number of unrelated queries
     id: 3
     flow:
@@ -69,6 +72,7 @@ experiments:
       - {command: processEvents,                    arguments: [1000]}
       - {command: clearQueries}
       - {command: clearEvents}
+
   - name: experiment 4 --- varying the number of queries
     id: 4
     flow:
@@ -90,6 +94,7 @@ experiments:
       - {command: processEvents,                    arguments: [100]}
       - {command: clearQueries}
       - {command: clearEvents}
+
   - name: experiment 5 --- varying the number of queries
     id: 5
     flow:
@@ -109,6 +114,7 @@ experiments:
       - {command: processEvents,                    arguments: [100]}
       - {command: clearQueries}
       - {command: clearEvents}
+
   - name: experiment 6 --- varying the number of join queries
     id: 6
     flow:
@@ -120,6 +126,7 @@ experiments:
          arguments: [10, [{command: processEvents,  arguments: [100]},
                           {command: addQueries,     arguments: [5, 1]}]]}
       - {command: clearEvents}
+
   - name: experiment 7 --- varying the number of two-state then queries
     id: 7
     flow:
@@ -144,6 +151,7 @@ experiments:
       - {command: processEvents,                    arguments: [100]}
       - {command: clearQueries}
       - {command: clearEvents}
+
 cepqueries:
   - name: temperature_GT45_and_humidity_LT25_5sec_window
     id: 0
@@ -169,6 +177,7 @@ cepqueries:
       esper: 'select *
               from pattern[t=temperatureStream(temp_value>45) ->
                            h=humidityStream(percentage<25)]; '
+
   - name: temperature_GT45_join_humidity_LT25_5sec_window
     id: 5
     streams-used-in-query: [10, 11, 12]
@@ -192,6 +201,7 @@ cepqueries:
       esper: 'select *
               from pattern[t=temperatureStream ->
                            h=humidityStream]; '
+
   - name: temperature_GT45_then_humidity_LT25_within_5sec
     id: 6,
     streams-used-in-query: [10, 11, 12]
@@ -213,6 +223,7 @@ cepqueries:
               FROM temperatureStream '
       esper: 'select *
               from weatherStream; '
+
   - name: temperature_GT45_then_humidity_LT25_within_5sec_then_smoke_GT50_within_5sec
     id: 7
     streams-used-in-query: [10, 11, 12]
@@ -235,6 +246,7 @@ cepqueries:
               FROM temperatureStream '
       esper: 'select *
               from temperatureStream; '
+
   - name: temperature_AVG_GT45_5sec_window
     id: 8
     streams-used-in-query: [10, 11, 12]
@@ -257,6 +269,7 @@ cepqueries:
               FROM temperatureStream '
       esper: 'select *
               from weatherStream; '
+
   - name: temperature_AVG_GT45_5sec_window
     id: 9
     streams-used-in-query: [10, 11, 12]
@@ -303,6 +316,7 @@ cepqueries:
                   C as C.temp_value > B.temp_value,
                   D as D.temp_value > C.temp_value
               ); '
+
 stream-definitions:
   - id: 1
     stream-id: 10
@@ -310,24 +324,28 @@ stream-definitions:
     tuple-format: [{name: temp_value, type: long}, {name: area, type: string}]
     siddhi: 'define stream temperatureStream (temp_value long, area string);'
     esper: 'create schema temperatureStream as (temp_value long, area String);'
+
   - id: 2
     stream-id: 11
     name: humidityStream
     tuple-format: [{name: percentage, type: long}, {name: area, type: string}]
     siddhi: 'define stream humidityStream (percentage long, area string);'
     esper: 'create schema humidityStream (percentage long, area String);'
+
   - id: 3
     stream-id: 1
     name: fireStream
     tuple-format: [{name: temp_value, type: long}, {name: percentage, type: long}, {name: area, type: string}]
     siddhi: 'define stream fireStream (temp_value long, percentage long, area string);'
     esper: 'create schema fireStream (temp_value long, percentage long, area String);'
+
   - id: 4
     stream-id: 12
     name: smokeStream
     tuple-format: [{name: ppm, type: long}, {name: area, type: string}]
     siddhi: 'define stream smokeStream (ppm float, area string);'
     esper: 'create schema smokeStream (ppm float, area String);'
+
   - id: 5
     stream-id: 13
     name: weatherStream
@@ -338,6 +356,7 @@ stream-definitions:
                                           SNOW float, SNWD float, TMAX float, TMIN float);'
     esper: 'create schema weatherStream (STATION String, NAME String, DATE String, AWND float, PRCP float,
                                          SNOW float, SNWD float, TMAX float, TMIN float);'
+
   - id: 6
     stream-id: 14
     name: weatherStream2
@@ -348,6 +367,7 @@ stream-definitions:
                                           SNOW float, SNWD float, TMAX float, TMIN float);'
     esper: 'create schema weatherStream2 (STATION String, NAME String, DATE String, AWND float, PRCP float,
                                          SNOW float, SNWD float, TMAX float, TMIN float);'
+
   - id: 7
     stream-id: 15
     name: TripStream
@@ -355,16 +375,19 @@ stream-definitions:
                    {name: locationID, type: string}]
     siddhi: 'define stream TripStream (Dispatching_base_num string, Pickup_date string, locationID string);'
     esper: 'create schema TripStream (Dispatching_base_num String, Pickup_date String, locationID String);'
+
 datasets:
   - name: Central park weather (CSV)
     type: csv
     id: 1
     stream-id: 13
     file: /home/espen/Research/nyc-taxi-data/data/central_park_weather-cleaned.csv
+
   - name: Central park weather (YAML)
     type: yaml
     id: 2
     file: /home/espen/Research/nyc-taxi-data/data/central_park_weather-merged.yaml
+
 cepevents:
   - {name: temperature_22degrees, id: 1, stream-id: 10, stream-name: temperatureStream,
      attributes: [{name: temp_value, value: 22}, {name: area, value: office}]}
@@ -378,6 +401,7 @@ cepevents:
      attributes: [{name: ppm, value: 101}, {name: area, value: office}]}
   - {name: smoke_99_ppm, id: 6, stream-id: 12, stream-name: smokeStream,
      attributes: [{name: ppm, value: 99}, {name: area, value: office}]}
+
 tracepoints:
   - id: 1
     name: receiveEvent
@@ -386,38 +410,41 @@ tracepoints:
         type: int
       - name: CurCepEvent
         type: int
-    description: ""
+    description:
     category:
       isModelEvent: true
       isScalingEvent: false
       isMilestoneEvent: true
       isSimulationEvent: true
+
   - id: 2
-    name: ""
+    name:
     arguments:
       - name: tid
         type: int
       - name: CurCepEvent
         type: int
-    description: ""
+    description:
     category:
       isModelEvent: true
       isScalingEvent: false
       isMilestoneEvent: false
       isSimulationEvent: false
+
   - id: 3
-    name: ""
+    name:
     arguments:
       - name: tid
         type: int
       - name: CurCepEvent
         type: int
-    description: ""
+    description:
     category:
       isModelEvent: true
       isScalingEvent: false
       isMilestoneEvent: false
       isSimulationEvent: false
+
   - id: 4
     name: passedConstraints
     arguments:
@@ -431,6 +458,7 @@ tracepoints:
       isScalingEvent: false
       isMilestoneEvent: false
       isSimulationEvent: false
+
   - id: 6
     name: createdComplexEvent
     arguments:
@@ -444,20 +472,21 @@ tracepoints:
       isScalingEvent: false
       isMilestoneEvent: true
       isSimulationEvent: false
-  -
-    id: 100
+
+  - id: 100
     name: finishedProcessingEvent
     arguments:
       - name: tid
         type: int
       - name: CurCepEvent
         type: int
-    description: ""
+    description:
     category:
       isModelEvent: true
       isScalingEvent: false
       isMilestoneEvent: true
       isSimulationEvent: false
+
   - id: 221
     name: addQuery
     arguments:
@@ -470,6 +499,7 @@ tracepoints:
       isScalingEvent: true
       isMilestoneEvent: false
       isSimulationEvent: true
+
   - id: 222
     name: clearQueries
     arguments: []
@@ -480,6 +510,7 @@ tracepoints:
       isScalingEvent: true
       isMilestoneEvent: false
       isSimulationEvent: true
+
   - id: 220
     name: addEvent
     arguments:
@@ -494,6 +525,7 @@ tracepoints:
       isScalingEvent: false
       isMilestoneEvent: false
       isSimulationEvent: false
+
   - id: 223
     name: clearEvents
     arguments: []
@@ -504,6 +536,7 @@ tracepoints:
       isScalingEvent: true
       isMilestoneEvent: false
       isSimulationEvent: false
+
   - id: 0
     name: runExperiment
     arguments:
