@@ -135,157 +135,164 @@ experiments:
        {command: clearQueries},
        {command: clearEvents}]}
 cepqueries:
-  - {name: temperature_GT45_and_humidity_LT25_5sec_window, id: 0, streams-used-in-query: [10, 11, 12],
-     sql-query: {
-       t-rex: ' Assign 10 => Temp, 11 => Humidity, 12 => Smoke, 1 => Fire
-                Define  Fire(area: string, temp: float)
-                From   Humidity(percentage<25) and
-                last   Temp(temp_value>45, [string] area=Temp.area)
-                within 50000000 from Temp and
-                last    Smoke(ppm>100, [string] area=Temp.area)
-                within 50000000 from Smoke
-                Where   area := Temp.area, temp := Temp.temp_value
-                Consuming Smoke, Temp, Humidity; ',
-      siddhi: ' from every t = temperatureStream [temp_value > 45] and
-                           (h = humidityStream [percentage < 25])
-                 select temp_value, percentage, h.area
-                 insert into fireStream ; ',
+  - name: temperature_GT45_and_humidity_LT25_5sec_window
+    id: 0
+    streams-used-in-query: [10, 11, 12]
+    sql-query:
+      t-rex: 'Assign 10 => Temp, 11 => Humidity, 12 => Smoke, 1 => Fire
+              Define  Fire(area: string, temp: float)
+              From   Humidity(percentage<25) and
+              last   Temp(temp_value>45, [string] area=Temp.area)
+              within 50000000 from Temp and
+              last    Smoke(ppm>100, [string] area=Temp.area)
+              within 50000000 from Smoke
+              Where   area := Temp.area, temp := Temp.temp_value
+              Consuming Smoke, Temp, Humidity; '
+      siddhi: 'from every t = temperatureStream [temp_value > 45] and
+                         (h = humidityStream [percentage < 25])
+               select temp_value, percentage, h.area
+               insert into fireStream ; '
+      flink: 'SELECT *
+              FROM temperatureStream t
+              JOIN humidityStream h
+              ON h.area = t.area '
+      esper: 'select *
+              from pattern[t=temperatureStream(temp_value>45) ->
+                           h=humidityStream(percentage<25)]; '
+  - name: temperature_GT45_join_humidity_LT25_5sec_window
+    id: 5
+    streams-used-in-query: [10, 11, 12]
+    sql-query:
+      t-rex: 'Assign 10 => Temp, 11 => Humidity, 12 => Smoke, 1 => Fire
+              Define  Fire(area: string, temp: float)
+              From   Humidity(percentage<25) and
+              last   Temp(temp_value>45, [string] area=Temp.area)
+              within 50000000 from Temp and
+              last    Smoke(ppm>100, [string] area=Temp.area)
+              within 50000000 from Smoke
+              Where   area := Temp.area, temp := Temp.temp_value
+              Consuming Smoke, Temp, Humidity; '
+      siddhi: 'from temperatureStream[temp_value > 45]#window.time(1 min) as temp
+               join humidityStream[percentage < 25]#window.time(1 min) as humidity
+               on temp.area==humidity.area
+               select temp_value, percentage, humidity.area
+               insert into fireStream; '
       flink: ' SELECT *
-                FROM temperatureStream t
-                JOIN humidityStream h
-                ON h.area = t.area ',
-      esper: ' select *
-                from pattern[t=temperatureStream(temp_value>45) ->
-                             h=humidityStream(percentage<25)]; '}}
-  - {name: temperature_GT45_join_humidity_LT25_5sec_window, id: 5, streams-used-in-query: [10, 11, 12],
-     sql-query: {
-       t-rex: ' Assign 10 => Temp, 11 => Humidity, 12 => Smoke, 1 => Fire
-                Define  Fire(area: string, temp: float)
-                From   Humidity(percentage<25) and
-                last   Temp(temp_value>45, [string] area=Temp.area)
-                within 50000000 from Temp and
-                last    Smoke(ppm>100, [string] area=Temp.area)
-                within 50000000 from Smoke
-                Where   area := Temp.area, temp := Temp.temp_value
-                Consuming Smoke, Temp, Humidity; ',
-      siddhi: ' from temperatureStream[temp_value > 45]#window.time(1 min) as temp
-                 join humidityStream[percentage < 25]#window.time(1 min) as humidity
-                 on temp.area==humidity.area
-                 select temp_value, percentage, humidity.area
-                 insert into fireStream; ',
-      flink: ' SELECT *
-                FROM TripStream ts ',
-      esper: ' select *
-                from pattern[t=temperatureStream ->
-                             h=humidityStream]; '}}
-  - {name: temperature_GT45_then_humidity_LT25_within_5sec, id: 6, streams-used-in-query: [10, 11, 12],
-     sql-query: {
-       t-rex: ' Assign 10 => Temp, 11 => Humidity, 12 => Smoke, 1 => Fire
-                Define  Fire(area: string, temp: float)
-                From   Humidity(percentage<25) and
-                last   Temp(temp_value>45, [string] area=Temp.area)
-                within 50000000 from Temp and
-                last    Smoke(ppm>100, [string] area=Temp.area)
-                within 50000000 from Smoke
-                Where   area := Temp.area, temp := Temp.temp_value
-                Consuming Smoke, Temp, Humidity; ',
+               FROM TripStream ts '
+      esper: 'select *
+              from pattern[t=temperatureStream ->
+                           h=humidityStream]; '
+  - name: temperature_GT45_then_humidity_LT25_within_5sec
+    id: 6,
+    streams-used-in-query: [10, 11, 12]
+    sql-query:
+      t-rex: 'Assign 10 => Temp, 11 => Humidity, 12 => Smoke, 1 => Fire
+              Define  Fire(area: string, temp: float)
+              From   Humidity(percentage<25) and
+              last   Temp(temp_value>45, [string] area=Temp.area)
+              within 50000000 from Temp and
+              last    Smoke(ppm>100, [string] area=Temp.area)
+              within 50000000 from Smoke
+              Where   area := Temp.area, temp := Temp.temp_value
+              Consuming Smoke, Temp, Humidity;'
       siddhi: ' from every t = temperatureStream [temp_value > 45] ->
-                           (h = humidityStream [percentage < 25])
-                 select temp_value, percentage, h.area
-                 insert into fireStream ; ',
-      flink: ' SELECT *
-                FROM temperatureStream ',
-      esper: ' select *
-                from weatherStream; '}}
-  - {name: temperature_GT45_then_humidity_LT25_within_5sec_then_smoke_GT50_within_5sec, id: 7,
-     streams-used-in-query: [10, 11, 12],
-     sql-query: {
-       t-rex: ' Assign 10 => Temp, 11 => Humidity, 12 => Smoke, 1 => Fire
-                             Define  Fire(area: string, temp: float)
-                             From   Humidity(percentage<25) and
-                             last   Temp(temp_value>45, [string] area=Temp.area)
-                             within 50000000 from Temp and
-                             last    Smoke(ppm>100, [string] area=Temp.area)
-                             within 50000000 from Smoke
-                             Where   area := Temp.area, temp := Temp.temp_value
-                             Consuming Smoke, Temp, Humidity; ',
-       siddhi: ' from every (t = temperatureStream [temp_value > 45]) ->
-                             (h = humidityStream [percentage < 25]) ->
-                             (s = smokeStream [ppm > 100]) within 5 seconds
-                  select temp_value, percentage, h.area
-                  insert into fireStream ;',
-       flink: ' SELECT *
-                 FROM temperatureStream ',
-       esper: ' select *
-                 from temperatureStream; '}}
-  - {name: temperature_AVG_GT45_5sec_window, id: 8,
-     streams-used-in-query: [10, 11, 12],
-     sql-query: {
-       t-rex: ' Assign 10 => Temp, 11 => Humidity, 12 => Smoke, 1 => Fire
-                Define  Fire(area: string, temp: float)
-                From   Humidity(percentage<25) and
-                last   Temp(temp_value>45, [string] area=Temp.area)
-                within 50000000 from Temp and
-                last    Smoke(ppm>100, [string] area=Temp.area)
-                within 50000000 from Smoke
-                Where   area := Temp.area, temp := Temp.temp_value
-                Consuming Smoke, Temp, Humidity; ',
-       siddhi: ' from temperatureStream[temp_value > 45]#window.time(1 min) as temp
-                 join humidityStream[percentage < 25]#window.time(1 min) as humidity
-                 on temp.area==humidity.area
-                 select temp_value, percentage, humidity.area
-                 insert into fireStream;',
-       flink: ' SELECT *
-                 FROM temperatureStream ',
-       esper: ' select *
-                from weatherStream; '}}
-  - name: temperature_AVG_GT45_5sec_window,
-    id: 9,
-    streams-used-in-query: [10, 11, 12],
-    sql-query: {
-      t-rex: ' Assign 10 => Temp, 11 => Humidity, 12 => Smoke, 1 => Fire
-               Define  Fire(area: string, temp: float)
-               From   Humidity(percentage<25) and
-               last   Temp(temp_value>45, [string] area=Temp.area)
-               within 50000000 from Temp and
-               last    Smoke(ppm>100, [string] area=Temp.area)
-               within 50000000 from Smoke
-               Where   area := Temp.area, temp := Temp.temp_value
-               Consuming Smoke, Temp, Humidity; ',
-      siddhi: ' from temperatureStream[temp_value > 45]#window.time(1 min) as temp
-                join humidityStream[percentage < 25]#window.time(1 min) as humidity
-                on temp.area==humidity.area
-                select temp_value, percentage, humidity.area
-                insert into fireStream; ',
-      flink: ' SELECT *
-               FROM temperatureStream
-               MATCH_RECOGNIZE (
-                 PARTITION BY area
-                 ORDER BY proctime
-                 MEASURES
-                 FIRST(A.proctime) AS start_tstamp,
-                 LAST(A.proctime) AS end_tstamp,
-                 AVG(A.temp_value) AS avgTemp
-                 ONE ROW PER MATCH
-                 AFTER MATCH SKIP PAST LAST ROW
-                 PATTERN (A B C D)
-                 DEFINE
-                   B AS B.temp_value > A.temp_value,
-                   C AS C.temp_value > B.temp_value,
-                   D AS D.temp_value > C.temp_value
-               ) MR ',
-      esper: ' select *
-               from temperatureStream
-               match_recognize (
-                 partition by area
-                 measures A.temp_value as a_temp, B.temp_value as b_temp
-                 pattern (A B C D)
-                 define
-                   B as B.temp_value > A.temp_value,
-                   C as C.temp_value > B.temp_value,
-                   D as D.temp_value > C.temp_value
-               ); '
-    }
+                        (h = humidityStream [percentage < 25])
+              select temp_value, percentage, h.area
+              insert into fireStream ; '
+      flink: 'SELECT *
+              FROM temperatureStream '
+      esper: 'select *
+              from weatherStream; '
+  - name: temperature_GT45_then_humidity_LT25_within_5sec_then_smoke_GT50_within_5sec
+    id: 7
+    streams-used-in-query: [10, 11, 12]
+    sql-query:
+      t-rex: 'Assign 10 => Temp, 11 => Humidity, 12 => Smoke, 1 => Fire
+              Define  Fire(area: string, temp: float)
+              From   Humidity(percentage<25) and
+              last   Temp(temp_value>45, [string] area=Temp.area)
+              within 50000000 from Temp and
+              last    Smoke(ppm>100, [string] area=Temp.area)
+              within 50000000 from Smoke
+              Where   area := Temp.area, temp := Temp.temp_value
+              Consuming Smoke, Temp, Humidity;'
+      siddhi: 'from every (t = temperatureStream [temp_value > 45]) ->
+                          (h = humidityStream [percentage < 25]) ->
+                          (s = smokeStream [ppm > 100]) within 5 seconds
+               select temp_value, percentage, h.area
+               insert into fireStream ; '
+      flink: 'SELECT *
+              FROM temperatureStream '
+      esper: 'select *
+              from temperatureStream; '
+  - name: temperature_AVG_GT45_5sec_window
+    id: 8
+    streams-used-in-query: [10, 11, 12]
+    sql-query:
+      t-rex: 'Assign 10 => Temp, 11 => Humidity, 12 => Smoke, 1 => Fire
+              Define  Fire(area: string, temp: float)
+              From   Humidity(percentage<25) and
+              last   Temp(temp_value>45, [string] area=Temp.area)
+              within 50000000 from Temp and
+              last    Smoke(ppm>100, [string] area=Temp.area)
+              within 50000000 from Smoke
+              Where   area := Temp.area, temp := Temp.temp_value
+              Consuming Smoke, Temp, Humidity;'
+      siddhi: 'from temperatureStream[temp_value > 45]#window.time(1 min) as temp
+               join humidityStream[percentage < 25]#window.time(1 min) as humidity
+               on temp.area==humidity.area
+               select temp_value, percentage, humidity.area
+               insert into fireStream; '
+      flink: 'SELECT *
+              FROM temperatureStream '
+      esper: 'select *
+              from weatherStream; '
+  - name: temperature_AVG_GT45_5sec_window
+    id: 9
+    streams-used-in-query: [10, 11, 12]
+    sql-query:
+      t-rex: 'Assign 10 => Temp, 11 => Humidity, 12 => Smoke, 1 => Fire
+              Define  Fire(area: string, temp: float)
+              From   Humidity(percentage<25) and
+              last   Temp(temp_value>45, [string] area=Temp.area)
+              within 50000000 from Temp and
+              last    Smoke(ppm>100, [string] area=Temp.area)
+              within 50000000 from Smoke
+              Where   area := Temp.area, temp := Temp.temp_value
+              Consuming Smoke, Temp, Humidity; '
+      siddhi: 'from temperatureStream[temp_value > 45]#window.time(1 min) as temp
+               join humidityStream[percentage < 25]#window.time(1 min) as humidity
+               on temp.area==humidity.area
+               select temp_value, percentage, humidity.area
+               insert into fireStream; '
+      flink: 'SELECT *
+              FROM temperatureStream
+              MATCH_RECOGNIZE (
+                PARTITION BY area
+                ORDER BY proctime
+                MEASURES
+                FIRST(A.proctime) AS start_tstamp,
+                LAST(A.proctime) AS end_tstamp,
+                AVG(A.temp_value) AS avgTemp
+                ONE ROW PER MATCH
+                AFTER MATCH SKIP PAST LAST ROW
+                PATTERN (A B C D)
+                DEFINE
+                  B AS B.temp_value > A.temp_value,
+                  C AS C.temp_value > B.temp_value,
+                  D AS D.temp_value > C.temp_value
+              ) MR '
+      esper: 'select *
+              from temperatureStream
+              match_recognize (
+                partition by area
+                measures A.temp_value as a_temp, B.temp_value as b_temp
+                pattern (A B C D)
+                define
+                  B as B.temp_value > A.temp_value,
+                  C as C.temp_value > B.temp_value,
+                  D as D.temp_value > C.temp_value
+              ); '
 stream-definitions:
   - {id: 1, stream-id: 10, name: temperatureStream,
      tuple-format: [{name: temp_value, type: long}, {name: area, type: string}],
@@ -319,18 +326,18 @@ stream-definitions:
                     {name: AWND, type: float}, {name: PRCP, type: float}, {name: SNOW, type: float},
                     {name: SNWD, type: float}, {name: TMAX, type: float}, {name: TMIN, type: float}],
      siddhi: 'define stream weatherStream2 (STATION string, NAME string, DATE string, AWND float, PRCP float,
-                                            SNOW float, SNWD float, TMAX float, TMIN float);',
+                                           SNOW float, SNWD float, TMAX float, TMIN float);',
      esper: 'create schema weatherStream2 (STATION String, NAME String, DATE String, AWND float, PRCP float,
-                                           SNOW float, SNWD float, TMAX float, TMIN float);'}
+                                          SNOW float, SNWD float, TMAX float, TMIN float);'}
   - {id: 7, stream-id: 15, name: TripStream,
      tuple-format: [{name: Dispatching_base_num, type: string}, {name: Pickup_date, type: timestamp},
                     {name: locationID, type: string}],
      siddhi: 'define stream TripStream (Dispatching_base_num string, Pickup_date string, locationID string);',
      esper: 'create schema TripStream (Dispatching_base_num String, Pickup_date String, locationID String);'}
 datasets:
-  - {name: 'Central park weather', type: csv, id: 1, stream-id: 13,
+  - {name: Central park weather, type: csv, id: 1, stream-id: 13,
      file: /home/espen/Research/nyc-taxi-data/data/central_park_weather-cleaned.csv}
-  - {name: 'Central park weather', type: yaml, id: 2,
+  - {name: Central park weather, type: yaml, id: 2,
      file: /home/espen/Research/nyc-taxi-data/data/central_park_weather-merged.yaml}
 cepevents:
   - {name: temperature_22degrees, id: 1, stream-id: 10, stream-name: temperatureStream,
@@ -392,7 +399,7 @@ tracepoints:
         type: int
       - name: CurCepEvent
         type: int
-    description: 'Passed constraints for query'
+    description: Passed constraints for query
     category:
       isModelEvent: true
       isScalingEvent: false
@@ -405,7 +412,7 @@ tracepoints:
         type: int
       - name: CurCepEvent
         type: int
-    description: 'A complex event was created'
+    description: A complex event was created
     category:
       isModelEvent: true
       isScalingEvent: false
@@ -431,7 +438,7 @@ tracepoints:
       - name: CepQuery
         type: int
     x_variable: numberQueries
-    description: 'Traced when deploying a query. This is a simulation and scaling event.'
+    description: Traced when deploying a query. This is a simulation and scaling event.
     category:
       isModelEvent: false
       isScalingEvent: true
@@ -441,7 +448,7 @@ tracepoints:
     name: clearQueries
     arguments: []
     x_variable: numberQueries
-    description: 'Traced when removing all deployed queries. This is a simulation and scaling event.'
+    description: Traced when removing all deployed queries. This is a simulation and scaling event.
     category:
       isModelEvent: false
       isScalingEvent: true
@@ -455,7 +462,7 @@ tracepoints:
       - name: CepEvent
         type: int
     x_variable: numberEvents
-    description: 'Traced when adding an event to the allPackets queue.'
+    description: Traced when adding an event to the allPackets queue.
     category:
       isModelEvent: false
       isScalingEvent: false
@@ -465,7 +472,7 @@ tracepoints:
     name: clearEvents
     arguments: []
     x_variable: numberEvents
-    description: 'Traced when clearing all CEP events from allPackets. This is a scaling event.'
+    description: Traced when clearing all CEP events from allPackets. This is a scaling event.
     category:
       isModelEvent: false
       isScalingEvent: true
@@ -476,8 +483,8 @@ tracepoints:
     arguments:
       - name: experimentId
         type: int
-    x_variable: ""
-    description: 'Decides which experiment to run'
+    x_variable:
+    description: Decides which experiment to run
     category:
       isModelEvent: false
       isScalingEvent: false
