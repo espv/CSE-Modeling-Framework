@@ -1,12 +1,12 @@
 
 import csv
 import argparse
-import json
+import yaml
 import re
 
-parser = argparse.ArgumentParser(description='Merge two datasets into a json format.')
-parser.add_argument('json_config', type=str,
-                    help='Location of json config that contains schema')
+parser = argparse.ArgumentParser(description='Merge two datasets into a yaml format.')
+parser.add_argument('yaml_config', type=str,
+                    help='Location of yaml config that contains schema')
 parser.add_argument('dataset1', type=str,
                     help='Location of the first dataset')
 parser.add_argument('dataset2', type=str,
@@ -18,22 +18,22 @@ args = parser.parse_args()
 
 
 class MergeDatasets(object):
-    def __init__(self, dataset1, dataset2, output_dataset, json_config):
+    def __init__(self, dataset1, dataset2, output_dataset, yaml_config):
         self.dataset1 = dataset1
         self.dataset2 = dataset2
         self.output_dataset = output_dataset
-        self.json_config = json_config
+        self.yaml_config = yaml_config
 
     def merge_datasets(self):
-        with open(self.json_config) as json_file:
-            json_configuration = json.load(json_file)
-        if json_configuration is None:
-            raise Exception("Failed to open JSON config")
+        with open(self.yaml_config) as yaml_file:
+            yaml_configuration = yaml.load(yaml_file)
+        if yaml_configuration is None:
+            raise Exception("Failed to open yaml config")
         tuples_dataset1 = []
         with open(self.dataset1) as csv_file:
             dataset_schema = None
             data_stream_row = list(filter(None, re.split('[,\n]', csv_file.readline())))[0]
-            for schema in json_configuration["stream-definitions"]:
+            for schema in yaml_configuration["stream-definitions"]:
                 if schema["stream-id"] == int(data_stream_row):
                     dataset_schema = schema
                     break
@@ -65,7 +65,7 @@ class MergeDatasets(object):
         with open(self.dataset2) as csv_file:
             dataset_schema = None
             data_stream_row = list(filter(None, re.split('[,\n]', csv_file.readline())))[0]
-            for schema in json_configuration["stream-definitions"]:
+            for schema in yaml_configuration["stream-definitions"]:
                 if schema["stream-id"] == int(data_stream_row):
                     dataset_schema = schema
                     break
@@ -104,12 +104,12 @@ class MergeDatasets(object):
                 tuples_dataset2 = tuples_dataset2[1:]
                 new_dataset.append(t2)
 
-        new_json = {
+        new_yaml = {
             "cepevents": new_dataset
         }
-        with open(self.output_dataset, 'w') as json_output_file:
-            json.dump(new_json, json_output_file)
+        with open(self.output_dataset, 'w') as yaml_output_file:
+            yaml.dump(new_yaml, yaml_output_file)
 
 
 if __name__ == '__main__':
-    MergeDatasets(args.dataset1, args.dataset2, args.output_dataset, args.json_config).merge_datasets()
+    MergeDatasets(args.dataset1, args.dataset2, args.output_dataset, args.yaml_config).merge_datasets()
