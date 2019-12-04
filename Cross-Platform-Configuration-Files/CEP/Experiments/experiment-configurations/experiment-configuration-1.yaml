@@ -1,139 +1,149 @@
-﻿﻿name: 'Experiment configuration'
+﻿name: Experiment configuration
 tracepoint-format:
   tracepointId: int
   threadId: int
   timestamp: long
 experiments:
-  - {name: 'experiment 1 --- varying the number of queries', id: 1,
-     flow: [
-       {command: setIntervalBetweenEvents, arguments: [0]},
-       {command: setEventBatchSize, arguments: [1]},
-       {command: addEvents, arguments: [4, 1]},
-       {command: addEvents, arguments: [2, 1]},
-       {command: addQueries, arguments: [1, 1]},
-       {command: processEvents, arguments: [100]},
-       {command: clearQueries},
-       {command: addQueries, arguments: [1, 10]},
-       {command: processEvents, arguments: [100]},
-       {command: clearQueries},
-       {command: addQueries, arguments: [1, 100]},
-       {command: processEvents, arguments: [100]},
-       {command: clearQueries},
-       {command: addQueries, arguments: [1, 1000]},
-       {command: processEvents, arguments: [100]},
-       {command: clearQueries},
-{command: clearEvents}]}
-  - {name: 'experiment 2 --- varying the number of states in the sequence operator', id: 2,
-     flow: [
-       {command: setIntervalBetweenEvents, arguments: [0]},
-       {command: setEventBatchSize, arguments: [1]},
-       {command: addEvents, arguments: [4, 1]},
-       {command: addEvents, arguments: [1, 100]},
-       {command: addEvents, arguments: [2, 100]},
-       {command: addEvents, arguments: [2, 100]},
-       {command: addEvents, arguments: [3, 1]},
-       {command: addQueries, arguments: [1, 1]},
-       {command: processEvents, arguments: [1000]},
-       {command: clearQueries},
-       {command: addQueries, arguments: [2, 1]},
-       {command: processEvents, arguments: [1000]},
-       {command: clearQueries},
-       {command: addQueries, arguments: [3, 1]},
-       {command: processEvents, arguments: [1000]},
-       {command: clearQueries}, {command: clearEvents}]}
-  - {name: 'experiment 3 --- varying the number of unrelated queries', id: 3,
-     flow: [
-       {command: setIntervalBetweenEvents, arguments: [0]},
-       {command: setEventBatchSize, arguments: [1]},
-       {command: addEvents, arguments: [4, 1]},
-       {command: addEvents, arguments: [2, 1]},
-       {command: addEvents, arguments: [4, 1]},
-       {command: addEvents, arguments: [2, 1]},
-       {command: addEvents, arguments: [4, 1]},
-       {command: addEvents, arguments: [2, 1]},
-       {command: addEvents, arguments: [4, 1]},
-       {command: addEvents, arguments: [1, 100]},
-       {command: addEvents, arguments: [2, 1]},
-       {command: addEvents, arguments: [3, 1]},
-       {command: addQueries, arguments: [4, 1]},
-       {command: processEvents, arguments: [1000]},
-       {command: clearQueries},
-       {command: addQueries, arguments: [4, 10]},
-       {command: processEvents, arguments: [1000]},
-       {command: clearQueries},
-       {command: addQueries, arguments: [4, 100]},
-       {command: processEvents, arguments: [1000]},
-       {command: clearQueries}, {command: clearEvents}]}
-  - {name: 'experiment 4 --- varying the number of queries', id: 4,
-     flow: [
-       {command: setIntervalBetweenEvents, arguments: [0]},
-       {command: setEventBatchSize, arguments: [1]},
-       {command: addEvents, arguments: [5, 1]},
-       {command: addEvents, arguments: [4, 1]},
-       {command: addEvents, arguments: [2, 1]},
-       {command: addQueries, arguments: [7, 1]},
-       {command: processEvents, arguments: [100]},
-       {command: clearQueries},
-       {command: addQueries, arguments: [7, 10]},
-       {command: processEvents, arguments: [100]},
-       {command: clearQueries},
-       {command: addQueries, arguments: [7, 100]},
-       {command: processEvents, arguments: [100]},
-       {command: clearQueries},
-       {command: addQueries, arguments: [7, 1000]},
-       {command: processEvents, arguments: [100]},
-       {command: clearQueries},
-       {command: clearEvents}]}
-  - {name: 'experiment 5 --- varying the number of queries', id: 5,
-     flow: [
-       {command: setIntervalBetweenEvents, arguments: [0]},
-       {command: setEventBatchSize, arguments: [1]},
-       {command: addDataset, arguments: [1]},
-       {command: addQueries, arguments: [7, 1]},
-       {command: processEvents, arguments: [100]},
-       {command: clearQueries},
-       {command: addQueries, arguments: [7, 10]},
-       {command: processEvents, arguments: [100]},
-       {command: clearQueries},
-       {command: addQueries, arguments: [7, 100]},
-       {command: processEvents, arguments: [100]},
-       {command: clearQueries},
-       {command: addQueries, arguments: [7, 1000]},
-       {command: processEvents, arguments: [100]},
-       {command: clearQueries}, {command: clearEvents}]}
-  - {name: 'experiment 6 --- varying the number of join queries', id: 6,
-     flow: [
-       {command: setIntervalBetweenEvents, arguments: [0]},
-       {command: setEventBatchSize, arguments: [1]},
-       {command: addDataset, arguments: [2]},
-       {command: addQueries, arguments: [5, 1]},
-       {command: loopCommands,
-        arguments: [10, [{command: processEvents, arguments: [100]},
-                         {command: addQueries, arguments: [5, 1]}]]},
-       {command: clearEvents}]}
-  - {name: 'experiment 7 --- varying the number of two-state then queries', id: 7,
-     flow: [
-       {command: setIntervalBetweenEvents, arguments: [0]},
-       {command: setEventBatchSize, arguments: [1]},
-       {command: addEvents, arguments: [4, 1]},
-       {command: addEvents, arguments: [4, 1]},
-       {command: addEvents, arguments: [4, 1]},
-       {command: addEvents, arguments: [1, 1]},
-       {command: addEvents, arguments: [1, 1]},
-       {command: addEvents, arguments: [1, 1]},
-       {command: addQueries, arguments: [9, 1]},
-       {command: processEvents, arguments: [100]},
-       {command: clearQueries},
-       {command: addQueries, arguments: [9, 10]},
-       {command: processEvents, arguments: [100]},
-       {command: clearQueries},
-       {command: addQueries, arguments: [9, 100]},
-       {command: processEvents, arguments: [100]},
-       {command: clearQueries},
-       {command: addQueries, arguments: [9, 1000]},
-       {command: processEvents, arguments: [100]},
-       {command: clearQueries},
-       {command: clearEvents}]}
+  - name: experiment 1 --- varying the number of queries
+    id: 1
+    flow:
+      - {command: setIntervalBetweenEvents,         arguments: [0]}
+      - {command: setEventBatchSize,                arguments: [1]}
+      - {command: addEvents,                        arguments: [4, 1]}
+      - {command: addEvents,                        arguments: [2, 1]}
+      - {command: addQueries,                       arguments: [1, 1]}
+      - {command: processEvents,                    arguments: [100]}
+      - {command: clearQueries}
+      - {command: addQueries,                       arguments: [1, 10]}
+      - {command: processEvents,                    arguments: [100]}
+      - {command: clearQueries}
+      - {command: addQueries,                       arguments: [1, 100]}
+      - {command: processEvents,                    arguments: [100]}
+      - {command: clearQueries}
+      - {command: addQueries,                       arguments: [1, 1000]}
+      - {command: processEvents,                    arguments: [100]}
+      - {command: clearQueries}
+      - {command: clearEvents}
+  - name: experiment 2 --- varying the number of states in the sequence operator
+    id: 2
+    flow:
+      - {command: setIntervalBetweenEvents,         arguments: [0]}
+      - {command: setEventBatchSize,                arguments: [1]}
+      - {command: addEvents,                        arguments: [4, 1]}
+      - {command: addEvents,                        arguments: [1, 100]}
+      - {command: addEvents,                        arguments: [2, 100]}
+      - {command: addEvents,                        arguments: [2, 100]}
+      - {command: addEvents,                        arguments: [3, 1]}
+      - {command: addQueries,                       arguments: [1, 1]}
+      - {command: processEvents,                    arguments: [1000]}
+      - {command: clearQueries}
+      - {command: addQueries,                       arguments: [2, 1]}
+      - {command: processEvents,                    arguments: [1000]}
+      - {command: clearQueries}
+      - {command: addQueries,                       arguments: [3, 1]}
+      - {command: processEvents,                    arguments: [1000]}
+      - {command: clearQueries}
+      - {command: clearEvents}
+  - name: experiment 3 --- varying the number of unrelated queries
+    id: 3
+    flow:
+      - {command: setIntervalBetweenEvents,         arguments: [0]}
+      - {command: setEventBatchSize,                arguments: [1]}
+      - {command: addEvents,                        arguments: [4, 1]}
+      - {command: addEvents,                        arguments: [2, 1]}
+      - {command: addEvents,                        arguments: [4, 1]}
+      - {command: addEvents,                        arguments: [2, 1]}
+      - {command: addEvents,                        arguments: [4, 1]}
+      - {command: addEvents,                        arguments: [2, 1]}
+      - {command: addEvents,                        arguments: [4, 1]}
+      - {command: addEvents,                        arguments: [1, 100]}
+      - {command: addEvents,                        arguments: [2, 1]}
+      - {command: addEvents,                        arguments: [3, 1]}
+      - {command: addQueries,                       arguments: [4, 1]}
+      - {command: processEvents,                    arguments: [1000]}
+      - {command: clearQueries}
+      - {command: addQueries,                       arguments: [4, 10]}
+      - {command: processEvents,                    arguments: [1000]}
+      - {command: clearQueries}
+      - {command: addQueries,                       arguments: [4, 100]}
+      - {command: processEvents,                    arguments: [1000]}
+      - {command: clearQueries}
+      - {command: clearEvents}
+  - name: experiment 4 --- varying the number of queries
+    id: 4
+    flow:
+      - {command: setIntervalBetweenEvents,         arguments: [0]}
+      - {command: setEventBatchSize,                arguments: [1]}
+      - {command: addEvents,                        arguments: [5, 1]}
+      - {command: addEvents,                        arguments: [4, 1]}
+      - {command: addEvents,                        arguments: [2, 1]}
+      - {command: addQueries,                       arguments: [7, 1]}
+      - {command: processEvents,                    arguments: [100]}
+      - {command: clearQueries}
+      - {command: addQueries,                       arguments: [7, 10]}
+      - {command: processEvents,                    arguments: [100]}
+      - {command: clearQueries}
+      - {command: addQueries,                       arguments: [7, 100]}
+      - {command: processEvents,                    arguments: [100]}
+      - {command: clearQueries}
+      - {command: addQueries,                       arguments: [7, 1000]}
+      - {command: processEvents,                    arguments: [100]}
+      - {command: clearQueries}
+      - {command: clearEvents}
+  - name: experiment 5 --- varying the number of queries
+    id: 5
+    flow:
+      - {command: setIntervalBetweenEvents,         arguments: [0]}
+      - {command: setEventBatchSize,                arguments: [1]}
+      - {command: addDataset,                       arguments: [1]}
+      - {command: addQueries,                       arguments: [7, 1]}
+      - {command: processEvents,                    arguments: [100]}
+      - {command: clearQueries}
+      - {command: addQueries,                       arguments: [7, 10]}
+      - {command: processEvents,                    arguments: [100]}
+      - {command: clearQueries}
+      - {command: addQueries,                       arguments: [7, 100]}
+      - {command: processEvents,                    arguments: [100]}
+      - {command: clearQueries}
+      - {command: addQueries,                       arguments: [7, 1000]}
+      - {command: processEvents,                    arguments: [100]}
+      - {command: clearQueries}
+      - {command: clearEvents}
+  - name: experiment 6 --- varying the number of join queries
+    id: 6
+    flow:
+      - {command: setIntervalBetweenEvents,         arguments: [0]}
+      - {command: setEventBatchSize,                arguments: [1]}
+      - {command: addDataset,                       arguments: [2]}
+      - {command: addQueries,                       arguments: [5, 1]}
+      - {command: loopCommands,
+         arguments: [10, [{command: processEvents,  arguments: [100]},
+                          {command: addQueries,     arguments: [5, 1]}]]}
+      - {command: clearEvents}
+  - name: experiment 7 --- varying the number of two-state then queries
+    id: 7
+    flow:
+      - {command: setIntervalBetweenEvents,         arguments: [0]}
+      - {command: setEventBatchSize,                arguments: [1]}
+      - {command: addEvents,                        arguments: [4, 1]}
+      - {command: addEvents,                        arguments: [4, 1]}
+      - {command: addEvents,                        arguments: [4, 1]}
+      - {command: addEvents,                        arguments: [1, 1]}
+      - {command: addEvents,                        arguments: [1, 1]}
+      - {command: addEvents,                        arguments: [1, 1]}
+      - {command: addQueries,                       arguments: [9, 1]}
+      - {command: processEvents,                    arguments: [100]}
+      - {command: clearQueries}
+      - {command: addQueries,                       arguments: [9, 10]}
+      - {command: processEvents,                    arguments: [100]}
+      - {command: clearQueries}
+      - {command: addQueries,                       arguments: [9, 100]}
+      - {command: processEvents,                    arguments: [100]}
+      - {command: clearQueries}
+      - {command: addQueries,                       arguments: [9, 1000]}
+      - {command: processEvents,                    arguments: [100]}
+      - {command: clearQueries}
+      - {command: clearEvents}
 cepqueries:
   - name: temperature_GT45_and_humidity_LT25_5sec_window
     id: 0
@@ -490,4 +500,3 @@ tracepoints:
       isScalingEvent: false
       isMilestoneEvent: false
       isSimulationEvent: false
-
