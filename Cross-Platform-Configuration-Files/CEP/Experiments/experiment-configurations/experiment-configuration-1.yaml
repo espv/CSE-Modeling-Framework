@@ -1,8 +1,13 @@
-﻿name: Experiment configuration
-tracepoint-format:
-  tracepointId: int
-  threadId: int
-  timestamp: long
+﻿# This file describes stream processing experiments.
+
+# Each stream processing system must have a program that:
+# - parses this yaml file,
+# - interprets the necessary commands, and
+# - inserts tracepoints to trace metrics such as execution time and throughput (optional).
+
+# The only system specific detail that must be placed in this file is SQL queries.
+
+name: Experiment configuration
 
 experiments:
   - name: experiment 1 --- varying the number of queries
