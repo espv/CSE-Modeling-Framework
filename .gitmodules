@@ -1,7 +1,3 @@
-[submodule "ns-3-extended-with-execution-environment"]
-	path = ns-3-extended-with-execution-environment
-	url = https://github.com/espv/ns3-copy.git
-	branch = master
 [submodule "instrumented-code-plus-output/instrumented-omap-plus-configs-and-scripts"]
 	path = instrumented-code-plus-output/instrumented-omap-plus-configs-and-scripts
 	url = https://github.com/espv/instrumented-omap-plus-configs-and-scripts.git
@@ -14,3 +10,6 @@
 	path = instrumented-code-plus-output/instrumented-trex-plus-configs-and-scripts
 	url = https://github.com/espv/instrumented-trex-plus-configs-and-scripts.git
 	branch = master
+[submodule "ns3-copy"]
+	path = ns3-copy
+	url = git@github.com:espv/ns3-copy
