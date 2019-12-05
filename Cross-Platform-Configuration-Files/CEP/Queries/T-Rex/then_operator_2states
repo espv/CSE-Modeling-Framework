@@ -1,7 +1,0 @@
-Assign 10 => Temp, 11 => Humidity, 1 => Fire
-Define Fire(area: string, temp: float)
-From   Temp(value>45) and
-last   Humidity([string] area = Temp.area, percentage<25)
-within 5000 from Temp
-Where   area := Temp.area, temp := Temp.value
-Consuming Temp, Humidity;
