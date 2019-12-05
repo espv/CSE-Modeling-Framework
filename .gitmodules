@@ -12,4 +12,4 @@
 	branch = master
 [submodule "ns3-copy"]
 	path = ns3-copy
-	url = git@github.com:espv/ns3-copy
+	url = https://github.com/espv/ns3-copy
