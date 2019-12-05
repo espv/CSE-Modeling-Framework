@@ -1,6 +1,6 @@
 # A Methodology to Model the Execution of Communication Software for Accurate Network Simulation
 
-Github repository of software execution models, execution environment and DCEP-Sim: https://github.com/espv/ns-3-extended-with-execution-environment,
+Github repository of software execution models, execution environment and DCEP-Sim: https://github.com/espv/ns3-copy,
 
 If you want the instrumented TinyOS code, scripts, signatures and ns-3 execution environment, either clone those repositories individually, or run the following bash command to download the git submodules:
 ```
